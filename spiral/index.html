@@ -165,10 +165,14 @@ const prof = f => Array.from({length:N}, (_, i) => +f(i / (N - 1)).toFixed(4));
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 const pat = (tex, amp, freq, layers, twist = 0) => ({ tex, amp, freq, layers, twist });
 const NP0 = () => ({ mid:0, rim:0, waves:4, tilt:0 });
+const MESH0 = () => ({ on:false, amp:2, lobes:32, rings:1, bumps:2, width:1, stagger:true, rim:6 });
 const MOD0 = () => ({ src:'none', target:'depth', lift:2, strength:.8, invert:false, radius:30, attrs:[], img:'', repeat:1, noise:3, seed:7 });
-const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod } });
+const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}, mesh = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod }, mesh:{ ...MESH0(), ...mesh } });
 
 const LAMP_PRESETS = {
+  mesh:{ name:'Mesh', note:'Open lattice shade',
+    shade:part(.62, prof(v => .22 + .68 * Math.pow(Math.sin((1 - v) * Math.PI / 2 + .12), 1.3)), pat('smooth', 0, 40, 20), pat('ribs', .006, 48, 20), '#f2efe8', 0, 0, {}, {}, { on:true, amp:1.6, lobes:40, rings:1, bumps:2, rim:5 }),
+    base: part(.95, prof(v => .2 + .1 * Math.pow(1 - v, 1.6)), pat('ribs', .008, 40, 20), pat('rings', .005, 40, 14), '#f2efe8') },
   mushroom:{ name:'Mushroom', note:'Dome shade, fluted foot',
     shade:part(.72, prof(v => .26 + .76 * Math.pow(Math.cos(v * Math.PI / 2), .7)), pat('woven', .005, 40, 16), pat('ribs', .008, 60, 16), '#ece3d6'),
     base: part(1.0, prof(v => .2 + .29 * Math.pow(1 - v, 2.3)), pat('ribs', .012, 48, 20), pat('rings', .005, 40, 14), '#3b2622') },
@@ -234,7 +238,7 @@ function upgrade(s) {
   const o = { ...d, ...s, print:{ ...d.print, ...(s.print || {}) }, light:{ ...d.light, ...(s.light || {}) } };
   for (const k of ['shade', 'base', 'vessel']) {
     const P = s[k]; if (!P || !Array.isArray(P.prof)) { o[k] = d[k]; continue; }
-    o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) }, np:{ ...NP0(), ...(P.np || {}) }, mod:{ ...MOD0(), ...(P.mod || {}) } };
+    o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) }, np:{ ...NP0(), ...(P.np || {}) }, mod:{ ...MOD0(), ...(P.mod || {}) }, mesh:{ ...MESH0(), ...(P.mesh || {}) } };
     if (o[k].prof.length !== N) o[k].prof = d[k].prof;
   }
   if (!s.v || s.v < 4) { o.view = 'path'; o.v = 4; }
@@ -357,6 +361,21 @@ function warpMM(P, k, th, v) {
   return w;
 }
 const lobeF = (P, th) => 1 + P.lobeAmt * Math.cos(Math.round(P.lobes) * th);
+// Mesh / open lattice (per printed layer): a plain ring layer, then layers whose line bulges outward at N spots.
+// The bulges bridge over air and sag a little, which opens the gaps. Line width never changes — the path only moves out.
+// Layer changes happen at an angle between bulges, so the single continuous line has no jump.
+function meshMM(P, th, lap, zMM, Hmm) {
+  const M = P.mesh; if (!M || !M.on) return 0;
+  if (zMM < M.rim || zMM > Hmm - M.rim) return 0;
+  const N = Math.max(4, Math.round(M.lobes)), C = Math.max(1, Math.round(M.rings)) + Math.max(1, Math.round(M.bumps));
+  const q = ((lap % C) + C) % C; if (q < Math.round(M.rings)) return 0;
+  const c = Math.floor(lap / C), ph = M.stagger && (c & 1) ? Math.PI / N : 0;
+  const x = Math.cos(N * (th - ph)); if (x <= 0) return 0;
+  const edge = Math.min(1, (zMM - M.rim) / 3, (Hmm - M.rim - zMM) / 3);   // ease in over 3 mm next to the solid rims
+  return M.amp * Math.pow(x, .6 + .6 * M.width) * Math.max(0, edge);
+}
+// which lap a point belongs to: laps switch at an angle where every bulge family is zero
+const meshLap = (P, t, th) => Math.floor(t - Math.PI / (2 * Math.max(4, Math.round(P.mesh.lobes))) / TAU);
 // outer surface radius (scene units)
 function surfR(P, th, v, m) { const d = disp(P, th, v, m); return Math.max(.02, sampleProf(P.prof, v) * lobeF(P, th) + d * rimFade(v) * (d ? depthMul(P, th, v) : 1)); }
 
@@ -437,7 +456,7 @@ function buildPrinted(k, geom) {
     const zb = Math.max(0, (t - 1) * lh), zt = Math.max(lh, t * lh);       // first lap flat, then climbs continuously
     const vc = Math.min(1, (zb + zt) / 2 / H);
     const b = zb + warpMM(P, k, th, Math.min(1, zb / H)) / MM, tp = zt + warpMM(P, k, th, Math.min(1, zt / H)) / MM;
-    R[j] = surfR(P, th, vc, m); MK[j] = MASKV; FM[j] = flowMul(P, th, vc);
+    R[j] = surfR(P, th, vc, m); MK[j] = MASKV; FM[j] = P.mesh.on ? meshMM(P, th, meshLap(P, t, th), (zb + zt) / 2 * MM, H * MM) / MM : 0;
     ZC[j] = (b + tp) / 2; ZH[j] = Math.max(lh * .2, tp - b);                // local layer height (varies when non-planar)
   }
   const inset = lh * .34, ws = w;
@@ -451,6 +470,7 @@ function buildPrinted(k, geom) {
       rk = smooth(.5, .85, ratio);
       if (d / ws > .55) { const ex = d / ws - .55; zc -= Math.min(.8 * lh, ex * 2 * lh); r -= Math.min(d * .5, ex * ws * .6); } // unsupported bead droops
     }
+    if (FM[j] > 0) { const ex = FM[j] / ws; r += FM[j]; zc -= Math.min(.9 * lh, Math.max(0, ex - .5) * .45 * lh); }  // mesh bulge: bridges out and sags a little
     // tangent for the outward normal
     const jp = Math.min(steps, j + 1), jm = Math.max(0, j - 1);
     const thp = (jp % segs) / segs * TAU, thm = (jm % segs) / segs * TAU;
@@ -591,7 +611,8 @@ function buildPathLines(k) {
       const r = surfR(P, th, vc, m);
       let rk = 0;
       if (risks && t >= 1) { const rp = surfR(P, th, Math.max(0, vc - lh / H), m); rk = smooth(.5, .85, Math.abs(r - rp) / w); }
-      ptR[s] = r + w * .06; ptY[s] = y0 + zc; ptK[s] = rk;
+      const mo = P.mesh.on ? meshMM(P, th, meshLap(P, t, th), (zb + zt) / 2 * MM, H * MM) / MM : 0;
+      ptR[s] = r + mo + w * .06; ptY[s] = y0 + zc; ptK[s] = rk;
     }
     for (let s = 0; s < segs; s++) for (const q of [s, s + 1]) {
       const th = (q % segs) / segs * TAU, kk = ptK[q];
@@ -853,9 +874,11 @@ function toolpath(k) {
   for (let rv = 0; rv < revs; rv++) {
     const feed = Math.max(8, Math.min(wallSpeed, revLen[rv] / 5)); // ≥5 s per layer so it can cool
     for (let s = 1; s <= segs; s++) {
-      const t = rv + s / segs, z = z0 + t * lh, th = s / segs * TAU, r = R(th, z - lh / 2);
+      const t = rv + s / segs, z = z0 + t * lh, th = s / segs * TAU;
+      const mo = P.mesh.on ? meshMM(P, thM(th), meshLap(P, z / lh, thM(th)), flip ? H - (z - lh / 2) : z - lh / 2, H) : 0;
+      const r = R(th, z - lh / 2) + mo;
       const wz = W(th, z), lhe = Math.max(lh * .3, lh + wz - W(th, z - lh));   // local layer height
-      push(r * Math.cos(th), r * Math.sin(th), z + wz, 0, feed, (rv === 0 ? s / segs : 1) * (lhe / lh)); // first lap ramps up; E follows local layer height so width stays constant
+      push(r * Math.cos(th), r * Math.sin(th), z + wz, 0, mo > .05 ? Math.min(feed, 30) : feed, (rv === 0 ? s / segs : 1) * (lhe / lh)); // bulges bridge: slow down // first lap ramps up; E follows local layer height so width stays constant
     }
   }
   return { X, Y, Z, E, F, K, flip, H, lh, w, segs, revs, bottom, wallSpeed };
@@ -928,6 +951,13 @@ function checks(k) {
     add(hi > lmax || lo < lmin ? 'bad' : (hi > pr.nozzle * .65 || lo < pr.nozzle * .2) ? 'warn' : 'ok', `Non-planar layers vary ${lo.toFixed(2)}–${hi.toFixed(2)} mm (extrusion is scaled to match; ${lmin.toFixed(2)}–${lmax.toFixed(2)} works for this nozzle).`);
     const deg = Math.atan(slope) * 180 / Math.PI;
     add(deg > 30 ? 'bad' : deg > 18 ? 'warn' : 'ok', `Nozzle climbs up to ${deg.toFixed(0)}° within a layer — above ~20° the nozzle cone can scrape the layer below. Fewer waves or less amplitude lowers it.`);
+  }
+  if (P.mesh.on) {
+    const M = P.mesh, N = Math.max(4, Math.round(M.lobes)), ratio = M.amp / w;
+    let rM = 0; for (let j = 0; j <= 20; j++) rM = Math.max(rM, sampleProf(P.prof, j / 20) * MM);
+    const span = TAU * rM / N / 2;
+    add(ratio < 1.2 || ratio > 4 ? 'warn' : 'ok', `Mesh bulges ${M.amp.toFixed(1)} mm = ${ratio.toFixed(1)}× the line — about 1.3–4× opens clean gaps with a ${pr.nozzle} mm nozzle.`);
+    add(span > 14 ? 'bad' : span > 9 ? 'warn' : 'ok', `Each bulge bridges ~${span.toFixed(1)} mm of air (keep under ~9 mm; more openings around shortens it). Bulges print at ≤30 mm/s with full fan.`);
   }
   if (P.mod.src === 'attract' && !P.mod.attrs.length) add('warn', 'Attractor source chosen but no points placed yet — tap the surface with the Attractor tool.');
   if (k === 'shade') { const rTop = sampleProf(P.prof, 1) * MM - w; add('ok', `Top opening is about Ø${(rTop * 2).toFixed(0)} mm inside — check your lamp socket fits.`); }
@@ -1174,6 +1204,19 @@ function renderPanel() {
         slider(sm, 'Scale', () => M.noise, v => M.noise = v, 1, 8, 1, v => v, rbm);
         const b = el('button', { textContent:'Shuffle', style:'margin-top:4px' }); b.onclick = () => { pushUndo(); M.seed = Math.floor(Math.random() * 9999); rbm(); }; sm.append(b);
       }
+    }
+    const mz = section('Mesh', 'Open lattice like Studio Wooj’s mesh lamps: a plain ring layer, then layers that bulge outward and bridge, leaving gaps for light. Same line width throughout.');
+    const MS = P.mesh, rbz = () => rebuild(k);
+    toggle(mz, 'Open mesh', MS.on, v => { MS.on = v; if (v && state.view === 'surface') state.view = 'path'; rbz(); applyLook(); });
+    if (MS.on) {
+      slider(mz, 'Openings around', () => MS.lobes, v => MS.lobes = v, 8, 72, 1, v => v, rbz);
+      slider(mz, 'Bulge', () => MS.amp, v => MS.amp = v, .4, 5, .1, v => `${v.toFixed(1)} mm · ${(v / lineW(state.print.nozzle)).toFixed(1)}× line`, rbz);
+      slider(mz, 'Ring layers', () => MS.rings, v => MS.rings = v, 1, 4, 1, v => v, rbz);
+      slider(mz, 'Bulge layers', () => MS.bumps, v => MS.bumps = v, 1, 5, 1, v => v, rbz);
+      slider(mz, 'Bulge shape', () => MS.width, v => MS.width = v, .3, 3, .05, v => v < .8 ? 'round' : v > 1.6 ? 'pointed' : 'soft', rbz);
+      toggle(mz, 'Stagger (diamond cells)', MS.stagger, v => { MS.stagger = v; rbz(); });
+      slider(mz, 'Solid rims', () => MS.rim, v => MS.rim = v, 0, 20, .5, v => v + ' mm', rbz);
+      mz.append(el('div', { className:'note', textContent:'Shows in Path and Beads views (it lives in the printed layers). Beads view simulates the slight sag that opens the gaps.' }));
     }
     const sn = section('Non-planar layers', 'Isocurve printing: layers bend up and down instead of staying flat. Layer height varies, so extrusion is scaled to keep the wall even.');
     slider(sn, 'Layer waves', () => P.np.mid, v => P.np.mid = v, 0, 20, .5, v => v ? v + ' mm' : 'flat', () => rebuild(k));
