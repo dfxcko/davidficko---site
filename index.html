@@ -75,9 +75,20 @@ header nav a span+span{position:absolute;top:100%;left:0}
 header nav a:hover span{transform:translateY(-100%)}
 .tog{background:none;border:0;display:flex;gap:4px;align-items:center;height:14px;line-height:14px}
 .tog b{font-weight:400;opacity:.45;transition:opacity .4s}.tog b.on{opacity:1}.tog i{font-style:normal;opacity:.45}
-.theme{background:none;border:0;width:14px;height:14px;border-radius:50%;border:1px solid currentColor;position:relative;overflow:hidden}
-.theme::after{content:"";position:absolute;inset:0;background:currentColor;transform:translateX(50%);transition:transform .6s var(--ease)}
-[data-theme=light] .theme::after{transform:translateX(-50%)}
+.theme{background:none;border:0;width:24px;height:24px;display:grid;place-items:center;color:inherit;padding:0}
+.theme i{display:block;width:14px;height:14px;border-radius:50%;border:1px solid currentColor;position:relative;overflow:hidden}
+.theme i::after{content:"";position:absolute;inset:0;background:currentColor;transform:translateX(50%);transition:transform .6s var(--ease)}
+[data-theme=light] .theme i::after{transform:translateX(-50%)}
+/* touch screens: bigger tap areas in the menu, no hover roll */
+@media (pointer:coarse){
+  header{padding-top:10px;padding-bottom:10px}
+  header nav{gap:6px}
+  header nav a{height:auto;overflow:visible;padding:15px 8px}
+  header nav a span+span{display:none}
+  .tog{height:auto;padding:15px 8px}
+  .theme{width:44px;height:44px}
+  .logo{padding:10px 0}
+}
 @media(max-width:720px){header nav{gap:16px}}
 [data-t]{transition:opacity .35s}.swap [data-t]{opacity:0}
 
@@ -132,7 +143,13 @@ header nav a:hover span{transform:translateY(-100%)}
 .arrows.off{opacity:0;pointer-events:none}
 .arrows button{background:none;border:1px solid var(--line);width:40px;height:40px;border-radius:50%;transition:border-color .3s,background .3s,color .3s}
 .arrows button:hover{background:var(--bone);color:var(--ink);border-color:var(--bone)}
-@media(max-width:720px){.world{top:47%}.rail{display:none}.arrows{top:auto;left:auto;right:var(--pad);bottom:clamp(24px,5vh,48px);transform:none;flex-direction:row}.ptitle{min-width:0;width:100%;font-size:clamp(44px,12vw,72px);height:clamp(52px,14vw,84px)}.info{flex-direction:column;align-items:flex-start}.pmeta{align-items:flex-start;text-align:left}}
+.swipe{display:none}
+body.touch .cue{display:none}
+body.touch .hello{top:17%;transform:none}
+body.touch .hello h1{font-size:min(22vw,120px)}
+body.touch .swipe{display:flex;position:absolute;left:0;right:0;top:calc(47% + var(--hint,90px));justify-content:center;gap:10px;opacity:.5;pointer-events:none;transition:opacity .6s}
+body.touch .swipe.gone{opacity:0}
+@media(max-width:720px){.world{top:52%}.rail{display:none}.arrows{top:auto;left:auto;right:var(--pad);bottom:clamp(24px,5vh,48px);transform:none;flex-direction:row}.ptitle{min-width:0;width:100%;font-size:clamp(44px,12vw,72px);height:clamp(52px,14vw,84px)}.info{flex-direction:column;align-items:flex-start}.pmeta{align-items:flex-start;text-align:left}}
 
 /* ===== index list ===== */
 .index{padding:clamp(80px,9vw,140px) 0 clamp(80px,10vw,140px);border-top:1px solid var(--line)}
@@ -155,7 +172,7 @@ header nav a:hover span{transform:translateY(-100%)}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
 .filters button{background:none;border:1px solid var(--line);border-radius:99px;padding:7px 13px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;transition:background .3s,color .3s}
 .filters button.on,.filters button:hover{background:var(--bone);color:var(--ink)}
-@media(max-width:720px){.row{grid-template-columns:36px 1fr 48px 20px}.sec-head{flex-direction:column;align-items:flex-start;gap:18px}}
+@media(max-width:720px){.row{grid-template-columns:36px 1fr 48px 20px;padding:16px 0}.row .nm{font-size:30px}.sec-head{flex-direction:column;align-items:stretch;gap:14px}.filters{flex-wrap:nowrap;overflow-x:auto;margin:0 calc(-1*var(--pad));padding:0 var(--pad);scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.filters button{flex:none;padding:10px 15px}.index{padding-top:56px}}
 .preview{position:fixed;top:0;left:0;width:340px;height:255px;z-index:70;pointer-events:none;overflow:hidden;opacity:0;transform:scale(.85);transition:opacity .35s,transform .5s var(--ease);background:var(--ink2)}
 .preview.on{opacity:1;transform:scale(1)}
 .preview .pv-img{position:absolute;inset:0;clip-path:inset(100% 0 0 0);transition:clip-path .8s var(--ease)}
@@ -200,7 +217,7 @@ footer{display:flex;justify-content:space-between;padding-top:80px}
     <a href="#index" data-scroll="#index"><span data-t="work">Work</span><span data-t="work">Work</span></a>
     <a href="#contact" data-scroll="#contact"><span data-t="contact">Contact</span><span data-t="contact">Contact</span></a>
     <button class="tog" id="lang" aria-label="Language"><b data-l="en">EN</b><i>/</i><b data-l="sl">SL</b></button>
-    <button class="theme" id="theme" aria-label="Light / dark"></button>
+    <button class="theme" id="theme" aria-label="Light / dark"><i></i></button>
   </nav>
 </header>
 
@@ -210,6 +227,7 @@ footer{display:flex;justify-content:space-between;padding-top:80px}
       <div class="scene"><div class="world pre" id="world"><div class="floor" id="floor"></div></div></div>
       <div class="hello pre-chars" id="hello"><h1 id="heroTitle"><span class="ln">David</span><span class="ln">Ficko</span></h1></div>
       <div class="cue mono" id="cue"><i></i></div>
+      <div class="swipe mono" id="swipe">← →</div>
       <div class="arrows off" id="arrows"><button id="prevP" aria-label="Previous">←</button><button id="nextP" aria-label="Next">→</button></div>
       <div class="rail off" id="rail"></div>
       <div class="info off" id="info">
@@ -312,6 +330,10 @@ $$('#heroTitle .ln').forEach(ln=>{ const t=ln.textContent; ln.innerHTML=''; cons
    RING — projects stand like seats around the Oculus plan
    ========================================================= */
 const world=$('#world'), floor=$('#floor'), stage=$('#stage'), sec=$('#ringSec');
+/* phones/tablets: the ring is turned by swiping, so page scroll goes straight on to the list */
+const TOUCH=matchMedia('(pointer: coarse)').matches || innerWidth<720;
+if(TOUCH) document.body.classList.add('touch');
+let mPos=0, mTarget=0;
 const STEP_DEG=360/N;
 let W=160,H=120,R=600, plates=[];
 function layout(){
@@ -323,7 +345,8 @@ function layout(){
     p.style.transform=`rotateY(${i*STEP_DEG}deg) translateZ(${R}px)`;
     p.querySelector('.post').style.height=(H*.0)+'px'; });
   drawFloor();
-  sec.style.height=(vh + INTRO() + (N-1)*STEP() + vh*.15)+'px';
+  sec.style.height= TOUCH ? (vh+'px') : (vh + INTRO() + (N-1)*STEP() + vh*.15)+'px';
+  stage.style.setProperty('--hint', (H*1.2)+'px');
 }
 const STEP=()=>innerHeight*.2, INTRO=()=>innerHeight*.7;
 function drawFloor(){
@@ -361,7 +384,7 @@ let rot=0, tRot=0, active=-1, inIntro=true, drift=0, lastScroll=0, snapped=true,
 const secTop=()=>sec.offsetTop;
 function fFromScroll(){ return (scrollY - secTop() - INTRO())/STEP(); }
 function scrollForIndex(i){ return secTop() + INTRO() + i*STEP(); }
-function goTo(i, dur=1.1){ i=clamp(i,0,N-1); const y=scrollForIndex(i); lenis? lenis.scrollTo(y,{duration:dur}) : scrollTo({top:y,behavior:'smooth'}); }
+function goTo(i, dur=1.1){ i=clamp(i,0,N-1); if(TOUCH){ mTarget=i; $('#swipe').classList.add('gone'); return; } const y=scrollForIndex(i); lenis? lenis.scrollTo(y,{duration:dur}) : scrollTo({top:y,behavior:'smooth'}); }
 
 function setActive(i){
   if(i===active) return; const dir=i>active?1:-1; active=i;
@@ -379,12 +402,15 @@ function setIntro(v){
   $('#cue').style.opacity=v?1:0;
   ['#info','#rail','#arrows'].forEach(s=>$(s).classList.toggle('off',v));
   if(v){ plates.forEach(p=>p.classList.remove('on')); active=-1; $('#ptitle').innerHTML=''; }
+  if(TOUCH){ $('#hello').style.opacity=1; }
 }
+let started=false;
 let tilt=-12, tTilt=-12, mx=0, tmx=0;
 addEventListener('pointermove',e=>{ tmx=(e.clientX/innerWidth-.5); });
 function frame(t){
   requestAnimationFrame(frame);
-  const f=fFromScroll();
+  if(TOUCH){ mPos+=(mTarget-mPos)*(RM?1:.12); }
+  const f= TOUCH ? (started? mPos : -1) : fFromScroll();
   const intro=f<-.5;
   setIntro(intro);
   if(intro){ drift+= RM?0:.035; tRot=-drift; tTilt=-22; }
@@ -394,10 +420,18 @@ function frame(t){
   rot+=(tRot-rot)*(RM?1:.09); tilt+=(tTilt-tilt)*.05; mx+=(tmx-mx)*.05;
   world.style.transform=`translateZ(-${R*.55}px) rotateX(${tilt + 0}deg) rotateY(${rot + mx*8}deg)`;
   // snap after scrolling stops
-  if(!intro && !dragging && !snapped && performance.now()-lastScroll>160 && f<=N-1+.3){
+  if(!TOUCH && !intro && !dragging && !snapped && performance.now()-lastScroll>160 && f<=N-1+.3){
     snapped=true; const i=clamp(Math.round(f),0,N-1); if(Math.abs(f-i)>.02) goTo(i,.7); }
 }
 addEventListener('scroll',()=>{ lastScroll=performance.now(); snapped=false; },{passive:true});
+
+/* touch: horizontal swipe turns the ring; vertical movement keeps scrolling the page */
+let tx0=0, ty0=0, t0=0, tracking=false, horiz=null;
+stage.addEventListener('touchstart',e=>{ if(!TOUCH) return; const t=e.touches[0]; tx0=t.clientX; ty0=t.clientY; t0=mTarget; tracking=true; horiz=null; },{passive:true});
+stage.addEventListener('touchmove',e=>{ if(!tracking) return; const t=e.touches[0], dx=t.clientX-tx0, dy=t.clientY-ty0;
+  if(horiz===null && (Math.abs(dx)>8||Math.abs(dy)>8)) horiz=Math.abs(dx)>Math.abs(dy);
+  if(horiz){ if(e.cancelable) e.preventDefault(); started=true; mTarget=clamp(t0 - dx/(W*.9),-.4,N-1+.4); $('#swipe').classList.add('gone'); } },{passive:false});
+stage.addEventListener('touchend',()=>{ if(!tracking) return; tracking=false; if(horiz) mTarget=clamp(Math.round(mTarget),0,N-1); });
 
 /* drag to rotate (moves the scroll position, so everything stays in one place) */
 let dx0=0, sy0=0, moved=0;
@@ -407,10 +441,10 @@ stage.addEventListener('pointermove',e=>{ if(!dragging) return; const d=e.client
 stage.addEventListener('pointerup',e=>{ if(!dragging) return; dragging=false; $('#ring').classList.remove('drag'); snapped=false; lastScroll=performance.now();
   if(moved<6){ const p=document.elementFromPoint(e.clientX,e.clientY)?.closest('.plate'); if(p) plateClick(+p.dataset.i); } });
 plates.forEach(p=>p.addEventListener('click',e=>{ if(e.pointerType==='mouse'||e.detail===0) return; plateClick(+p.dataset.i); }));
-function plateClick(i){ if(inIntro){ goTo(i); return; } if(i===active) openProject(i); else goTo(i); }
+function plateClick(i){ if(TOUCH) started=true; if(inIntro){ goTo(i); return; } if(i===active) openProject(i); else goTo(i); }
 $('#rail').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) goTo(+b.dataset.i); });
-$('#prevP').addEventListener('click',()=>goTo((active<0?0:active)-1));
-$('#nextP').addEventListener('click',()=>goTo((active<0?-1:active)+1));
+$('#prevP').addEventListener('click',()=>{ started=true; goTo((active<0?0:active)-1); });
+$('#nextP').addEventListener('click',()=>{ started=true; goTo((active<0?-1:active)+1); });
 $('#popen').addEventListener('click',e=>{ e.preventDefault(); openProject(active); });
 addEventListener('keydown',e=>{ const r=stage.getBoundingClientRect(); if(r.bottom<innerHeight*.5) return;
   if(e.key==='ArrowRight'){ e.preventDefault(); goTo((active<0?-1:active)+1,.8); }
@@ -490,6 +524,7 @@ function reveal(){
   plates.forEach((p,i)=>{ p.style.transitionDelay=(.4+i*.035)+'s'; });
   setTimeout(()=>world.classList.remove('pre'),200);
   setTimeout(()=>{ $('#loader').style.display='none'; plates.forEach(p=>p.style.transitionDelay=''); },2400);
+  if(TOUCH) setTimeout(()=>{ started=true; },1800);
   if(location.hash && $(location.hash) && location.hash.length>3) setTimeout(()=>scrollToSel(location.hash),300);
 }
 if(RM || SEEN){ $('#count').parentElement.style.display='none'; reveal(); }
