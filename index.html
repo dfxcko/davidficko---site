@@ -352,7 +352,7 @@ function layout(){
   sec.style.height= TOUCH ? (vh+'px') : (vh + INTRO() + (N-1)*STEP() + vh*.15)+'px';
   stage.style.setProperty('--hint', (H*1.2)+'px');
 }
-const STEP=()=>innerHeight*.2, INTRO=()=>innerHeight*.7;
+const STEP=()=>(TOUCH?innerHeight*.2:Math.max(innerHeight*.2,320)), INTRO=()=>innerHeight*.7;
 function drawFloor(){
   const S=R*2.9, c=S/2, NS='http://www.w3.org/2000/svg';
   const svg=document.createElementNS(NS,'svg'); svg.setAttribute('width',S); svg.setAttribute('height',S); svg.setAttribute('viewBox',`0 0 ${S} ${S}`);
