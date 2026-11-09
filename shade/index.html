@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Shade — Lamp Studio — David Ficko</title>
+<meta name="description" content="Sculpt a 3D-printed lamp or vase in your browser, preview the printed layers and export G-code for Bambu Lab printers.">
+<link rel="canonical" href="https://davidficko.com/shade/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="David Ficko">
+<meta property="og:url" content="https://davidficko.com/shade/">
+<meta property="og:title" content="Shade — Lamp Studio">
+<meta property="og:description" content="Sculpt a 3D-printed lamp or vase, preview the printed layers, export G-code.">
+<meta property="og:image" content="https://davidficko.com/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0F2QH31JZW"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-0F2QH31JZW',{allow_google_signals:false,allow_ad_personalization_signals:false});</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#3a2820; --ink:#f3ebe0; --muted:#bfae9c; --line:rgba(243,235,224,.14); --panel:rgba(30,20,16,.88); --chip:rgba(243,235,224,.08); --accent:#ffb76b; --ok:#9fd39a; --warn:#f2c46b; --bad:#f08a7a; }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font:14px/1.4 Inter,system-ui,sans-serif}
+  #stage{position:fixed;inset:0;touch-action:none}
+  canvas{display:block;outline:none}
+  button{font:inherit;color:inherit;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;transition:background .15s,border-color .15s}
+  button:hover{background:rgba(243,235,224,.14)}
+  button.on{background:var(--ink);color:#2a1c16;border-color:var(--ink)}
+  button:disabled{opacity:.35;cursor:default}
+  header{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;gap:6px;padding:12px 14px;pointer-events:none;z-index:5}
+  header h1{margin:0 6px 0 0;font:400 26px/1 "Instrument Serif",serif;pointer-events:auto;white-space:nowrap}
+  header h1 i{color:var(--accent)}
+  header .back{pointer-events:auto;color:var(--muted);text-decoration:none;font-size:20px;padding:2px 6px 2px 0}
+  header .back:hover{color:var(--ink)}
+  header .sp{flex:1}
+  header button{pointer-events:auto;padding:7px 10px}
+  .seg{display:flex;pointer-events:auto;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:2px}
+  .seg button{border:none;background:transparent;padding:5px 11px;font-size:13px}
+  .seg button.on{background:var(--ink);color:#2a1c16}
+  .icon{width:18px;height:18px;display:block}
+  #tools{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;display:flex;gap:2px;padding:5px;background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:999px;z-index:6}
+  #tools button{border:none;background:transparent;padding:9px 12px;display:flex;align-items:center;gap:6px}
+  #tools button.on{background:var(--ink);color:#2a1c16}
+  #tools .lbl{font-size:13px}
+  #tools .div{width:1px;background:var(--line);margin:6px 2px}
+  #hint{position:fixed;left:50%;transform:translateX(-50%);bottom:76px;font-size:12px;color:var(--muted);background:rgba(20,13,10,.55);padding:5px 12px;border-radius:999px;pointer-events:none;transition:opacity .4s;z-index:4;white-space:nowrap}
+  #badge{position:fixed;left:14px;top:56px;font-size:11.5px;color:var(--muted);z-index:4;pointer-events:none;line-height:1.5}
+  #badge b{color:var(--ink);font-weight:500}
+  #panel{position:fixed;top:60px;right:14px;bottom:14px;width:330px;background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:20px;display:flex;flex-direction:column;z-index:7;overflow:hidden}
+  #tabs{display:flex;gap:2px;padding:8px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+  #tabs button{border:none;background:transparent;padding:7px 11px;font-size:13px;color:var(--muted);white-space:nowrap}
+  #tabs button.on{background:var(--chip);color:var(--ink)}
+  #body{flex:1;overflow-y:auto;padding:4px 16px 24px}
+  .sec{margin-top:16px}
+  .sec h3{margin:0 0 8px;font:400 19px/1.1 "Instrument Serif",serif}
+  .sec h3 small{font:500 11px Inter,sans-serif;color:var(--muted);margin-left:6px;letter-spacing:.3px;text-transform:uppercase}
+  .sub{color:var(--muted);font-size:12px;margin:-4px 0 10px}
+  .row{margin:9px 0}
+  .row label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px}
+  .row label b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:22px;background:transparent}
+  input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--line);border-radius:3px}
+  input[type=range]::-moz-range-track{height:3px;background:var(--line);border-radius:3px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-7.5px;border-radius:50%;background:var(--ink);border:none}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:none}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
+  .chips button{padding:6px 11px;font-size:12.5px}
+  .presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .presets button{border-radius:14px;padding:10px;text-align:left;display:flex;flex-direction:column;gap:2px}
+  .presets button small{color:var(--muted);font-size:11px}
+  .presets button.on small{color:#5a4538}
+  .swatches{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .sw{width:28px;height:28px;border-radius:50%;border:2px solid transparent;padding:0;cursor:pointer}
+  .sw.on{border-color:var(--ink)}
+  input[type=color]{width:28px;height:28px;border:none;padding:0;background:none;border-radius:50%;cursor:pointer}
+  .toggle{display:flex;align-items:center;justify-content:space-between;margin:8px 0;font-size:13px}
+  .toggle button{padding:5px 12px;font-size:12.5px}
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .stack button{border-radius:12px;text-align:left;padding:11px 14px}
+  .stack button.primary{background:var(--accent);color:#2a1c16;border-color:var(--accent);font-weight:600}
+  .note{font-size:12px;color:var(--muted);margin-top:10px}
+  .card{background:rgba(243,235,224,.05);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-top:8px}
+  .chk{display:flex;gap:8px;font-size:12.5px;margin:5px 0;align-items:flex-start}
+  .dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex:none}
+  .dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.bad{background:var(--bad)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:12px;color:var(--muted)}
+  .stats b{display:block;color:var(--ink);font-weight:500;font-size:13px}
+  textarea{width:100%;min-height:90px;background:rgba(0,0,0,.25);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px;font:11px/1.4 ui-monospace,monospace}
+  #grab{display:none}
+  #toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-10px);background:var(--ink);color:#2a1c16;padding:8px 14px;border-radius:999px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:20;white-space:nowrap}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #busy{position:fixed;inset:0;background:rgba(10,6,4,.55);display:none;align-items:center;justify-content:center;z-index:30;font-size:14px}
+  #busy.show{display:flex}
+  @media (max-width:760px){
+    #panel{top:auto;left:0;right:0;bottom:0;width:auto;border-radius:20px 20px 0 0;max-height:56vh;transform:translateY(100%);transition:transform .3s ease;padding-bottom:env(safe-area-inset-bottom)}
+    #panel.open{transform:translateY(0)}
+    #grab{display:block;width:40px;height:4px;border-radius:4px;background:var(--line);margin:8px auto 0;cursor:pointer}
+    #tools{bottom:calc(14px + env(safe-area-inset-bottom))}
+    #tools .lbl{display:none}
+    #tools button{padding:10px 9px}
+    body.panel-open #tools,body.panel-open #hint{opacity:0;pointer-events:none}
+    header h1{font-size:21px} header h1 .full{display:none}
+    #badge{top:52px}
+  }
+  @media (min-width:761px){ #editBtn{display:none} }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="stage"></div>
+<header>
+  <a href="/" class="back" title="David Ficko — portfolio" aria-label="Back to davidficko.com">←</a>
+  <h1><span class="full">Lamp </span><i>Studio</i></h1>
+  <div class="seg" id="modeSeg"><button data-mode="lamp">Lamp</button><button data-mode="vessel">Vessel</button></div>
+  <div class="sp"></div>
+  <button id="undoBtn" title="Undo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+  <button id="redoBtn" title="Redo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+  <button id="viewBtn" title="Printed layers view"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <button id="lightBtn" title="Light on/off"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg></button>
+</header>
+<div id="badge"></div>
+<div id="hint">Drag on the lamp to sculpt · drag empty space to orbit</div>
+<div id="tools">
+  <button data-tool="orbit" title="Orbit (O)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M3 12a9 4 0 0 0 18 0M12 3a4 9 0 0 1 0 18"/></svg><span class="lbl">Orbit</span></button>
+  <span class="div"></span>
+  <button data-tool="grab" title="Grab (G)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 11V6a2 2 0 0 0-4 0M14 10V4a2 2 0 0 0-4 0v6M10 10.5V6a2 2 0 0 0-4 0v8a8 8 0 0 0 16 0v-3a2 2 0 0 0-4 0"/></svg><span class="lbl">Grab</span></button>
+  <button data-tool="inflate" title="Inflate (I)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span class="lbl">Inflate</span></button>
+  <button data-tool="deflate" title="Pinch (P)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg><span class="lbl">Pinch</span></button>
+  <button data-tool="smooth" title="Smooth (S)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 15c3-6 6 0 9-3s6-6 9 0"/></svg><span class="lbl">Smooth</span></button>
+  <span class="div"></span>
+  <button data-tool="paint" title="Paint pattern B (B)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18.4 2.6a2 2 0 0 1 3 3L12 15l-4-4z"/><path d="M8 11c-3 0-4 2-4 4 0 1.5-1 3-2 3 2 2 7 2 8-1 .6-1.6.2-3.2-2-6z"/></svg><span class="lbl">Paint B</span></button>
+  <button data-tool="erase" title="Paint back pattern A (E)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m7 21-4-4 11-11 7 7-8 8z"/><path d="M7 21h14M10 10l7 7"/></svg><span class="lbl">Paint A</span></button>
+  <button id="editBtn" title="Edit"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
+</div>
+<aside id="panel"><div id="grab"></div><div id="tabs"></div><div id="body"></div></aside>
+<div id="toast"></div>
+<div id="busy">Working…</div>
+<input type="file" id="fileIn" accept=".json,application/json" hidden>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+/* ═════════════════════ constants & presets ═════════════════════ */
+const N = 41;                 // profile samples per part (v: 0 bottom → 1 top)
+const MW = 160, MH = 120;     // paint-mask resolution (θ × v); θ wraps → seamless
+const COLLAR_H = .07, TAU = Math.PI * 2, MM = 100; // 1 scene unit = 100 mm
+const prof = f => Array.from({length:N}, (_, i) => +f(i / (N - 1)).toFixed(4));
+const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+const pat = (tex, amp, freq, layers, twist = 0) => ({ tex, amp, freq, layers, twist });
+const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color });
+
+const LAMP_PRESETS = {
+  mushroom:{ name:'Mushroom', note:'Dome shade, fluted foot',
+    shade:part(.72, prof(v => .26 + .76 * Math.pow(Math.cos(v * Math.PI / 2), .7)), pat('woven', .005, 40, 16), pat('ribs', .008, 60, 16), '#ece3d6'),
+    base: part(1.0, prof(v => .2 + .29 * Math.pow(1 - v, 2.3)), pat('ribs', .012, 48, 20), pat('rings', .005, 40, 14), '#3b2622') },
+  cone:{ name:'Cone', note:'Tapered shade, ribbed column',
+    shade:part(.66, prof(v => .16 + .62 * (1 - v)), pat('rings', .005, 40, 16), pat('woven', .005, 40, 16), '#efe6d8'),
+    base: part(.92, prof(v => .27 - .06 * v), pat('ribs', .01, 56, 20), pat('diamond', .005, 28, 14), '#ddd3c4') },
+  saucer:{ name:'Saucer', note:'Wide disc, slim stem',
+    shade:part(.5, prof(v => .26 + .7 * Math.pow(Math.sin(Math.min(1, (1 - v) * 1.25) * Math.PI / 2), .8) + .08 * Math.sin(v * Math.PI)), pat('woven', .005, 56, 12), pat('ribs', .008, 64, 12), '#e9dfd0'),
+    base: part(1.08, prof(v => .17 + .2 * Math.pow(1 - v, 3)), pat('ribs', .01, 36, 20, .15), pat('rings', .005, 40, 16), '#2f2420') },
+  hive:{ name:'Hive', note:'Coiled bell, petal foot',
+    shade:part(.86, prof(v => .24 + .6 * Math.pow(Math.max(0, 1 - v * v), .6)), pat('rings', .007, 40, 14), pat('woven', .005, 40, 14), '#f0d9b5'),
+    base: part(.86, prof(v => .2 + .14 * Math.cos(v * Math.PI) ** 2), pat('diamond', .005, 20, 12), pat('ribs', .01, 40, 12), '#5a3b2c', 6, .06) },
+};
+const VESSEL_PRESETS = {
+  bud:{ name:'Bud vase', note:'Round belly, narrow neck',
+    vessel:part(.95, prof(v => .12 + .25 * Math.exp(-(((v - .3) / .28) ** 2)) + .05 * smooth(.8, 1, v)), pat('woven', .005, 28, 16), pat('ribs', .008, 32, 16), '#e7d9c4') },
+  tall:{ name:'Tall vase', note:'For dried stems',
+    vessel:part(1.7, prof(v => .2 + .17 * Math.exp(-(((v - .35) / .32) ** 2)) - .03 * v + .05 * smooth(.85, 1, v)), pat('ribs', .01, 48, 30, .25), pat('woven', .006, 36, 30), '#d8c7b0') },
+  bowl:{ name:'Bowl', note:'Open, gently flared',
+    vessel:part(.66, prof(v => .38 + .4 * Math.sin(v * Math.PI / 2)), pat('woven', .005, 56, 14), pat('rings', .006, 40, 12), '#efe6d8') },
+  pot:{ name:'Petal pot', note:'Lobed tumbler',
+    vessel:part(.95, prof(v => .33 - .05 * v + .02 * smooth(.9, 1, v)), pat('ribs', .01, 56, 20), pat('diamond', .005, 28, 16), '#b88a6a', 8, .05) },
+};
+// keep every preset inside a printable overhang for vase mode
+function easeSlope(P, deg = 45) {
+  const maxD = Math.tan(deg * Math.PI / 180) * (P.h / (N - 1)), pr = P.prof; let iMax = 0; pr.forEach((r, i) => { if (r > pr[iMax]) iMax = i; });
+  for (let i = iMax + 1; i < N; i++) pr[i] = +Math.min(Math.max(pr[i], pr[i - 1] - maxD), pr[i - 1] + maxD).toFixed(4);
+  for (let i = iMax - 1; i >= 0; i--) pr[i] = +Math.min(Math.max(pr[i], pr[i + 1] - maxD), pr[i + 1] + maxD).toFixed(4);
+}
+for (const p of [...Object.values(LAMP_PRESETS), ...Object.values(VESSEL_PRESETS)]) for (const k of ['shade', 'base', 'vessel']) if (p[k]) easeSlope(p[k]);
+
+const PRINTERS = {
+  a1mini:{ name:'A1 mini', bed:[180,180], maxZ:180, park:[10,170], purgeY:4 },
+  a1:{ name:'A1', bed:[256,256], maxZ:256, park:[10,250], purgeY:4 },
+  p1s:{ name:'P1S / P1P', bed:[256,256], maxZ:250, park:[65,245], purgeY:4 },
+  x1c:{ name:'X1C / X1E', bed:[256,256], maxZ:250, park:[65,245], purgeY:4 },
+  p2s:{ name:'P2S', bed:[256,256], maxZ:256, park:[65,245], purgeY:4 },
+  a2l:{ name:'A2L', bed:[330,320], maxZ:325, park:[10,310], purgeY:4 },
+};
+const FILAMENTS = {
+  pla:{ name:'PLA', nozzle:220, bed:55, fan:100, flow:18 },
+  matte:{ name:'PLA Matte', nozzle:220, bed:55, fan:100, flow:16 },
+  silk:{ name:'Silk PLA', nozzle:225, bed:55, fan:100, flow:12 },
+  petg:{ name:'PETG', nozzle:250, bed:70, fan:40, flow:12 },
+};
+const NOZZLES = [.4, .6, .8];
+const lineW = n => +(n * 1.12).toFixed(2);
+
+const clone = o => JSON.parse(JSON.stringify(o));
+function defaultState() {
+  const L = LAMP_PRESETS.mushroom, V = VESSEL_PRESETS.bud;
+  return { v:3, view:'printed', risks:true, mode:'lamp', preset:'mushroom', vpreset:'bud', shade:clone(L.shade), base:clone(L.base), vessel:clone(V.vessel),
+    collar:'#b8b5ae', light:{ on:false, power:1, warmth:.35 },
+    print:{ printer:'x1c', nozzle:.4, filament:'pla', layerH:.2, speed:90, orient:'rim', bottom:4, abl:true, part:'shade', layerLines:true, customStart:'' } };
+}
+function upgrade(s) {
+  const d = defaultState();
+  if (!s || typeof s !== 'object') return d;
+  const o = { ...d, ...s, print:{ ...d.print, ...(s.print || {}) }, light:{ ...d.light, ...(s.light || {}) } };
+  for (const k of ['shade', 'base', 'vessel']) {
+    const P = s[k]; if (!P || !Array.isArray(P.prof)) { o[k] = d[k]; continue; }
+    o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) } };
+    if (o[k].prof.length !== N) o[k].prof = d[k].prof;
+  }
+  if (!s.v || s.v < 3) { o.light.on = false; o.view = 'printed'; o.v = 3; }
+  return o;
+}
+let state;
+try { state = upgrade(JSON.parse(localStorage.getItem('lampstudio.v2') || localStorage.getItem('lampstudio.v1'))); } catch (e) { state = defaultState(); }
+
+const ui = { tool:'grab', brush:.16, strength:.6, paintSize:22, tab:'shape', surf:state.mode === 'vessel' ? 'vessel' : 'shade' };
+const parts = () => state.mode === 'lamp' ? ['shade', 'base'] : ['vessel'];
+
+/* ═════════════════════ undo / persistence ═════════════════════ */
+const undoStack = [], redoStack = [];
+function pushUndo() { flushMasks(); undoStack.push(JSON.stringify(state)); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0; syncUndo(); }
+function syncUndo() { undoBtn.disabled = !undoStack.length; redoBtn.disabled = !redoStack.length; }
+let saveT;
+function persist() { clearTimeout(saveT); saveT = setTimeout(() => { flushMasks(); try { localStorage.setItem('lampstudio.v2', JSON.stringify(state)); } catch (e) {} }, 500); }
+
+/* ═════════════════════ paint masks ═════════════════════ */
+const maskCache = {};
+function getMask(k) {
+  const P = state[k], c = maskCache[k];
+  if (c && (c.live || c.src === P.mask)) return c.data;
+  const data = new Float32Array(MW * MH);
+  if (P.mask) { try { const bin = atob(P.mask); for (let i = 0; i < data.length && i < bin.length; i++) data[i] = bin.charCodeAt(i) / 255; } catch (e) {} }
+  maskCache[k] = { data, src:P.mask, live:false };
+  return data;
+}
+function encodeMask(d) {
+  let any = false; const u = new Uint8Array(d.length);
+  for (let i = 0; i < d.length; i++) { u[i] = Math.round(d[i] * 255); if (u[i]) any = true; }
+  if (!any) return '';
+  let s = ''; for (let i = 0; i < u.length; i += 8192) s += String.fromCharCode.apply(null, u.subarray(i, i + 8192));
+  return btoa(s);
+}
+function flushMasks() { for (const k in maskCache) { const c = maskCache[k]; if (c.live) { state[k].mask = encodeMask(c.data); c.src = state[k].mask; c.live = false; } } }
+function maskAt(m, th, v) { // bilinear, wraps in θ (seamless around the circumference)
+  let x = (th / TAU) * MW; x = ((x % MW) + MW) % MW;
+  const y = Math.min(Math.max(v, 0), 1) * (MH - 1);
+  const x0 = Math.floor(x), y0 = Math.floor(y), fx = x - x0, fy = y - y0, x1 = (x0 + 1) % MW, y1 = Math.min(y0 + 1, MH - 1);
+  const a = m[y0 * MW + x0], b = m[y0 * MW + x1], c = m[y1 * MW + x0], d = m[y1 * MW + x1];
+  return (a * (1 - fx) + b * fx) * (1 - fy) + (c * (1 - fx) + d * fx) * fy;
+}
+
+/* ═════════════════════ surface definition ═════════════════════ */
+function sampleProf(p, v) {
+  const n = p.length - 1, x = Math.min(Math.max(v, 0), 1) * n;
+  const i = Math.min(Math.floor(x), n - 1), t = x - i;
+  const p0 = p[Math.max(i - 1, 0)], p1 = p[i], p2 = p[Math.min(i + 1, n)], p3 = p[Math.min(i + 2, n)];
+  return .5 * (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (-p0 + 3 * p1 - 3 * p2 + p3) * t * t * t);
+}
+// One pattern. All patterns use whole-number repeats around θ so they close on themselves (no seam).
+let GLOW = 1;
+function pattern(T, th, v, h) {
+  GLOW = 1;
+  const a = T.amp; if (!a || T.tex === 'smooth') return 0;
+  const tw = T.twist * TAU * v, F = Math.round(T.freq), k = v * T.layers;
+  let val;
+  switch (T.tex) {
+    case 'ribs':  val = 1 - Math.pow(Math.abs(Math.cos(.5 * F * th + tw)), 1.6); break;
+    case 'rings': val = .5 - .5 * Math.cos(TAU * k); break;
+    case 'woven': { const L = Math.floor(k), bead = Math.sin(Math.PI * (k - L)); const weave = .5 + .5 * Math.sin(F * th + tw + (L & 1) * Math.PI); val = bead * (.25 + .75 * weave); break; }
+    case 'diamond': { const s = .5 * F * th, q = Math.PI * k * .5; val = Math.abs(Math.sin(s + q + tw) * Math.sin(s - q + tw)); break; }
+    case 'wave': { val = .5 + .5 * Math.sin(F * th + Math.sin(TAU * k * .5) * 2.2 + tw); break; }
+    default: val = 0;
+  }
+  GLOW = 1 - val;
+  return a * (val - .5) * 2;
+}
+// Blend of pattern A and B through the painted mask → continuous everywhere
+let MASKV = 0;
+function disp(P, th, v, m) {
+  const w = m ? maskAt(m, th, v) : 0; MASKV = w;
+  if (w <= .002) return pattern(P, th, v);
+  if (w >= .998) return pattern(P.b, th, v);
+  const a = pattern(P, th, v), ga = GLOW, b = pattern(P.b, th, v), gb = GLOW;
+  GLOW = ga + (gb - ga) * w;
+  return a + (b - a) * w;
+}
+const rimFade = v => Math.min(1, Math.min(v, 1 - v) * 40);
+const lobeF = (P, th) => 1 + P.lobeAmt * Math.cos(Math.round(P.lobes) * th);
+// outer surface radius (scene units)
+function surfR(P, th, v, m) { return Math.max(.02, sampleProf(P.prof, v) * lobeF(P, th) + disp(P, th, v, m) * rimFade(v)); }
+
+function resFor(P) {
+  const tex = [P.tex, P.b.tex], amp = Math.max(P.amp, P.b.amp);
+  const layered = tex.some(t => t === 'rings' || t === 'woven' || t === 'diamond' || t === 'wave');
+  const rings = layered && amp ? Math.min(Math.max(Math.round(Math.max(P.layers, P.b.layers) * 6), 120), 420) : 150;
+  const segs = amp ? Math.min(Math.max(Math.round(Math.max(P.freq, P.b.freq) * 10), 180), 560) : Math.max(160, P.lobes * 24);
+  return { rings, segs };
+}
+const partY0 = k => k === 'shade' ? state.base.h + COLLAR_H - state.shade.h : 0;
+
+function buildPart(k, geom, closed = false) {
+  const P = state[k], y0 = closed ? 0 : partY0(k), m = getMask(k);
+  const { rings, segs } = resFor(P);
+  const capB = closed || k !== 'shade', capT = closed;
+  const vCount = (rings + 1) * segs + (capB ? segs + 1 : 0) + (capT ? segs + 1 : 0);
+  const triCount = rings * segs * 2 + (capB ? segs : 0) + (capT ? segs : 0);
+  let pos, glow, pm;
+  if (!geom || geom.userData.vCount !== vCount) {
+    geom?.dispose(); geom = new THREE.BufferGeometry();
+    pos = new Float32Array(vCount * 3); glow = new Float32Array(vCount); pm = new Float32Array(vCount);
+    const idx = new Uint32Array(triCount * 3); let t = 0;
+    for (let j = 0; j < rings; j++) for (let i = 0; i < segs; i++) {
+      const a = j * segs + i, b = j * segs + (i + 1) % segs, c = a + segs, d = b + segs;
+      idx[t++] = a; idx[t++] = c; idx[t++] = b; idx[t++] = b; idx[t++] = c; idx[t++] = d;
+    }
+    let o = (rings + 1) * segs;
+    if (capB) { const ctr = o + segs; for (let i = 0; i < segs; i++) { idx[t++] = ctr; idx[t++] = o + i; idx[t++] = o + (i + 1) % segs; } o += segs + 1; }
+    if (capT) { const ctr = o + segs; for (let i = 0; i < segs; i++) { idx[t++] = ctr; idx[t++] = o + (i + 1) % segs; idx[t++] = o + i; } }
+    geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geom.setAttribute('glow', new THREE.BufferAttribute(glow, 1));
+    geom.setAttribute('pmask', new THREE.BufferAttribute(pm, 1));
+    geom.setAttribute('risk', new THREE.BufferAttribute(new Float32Array(vCount), 1));
+    geom.setIndex(new THREE.BufferAttribute(idx, 1));
+    geom.userData.vCount = vCount;
+  } else { pos = geom.attributes.position.array; glow = geom.attributes.glow.array; pm = geom.attributes.pmask.array; }
+  const cosT = new Float32Array(segs), sinT = new Float32Array(segs);
+  for (let i = 0; i < segs; i++) { const th = i / segs * TAU; cosT[i] = Math.cos(th); sinT[i] = Math.sin(th); }
+  let p = 0, g = 0;
+  for (let j = 0; j <= rings; j++) {
+    const v = j / rings, y = y0 + v * P.h;
+    for (let i = 0; i < segs; i++) {
+      const r = surfR(P, i / segs * TAU, v, m);
+      pos[p++] = r * cosT[i]; pos[p++] = y; pos[p++] = r * sinT[i];
+      glow[g] = .45 + .55 * GLOW; pm[g++] = MASKV;
+    }
+  }
+  const ringCap = (v) => { const y = y0 + v * P.h; for (let i = 0; i < segs; i++) { const r = surfR(P, i / segs * TAU, v, m); pos[p++] = r * cosT[i]; pos[p++] = y; pos[p++] = r * sinT[i]; glow[g] = 0; pm[g++] = 0; } pos[p++] = 0; pos[p++] = y; pos[p++] = 0; glow[g] = 0; pm[g++] = 0; };
+  if (capB) ringCap(0);
+  if (capT) ringCap(1);
+  geom.attributes.position.needsUpdate = geom.attributes.glow.needsUpdate = geom.attributes.pmask.needsUpdate = true;
+  geom.computeVertexNormals(); geom.computeBoundingSphere();
+  return geom;
+}
+
+/* ═════════════════════ printed-layer geometry ═════════════════════ */
+// Builds the actual bead the nozzle lays down: one continuous helix, one turn per layer,
+// at the chosen layer height and line width. Each bead has a rounded profile, steps where
+// the texture or silhouette moves between layers, and sags where it would overhang too far.
+function buildPrinted(k, geom) {
+  const pr = state.print, P = state[k], m = getMask(k);
+  const lh = pr.layerH / MM, w = lineW(pr.nozzle) / MM, H = P.h, y0 = partY0(k);
+  const layers = Math.max(2, Math.floor(H / lh));
+  const rMax = Math.max(...P.prof) * (1 + P.lobeAmt);
+  let segs = Math.round(Math.min(480, Math.max(96, Math.max(P.freq, P.b.freq) * 8, TAU * rMax * MM / .8)));
+  while (layers * segs > 140000 && segs > 64) segs = Math.floor(segs * .9);
+  const steps = layers * segs, cap = k !== 'shade';
+  const nV = (steps + 1) * 3 + (cap ? segs + 1 : 0);
+  const nT = steps * 4 + Math.max(0, steps - segs) * 2 + (cap ? segs : 0);
+  const pos = new Float32Array(nV * 3), nor = new Float32Array(nV * 3), glow = new Float32Array(nV).fill(1), pm = new Float32Array(nV), risk = new Float32Array(nV);
+  const idx = new Uint32Array(nT * 3);
+  const R = new Float32Array(steps + 1), ZC = new Float32Array(steps + 1), MK = new Float32Array(steps + 1);
+  for (let j = 0; j <= steps; j++) {
+    const t = j / segs, th = (j % segs) / segs * TAU;
+    const zc = Math.max(lh / 2, (t - .5) * lh);               // first lap flat, then climbs continuously
+    R[j] = surfR(P, th, Math.min(1, zc / H), m); MK[j] = MASKV; ZC[j] = zc;
+  }
+  const inset = lh * .34, ws = w;
+  let p = 0, q = 0;
+  for (let j = 0; j <= steps; j++) {
+    const th = (j % segs) / segs * TAU, c = Math.cos(th), s = Math.sin(th);
+    let r = R[j], zc = ZC[j], rk = 0;
+    if (j >= segs) {
+      const d = r - R[j - segs], ratio = Math.abs(d) / ws;   // shift vs the layer below, in line widths
+      rk = smooth(.5, .85, ratio);
+      if (d / ws > .55) { const ex = d / ws - .55; zc -= Math.min(.8 * lh, ex * 2 * lh); r -= Math.min(d * .5, ex * ws * .6); } // unsupported bead droops
+    }
+    // tangent for the outward normal
+    const jp = Math.min(steps, j + 1), jm = Math.max(0, j - 1);
+    const thp = (jp % segs) / segs * TAU, thm = (jm % segs) / segs * TAU;
+    let tx = R[jp] * Math.cos(thp) - R[jm] * Math.cos(thm), tz = R[jp] * Math.sin(thp) - R[jm] * Math.sin(thm);
+    let nx = tz, nz = -tx; const nl = Math.hypot(nx, nz) || 1; nx /= nl; nz /= nl;
+    const rows = [[r - inset, zc - lh / 2, -.85], [r, zc, 0], [r - inset, zc + lh / 2, .85]];
+    for (const [rr, z, tilt] of rows) {
+      pos[p] = rr * c; pos[p + 1] = y0 + z; pos[p + 2] = rr * s;
+      const f = 1 / Math.hypot(.62, tilt) ; const h = tilt ? .62 : 1;
+      nor[p] = nx * h * (tilt ? f : 1); nor[p + 1] = tilt * (tilt ? f : 0); nor[p + 2] = nz * h * (tilt ? f : 1);
+      p += 3; pm[q] = MK[j]; risk[q++] = rk;
+    }
+  }
+  let t = 0;
+  const B = j => j * 3, M = j => j * 3 + 1, T = j => j * 3 + 2;
+  for (let j = 0; j < steps; j++) {
+    idx[t++] = B(j); idx[t++] = M(j); idx[t++] = B(j + 1); idx[t++] = B(j + 1); idx[t++] = M(j); idx[t++] = M(j + 1);
+    idx[t++] = M(j); idx[t++] = T(j); idx[t++] = M(j + 1); idx[t++] = M(j + 1); idx[t++] = T(j); idx[t++] = T(j + 1);
+    if (j + segs + 1 <= steps) { const u = j + segs; idx[t++] = T(j); idx[t++] = B(u); idx[t++] = T(j + 1); idx[t++] = T(j + 1); idx[t++] = B(u); idx[t++] = B(u + 1); }
+  }
+  if (cap) { // solid bottom
+    const o = (steps + 1) * 3;
+    for (let i = 0; i < segs; i++) { const th = i / segs * TAU; pos[(o + i) * 3] = (R[i] - inset) * Math.cos(th); pos[(o + i) * 3 + 1] = y0; pos[(o + i) * 3 + 2] = (R[i] - inset) * Math.sin(th); nor[(o + i) * 3 + 1] = -1; }
+    pos[(o + segs) * 3 + 1] = y0; nor[(o + segs) * 3 + 1] = -1;
+    for (let i = 0; i < segs; i++) { idx[t++] = o + segs; idx[t++] = o + i; idx[t++] = o + (i + 1) % segs; }
+  }
+  geom?.dispose(); geom = new THREE.BufferGeometry();
+  geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geom.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  geom.setAttribute('glow', new THREE.BufferAttribute(glow, 1));
+  geom.setAttribute('pmask', new THREE.BufferAttribute(pm, 1));
+  geom.setAttribute('risk', new THREE.BufferAttribute(risk, 1));
+  geom.setIndex(new THREE.BufferAttribute(idx.subarray(0, t), 1));
+  geom.computeBoundingSphere();
+  geom.userData = { layers, segs };
+  return geom;
+}
+
+/* ═════════════════════ scene ═════════════════════ */
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+stage.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, .05, 100);
+camera.position.set(3.4, 2.3, 3.6);
+const hemi = new THREE.HemisphereLight(0xfff4e6, 0x3a2820, 1.1); scene.add(hemi);
+const key = new THREE.DirectionalLight(0xfff0dc, 1.6); key.position.set(3, 5, 2.5);
+key.castShadow = true; key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left:-2.5, bottom:-2.5, right:2.5, top:2.5 }); key.shadow.bias = -.0005; scene.add(key);
+const rim = new THREE.DirectionalLight(0xffd9b0, .6); rim.position.set(-3, 2, -3); scene.add(rim);
+const bulb = new THREE.PointLight(0xffb36b, 8, 0, 2); bulb.castShadow = true; bulb.shadow.mapSize.set(512, 512); bulb.shadow.bias = -.002; scene.add(bulb);
+const table = new THREE.Mesh(new THREE.CircleGeometry(6, 64), new THREE.MeshStandardMaterial({ color:0x2a1b15, roughness:.85 }));
+table.rotation.x = -Math.PI / 2; table.receiveShadow = true; scene.add(table);
+
+// shared uniforms: printed layer lines + paint-mask tint
+const U = { uRisk:{ value:1 }, uRiskCol:{ value:new THREE.Color(0xe0453a) }, uLayer:{ value:.002 }, uLayerAmt:{ value:1 }, uMaskShow:{ value:0 }, uMaskCol:{ value:new THREE.Color(0xff9b4a) } };
+function patch(mat, glow) {
+  mat.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, U);
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float glow; attribute float pmask; attribute float risk; varying float vGlow; varying float vMask; varying float vWY; varying float vRisk;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvGlow = glow; vMask = pmask; vRisk = risk; vWY = (modelMatrix * vec4(transformed, 1.0)).y;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying float vGlow; varying float vMask; varying float vWY; varying float vRisk; uniform float uRisk; uniform vec3 uRiskCol; uniform float uLayer; uniform float uLayerAmt; uniform float uMaskShow; uniform vec3 uMaskCol;')
+      .replace('#include <color_fragment>', `#include <color_fragment>
+        float lq = vWY / uLayer; float fw = fwidth(lq);
+        float groove = smoothstep(.55, 1.0, abs(fract(lq) - .5) * 2.0);
+        diffuseColor.rgb *= 1.0 - uLayerAmt * groove * .32 * clamp(1.0 - fw * 1.4, 0.0, 1.0);
+        diffuseColor.rgb = mix(diffuseColor.rgb, uMaskCol, uMaskShow * vMask * .5);
+        diffuseColor.rgb = mix(diffuseColor.rgb, uRiskCol, uRisk * vRisk * .7);`)
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n' + (glow ? 'totalEmissiveRadiance *= vGlow * vGlow;' : ''));
+  };
+  return mat;
+}
+const shadeMat = patch(new THREE.MeshStandardMaterial({ roughness:.75, side:THREE.DoubleSide, emissive:0xffa64d }), true);
+const baseMat = patch(new THREE.MeshStandardMaterial({ roughness:.6, side:THREE.DoubleSide }), false);
+const vesselMat = patch(new THREE.MeshStandardMaterial({ roughness:.7, side:THREE.DoubleSide }), false);
+const collarMat = new THREE.MeshStandardMaterial({ metalness:.9, roughness:.28 });
+const meshes = {
+  shade:new THREE.Mesh(new THREE.BufferGeometry(), shadeMat),
+  base:new THREE.Mesh(new THREE.BufferGeometry(), baseMat),
+  vessel:new THREE.Mesh(new THREE.BufferGeometry(), vesselMat),
+};
+meshes.base.castShadow = meshes.vessel.castShadow = true;
+Object.values(meshes).forEach(m => { m.receiveShadow = true; scene.add(m); });
+const collarMesh = new THREE.Mesh(undefined, collarMat); collarMesh.castShadow = true; scene.add(collarMesh);
+let pathLine = null;
+
+const ringGeo = () => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(97 * 3), 3)); return g; };
+const brushRings = [0, 1, 2].map(i => { const l = new THREE.Line(ringGeo(), new THREE.LineBasicMaterial({ color:0xffc58a, transparent:true, opacity:i ? .35 : .95, depthTest:false })); l.renderOrder = 10; l.visible = false; scene.add(l); return l; });
+const paintCursor = new THREE.Mesh(new THREE.RingGeometry(.9, 1, 48), new THREE.MeshBasicMaterial({ color:0xffc58a, transparent:true, opacity:.9, depthTest:false, side:THREE.DoubleSide }));
+paintCursor.renderOrder = 11; paintCursor.visible = false; scene.add(paintCursor);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, .85, 0); controls.minDistance = .8; controls.maxDistance = 9; controls.maxPolarAngle = Math.PI * .52;
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .5, .5, .82); composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h); composer.setSize(w, h); camera.aspect = w / h;
+  camera.setViewOffset(w, h, innerWidth > 760 ? 160 : 0, innerWidth > 760 ? 0 : 40, w, h);
+  camera.updateProjectionMatrix(); requestRender();
+}
+addEventListener('resize', resize);
+let renderQueued = false;
+function requestRender() { if (!renderQueued) { renderQueued = true; requestAnimationFrame(() => { renderQueued = false; composer.render(); }); } }
+controls.addEventListener('change', requestRender);
+
+const geoms = { shade:{}, base:{}, vessel:{} }, pendingPrinted = new Set(); let printedT;
+const interacting = () => !!drag || sliderDirty;
+function schedulePrinted(k) {
+  pendingPrinted.add(k); clearTimeout(printedT);
+  const run = () => {
+    if (interacting()) { printedT = setTimeout(run, 250); return; }
+    if (state.view !== 'printed') { pendingPrinted.clear(); return; }
+    for (const kk of pendingPrinted) if (parts().includes(kk)) { geoms[kk].printed = buildPrinted(kk, geoms[kk].printed); meshes[kk].geometry = geoms[kk].printed; }
+    pendingPrinted.clear(); requestRender(); updateBadge();
+  };
+  printedT = setTimeout(run, 300);
+}
+function rebuild(which = 'all', keepPath = false) {
+  if (!keepPath) clearPath();
+  const list = which === 'all' ? parts() : [which];
+  for (const k of list) {
+    geoms[k].smooth = buildPart(k, geoms[k].smooth || null);
+    meshes[k].geometry = geoms[k].smooth;
+    if (state.view === 'printed') { if (interacting()) schedulePrinted(k); else { geoms[k].printed = buildPrinted(k, geoms[k].printed); meshes[k].geometry = geoms[k].printed; } }
+  }
+  const lamp = state.mode === 'lamp';
+  meshes.shade.visible = meshes.base.visible = collarMesh.visible = lamp; meshes.vessel.visible = !lamp;
+  if (lamp) {
+    const rTop = Math.max(sampleProf(state.base.prof, 1), sampleProf(state.shade.prof, 1)) + .015;
+    collarMesh.geometry?.dispose(); collarMesh.geometry = new THREE.CylinderGeometry(rTop, rTop, COLLAR_H, 72);
+    collarMesh.position.y = state.base.h + COLLAR_H / 2;
+    bulb.position.set(0, state.base.h + COLLAR_H - Math.min(.32, state.shade.h * .45), 0);
+  }
+  updateBadge(); persist(); requestRender();
+}
+function applyLook() {
+  const L = state.light, lamp = state.mode === 'lamp', on = lamp && L.on;
+  const warm = new THREE.Color().lerpColors(new THREE.Color(0xffc98f), new THREE.Color(0xff8a2e), L.warmth);
+  shadeMat.color.set(state.shade.color); baseMat.color.set(state.base.color); vesselMat.color.set(state.vessel.color); collarMat.color.set(state.collar);
+  shadeMat.emissive.copy(warm); shadeMat.emissiveIntensity = on ? 1.15 * L.power : 0;
+  bulb.color.copy(warm); bulb.intensity = on ? 7 * L.power : 0; bulb.visible = on;
+  hemi.intensity = on ? .35 : 1.1; key.intensity = on ? .45 : 1.7; rim.intensity = on ? .2 : .6;
+  scene.background = new THREE.Color(on ? 0x140d0a : 0x3a2820);
+  table.material.color.set(on ? 0x22160f : 0x2c1d16);
+  bloom.enabled = on; bloom.strength = .45 + .25 * L.power;
+  document.documentElement.style.setProperty('--bg', on ? '#140d0a' : '#3a2820');
+  lightBtn.classList.toggle('on', on); lightBtn.style.display = lamp ? '' : 'none';
+  U.uLayer.value = state.print.layerH / MM; U.uLayerAmt.value = state.print.layerLines && state.view !== 'printed' ? 1 : 0;
+  U.uRisk.value = state.view === 'printed' && state.risks ? 1 : 0;
+  meshes.shade.castShadow = !on;
+  viewBtn.classList.toggle('on', state.view === 'printed');
+  persist(); requestRender();
+}
+function frameCamera() {
+  const H = state.mode === 'lamp' ? state.base.h + COLLAR_H : state.vessel.h;
+  const shift = H * .5 - controls.target.y;
+  controls.target.y += shift; camera.position.y += shift; controls.update();
+}
+
+/* ═════════════════════ sculpt & paint interaction ═════════════════════ */
+let sliderDirty = false, drag = null;
+const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+function setRay(e) {
+  const r = renderer.domElement.getBoundingClientRect();
+  ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+  raycaster.setFromCamera(ndc, camera); return raycaster.ray;
+}
+function hitTest(ray) { // analytic march against surfaces of revolution
+  let best = null; const p = new THREE.Vector3();
+  for (const k of parts()) {
+    const P = state[k], y0 = partY0(k), m = getMask(k), maxR = Math.max(...P.prof) * (1 + P.lobeAmt) + Math.max(P.amp, P.b.amp) + .02;
+    const steps = 360, t1 = camera.position.distanceTo(controls.target) + 4, dt = t1 / steps;
+    const inside = t => { ray.at(t, p); const v = (p.y - y0) / P.h; if (v < 0 || v > 1) return false; const rr = Math.hypot(p.x, p.z); if (rr > maxR) return false; return rr <= sampleProf(P.prof, v) * lobeF(P, Math.atan2(p.z, p.x)) + Math.max(P.amp, P.b.amp) * .5; };
+    for (let s = 0; s <= steps; s++) {
+      const t = s * dt; if (best && t > best.t) break;
+      if (inside(t)) {
+        let lo = t - dt, hi = t; for (let b = 0; b < 12; b++) { const mid = (lo + hi) / 2; inside(mid) ? hi = mid : lo = mid; }
+        ray.at(hi, p); let th = Math.atan2(p.z, p.x); if (th < 0) th += TAU;
+        const v = (p.y - y0) / P.h; best = { part:k, t:hi, v, th, point:p.clone(), r:surfR(P, th, v, m) }; break;
+      }
+    }
+  }
+  return best;
+}
+const weight = (i, v0) => { const d = (i / (N - 1) - v0) / ui.brush; return Math.exp(-d * d * 2); };
+const clampR = r => Math.min(1.9, Math.max(.035, r));
+const isPaint = () => ui.tool === 'paint' || ui.tool === 'erase';
+
+function showBrush(hit) {
+  brushRings.forEach(l => l.visible = false); paintCursor.visible = false;
+  if (!hit) { requestRender(); return; }
+  const P = state[hit.part], y0 = partY0(hit.part);
+  if (isPaint()) {
+    const n = new THREE.Vector3(Math.cos(hit.th), 0, Math.sin(hit.th));
+    paintCursor.position.copy(hit.point).addScaledVector(n, .01);
+    paintCursor.lookAt(paintCursor.position.clone().add(n));
+    paintCursor.scale.setScalar(ui.paintSize / MM); paintCursor.visible = true; requestRender(); return;
+  }
+  [hit.v, hit.v - ui.brush * .7, hit.v + ui.brush * .7].forEach((vv, n) => {
+    const l = brushRings[n]; if (vv < 0 || vv > 1) return;
+    const R = sampleProf(P.prof, vv) + Math.max(P.amp, P.b.amp) + .012, y = y0 + vv * P.h, a = l.geometry.attributes.position.array;
+    for (let i = 0; i <= 96; i++) { const th = i / 96 * TAU, rr = R * lobeF(P, th); a[i * 3] = rr * Math.cos(th); a[i * 3 + 1] = y; a[i * 3 + 2] = rr * Math.sin(th); }
+    l.geometry.attributes.position.needsUpdate = true; l.visible = true;
+  });
+  requestRender();
+}
+function planeCoord(ray) {
+  const n = new THREE.Vector3().subVectors(camera.position, controls.target); n.y = 0; n.normalize();
+  const p = new THREE.Vector3(); if (!ray.intersectPlane(new THREE.Plane(n, 0), p)) return null;
+  return p.dot(new THREE.Vector3(-n.z, 0, n.x));
+}
+function paintAt(hit, dt) {
+  const k = hit.part, P = state[k], m = getMask(k); maskCache[k].live = true;
+  const target = ui.tool === 'paint' ? 1 : 0, rad = ui.paintSize / MM;
+  const Rv = Math.max(.05, sampleProf(P.prof, hit.v));
+  const dv = rad / P.h, dth = Math.min(Math.PI, rad / Rv);
+  const j0 = Math.max(0, Math.floor((hit.v - dv) * (MH - 1))), j1 = Math.min(MH - 1, Math.ceil((hit.v + dv) * (MH - 1)));
+  const i0 = Math.floor((hit.th - dth) / TAU * MW), i1 = Math.ceil((hit.th + dth) / TAU * MW);
+  const k2 = Math.min(1, ui.strength * 10 * dt);
+  for (let j = j0; j <= j1; j++) for (let ii = i0; ii <= i1; ii++) {
+    const i = ((ii % MW) + MW) % MW;
+    const ddv = (j / (MH - 1) - hit.v) * P.h, ddt = (ii / MW * TAU - hit.th) * Rv;
+    const d = Math.hypot(ddv, ddt) / rad; if (d >= 1) continue;
+    const f = smooth(1, .35, d) * k2, o = j * MW + i;
+    m[o] += (target - m[o]) * f;
+  }
+  rebuild(k);
+}
+function sculptHold(dt) {
+  const P = state[drag.part], pr = P.prof;
+  if (ui.tool === 'inflate' || ui.tool === 'deflate') {
+    const sgn = ui.tool === 'inflate' ? 1 : -1, rate = .55 * ui.strength * dt;
+    for (let i = 0; i < N; i++) pr[i] = clampR(pr[i] + sgn * rate * weight(i, drag.hit.v) * Math.max(.35, pr[i]));
+  } else if (ui.tool === 'smooth') {
+    const src = pr.slice(), k = Math.min(1, 9 * ui.strength * dt);
+    for (let i = 0; i < N; i++) { const avg = (src[Math.max(i - 1, 0)] + 2 * src[i] + src[Math.min(i + 1, N - 1)]) / 4; pr[i] = src[i] + (avg - src[i]) * weight(i, drag.hit.v) * k; }
+  }
+  for (let i = 0; i < N; i++) pr[i] = +pr[i].toFixed(4);
+  rebuild(drag.part);
+}
+let lastT = 0;
+function holdLoop(t) {
+  if (!drag || ui.tool === 'grab') return;
+  const dt = Math.min(.05, (t - (lastT || t)) / 1000); lastT = t;
+  if (dt > 0) { isPaint() ? paintAt(drag.hit, dt) : sculptHold(dt); showBrush(drag.hit); }
+  requestAnimationFrame(holdLoop);
+}
+stage.addEventListener('pointerdown', e => {
+  if (ui.tool === 'orbit' || !e.isPrimary || e.button > 0) return;
+  const hit = hitTest(setRay(e)); if (!hit) return;
+  e.stopPropagation(); e.preventDefault(); stage.setPointerCapture?.(e.pointerId);
+  pushUndo(); hideHint();
+  drag = { part:hit.part, hit, id:e.pointerId, s0:planeCoord(raycaster.ray), snap:state[hit.part].prof.slice() };
+  showBrush(hit);
+  if (ui.tool !== 'grab') { lastT = 0; requestAnimationFrame(holdLoop); }
+}, true);
+stage.addEventListener('pointermove', e => {
+  if (ui.tool === 'orbit') return;
+  if (!drag) { if (e.pointerType === 'mouse' && !e.buttons) showBrush(hitTest(setRay(e))); return; }
+  if (e.pointerId !== drag.id) return;
+  e.stopPropagation();
+  const ray = setRay(e);
+  if (ui.tool === 'grab') {
+    const s = planeCoord(ray); if (s == null || drag.s0 == null) return;
+    const delta = (s - drag.s0) * (Math.sign(drag.s0) || 1), pr = state[drag.part].prof;
+    for (let i = 0; i < N; i++) pr[i] = +clampR(drag.snap[i] + delta * weight(i, drag.hit.v) * (.4 + .6 * ui.strength)).toFixed(4);
+    rebuild(drag.part); showBrush(drag.hit);
+  } else { const h = hitTest(ray); if (h && h.part === drag.part) drag.hit = h; }
+}, true);
+const endDrag = e => { if (drag && e.pointerId === drag.id) { const k = drag.part; drag = null; flushMasks(); persist(); if (state.view === 'printed') schedulePrinted(k); if (e.pointerType !== 'mouse') showBrush(null); } };
+stage.addEventListener('pointerup', endDrag, true);
+stage.addEventListener('pointercancel', endDrag, true);
+stage.addEventListener('pointerleave', () => { if (!drag) showBrush(null); });
+
+/* ═════════════════════ toolpath (single continuous spiral) ═════════════════════ */
+// Returns typed arrays in printer space (mm, origin = bed centre) plus a parallel array
+// of model-space y for the preview. Kind: 0 = extrude, 1 = travel.
+function toolpath(k) {
+  const pr = state.print, P = state[k], m = getMask(k);
+  const lh = pr.layerH, w = lineW(pr.nozzle), H = P.h * MM;
+  const flip = k === 'shade' && pr.orient === 'top';
+  const vOf = z => { const v = Math.min(1, Math.max(0, z / H)); return flip ? 1 - v : v; };
+  const R = (th, z) => surfR(P, flip ? -th : th, vOf(z), m) * MM - w / 2; // nozzle centre sits half a line inside the surface
+  const fil = FILAMENTS[pr.filament];
+  const maxSeg = Math.max(P.freq, P.b.freq) * 10;
+  const rMax = Math.max(...P.prof) * (1 + P.lobeAmt) * MM;
+  const segs = Math.min(1800, Math.max(240, Math.round(TAU * rMax / .7), maxSeg));
+  const X = [], Y = [], Z = [], E = [], F = [], K = [];
+  const area = (w - lh) * lh + Math.PI * (lh / 2) ** 2, eK = .98 / (Math.PI * .875 * .875);
+  let px = 0, py = 0;
+  const push = (x, y, z, kind, feed, flowScale = 1) => {
+    const d = Math.hypot(x - px, y - py);
+    X.push(x); Y.push(y); Z.push(z); K.push(kind); F.push(feed);
+    E.push(kind ? 0 : d * area * eK * flowScale); px = x; py = y;
+  };
+  const wallSpeed = Math.min(pr.speed, fil.flow / (w * lh));
+  const bottom = (k === 'shade') ? 0 : Math.max(0, Math.round(pr.bottom));
+  // 1) solid bottom layers: outer loop + concentric loops inward, one continuous line per layer
+  for (let L = 0; L < bottom; L++) {
+    const z = (L + 1) * lh, zc = z - lh / 2, feed = L === 0 ? 25 : 60;
+    let ring = 0, first = true;
+    while (true) {
+      const off = ring * w * .96; let minR = Infinity; const pts = [];
+      for (let s = 0; s <= segs; s++) { const th = s / segs * TAU, r = R(th, zc) - off; minR = Math.min(minR, r); pts.push([r * Math.cos(th), r * Math.sin(th)]); }
+      if (minR < w * .55) break;
+      pts.forEach((q, i) => push(q[0], q[1], z, first && i === 0 ? 1 : 0, feed));
+      first = false; ring++;
+    }
+  }
+  // 2) open part: one flat first ring so the spiral has something to sit on
+  let z0 = bottom * lh;
+  if (bottom === 0) {
+    z0 = lh;
+    for (let s = 0; s <= segs; s++) { const th = s / segs * TAU, r = R(th, lh / 2); push(r * Math.cos(th), r * Math.sin(th), lh, s === 0 ? 1 : 0, 20); }
+  } else {
+    const r = R(0, z0 + lh / 2); push(r, 0, z0, 1, 120);
+  }
+  // 3) the spiral: z climbs continuously, one revolution per layer, never lifts or stops
+  const revs = Math.max(1, Math.floor((H - z0) / lh));
+  const revLen = []; // for min layer time
+  for (let rv = 0; rv < revs; rv++) {
+    const zc = z0 + rv * lh + lh / 2;
+    let len = 0, qx = R(0, zc), qy = 0;
+    for (let s = 1; s <= 64; s++) { const th = s / 64 * TAU, r = R(th, zc); const x = r * Math.cos(th), y = r * Math.sin(th); len += Math.hypot(x - qx, y - qy); qx = x; qy = y; }
+    revLen.push(len);
+  }
+  for (let rv = 0; rv < revs; rv++) {
+    const feed = Math.max(8, Math.min(wallSpeed, revLen[rv] / 5)); // ≥5 s per layer so it can cool
+    for (let s = 1; s <= segs; s++) {
+      const t = rv + s / segs, z = z0 + t * lh, th = s / segs * TAU, r = R(th, z - lh / 2);
+      push(r * Math.cos(th), r * Math.sin(th), z, 0, feed, rv === 0 ? s / segs : 1); // first lap ramps flow up from zero
+    }
+  }
+  return { X, Y, Z, E, F, K, flip, H, lh, w, segs, revs, bottom, wallSpeed };
+}
+function pathStats(tp) {
+  let t = 0, e = 0, ox = tp.X[0], oy = tp.Y[0], oz = tp.Z[0];
+  for (let i = 0; i < tp.X.length; i++) {
+    const d = Math.hypot(tp.X[i] - ox, tp.Y[i] - oy, tp.Z[i] - oz);
+    t += d / (tp.K[i] ? 200 : tp.F[i]); e += tp.E[i]; ox = tp.X[i]; oy = tp.Y[i]; oz = tp.Z[i];
+  }
+  const grams = e * Math.PI * .875 * .875 * 1.24e-3;
+  return { sec:t * 1.12 + 240, meters:e / 1000, grams };
+}
+function clearPath() { if (pathLine) { scene.remove(pathLine); pathLine.geometry.dispose(); pathLine = null; Object.values(meshes).forEach(m => m.material.visible = true); collarMesh.visible = state.mode === 'lamp'; } }
+function showPath() {
+  const k = printPart(); const tp = toolpath(k);
+  clearPath();
+  const n = tp.X.length, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
+  const y0 = partY0(k), c0 = new THREE.Color(0xffb76b), c1 = new THREE.Color(0xf3ebe0), c = new THREE.Color();
+  for (let i = 0; i < n; i++) {
+    const zm = tp.flip ? tp.H - tp.Z[i] : tp.Z[i];
+    pos[i * 3] = tp.X[i] / MM; pos[i * 3 + 1] = y0 + zm / MM; pos[i * 3 + 2] = (tp.flip ? -tp.Y[i] : tp.Y[i]) / MM;
+    c.lerpColors(c0, c1, (Math.sin(i / tp.segs * .9) + 1) / 2); if (tp.K[i]) c.set(0x5a8cff);
+    col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  pathLine = new THREE.Line(g, new THREE.LineBasicMaterial({ vertexColors:true }));
+  scene.add(pathLine);
+  for (const m of Object.values(meshes)) m.material.visible = false; collarMesh.visible = false;
+  requestRender();
+  return tp;
+}
+
+/* ═════════════════════ printability ═════════════════════ */
+const printPart = () => state.mode === 'vessel' ? 'vessel' : (state.print.part === 'base' ? 'base' : 'shade');
+function checks(k) {
+  const pr = state.print, P = state[k], m = getMask(k), printer = PRINTERS[pr.printer];
+  const w = lineW(pr.nozzle), lh = pr.layerH, H = P.h * MM, out = [];
+  const add = (lvl, msg) => out.push({ lvl, msg });
+  // size
+  let rMax = 0, rMin = Infinity;
+  for (let j = 0; j <= 40; j++) for (let i = 0; i < 96; i++) { const r = surfR(P, i / 96 * TAU, j / 40, m) * MM; rMax = Math.max(rMax, r); rMin = Math.min(rMin, r); }
+  const D = rMax * 2, bed = Math.min(...printer.bed) - 10;
+  if (D > bed || H > printer.maxZ) add('bad', `Too big for the ${printer.name}: ${D.toFixed(0)} × ${H.toFixed(0)} mm (fits ${bed} × ${printer.maxZ}).`);
+  else add('ok', `Fits the ${printer.name}: Ø${D.toFixed(0)} × ${H.toFixed(0)} mm.`);
+  if (rMin * 2 < 8) add('bad', `Narrowest point is only ${(rMin * 2).toFixed(1)} mm across — too tight to spiral.`);
+  // overhang from the silhouette
+  let worst = 0, at = 0;
+  for (let j = 0; j < 200; j++) { const v0 = j / 200, v1 = (j + 1) / 200; const dr = (sampleProf(P.prof, v1) - sampleProf(P.prof, v0)) * MM, dz = H / 200; const a = Math.atan2(Math.abs(dr), dz) * 180 / Math.PI; if (a > worst) { worst = a; at = v0; } }
+  const lim = 50 + (pr.nozzle - .4) * 15;
+  add(worst > lim + 8 ? 'bad' : worst > lim ? 'warn' : 'ok', `Steepest overhang ${worst.toFixed(0)}° at ${Math.round(at * 100)}% height (≈${lim.toFixed(0)}° is safe with a ${pr.nozzle} mm nozzle).`);
+  // layer-to-layer step caused by the textures (must stay well inside one line width)
+  const step = textureStep(k), ratio = step / w;
+  add(ratio > .6 ? 'bad' : ratio > .45 ? 'warn' : 'ok', `Texture moves up to ${step.toFixed(2)} mm between layers (${Math.round(ratio * 100)}% of the ${w} mm line). Under ~45% keeps layers bonded.`);
+  // texture detail vs line width
+  const usesB = m.some(x => x > .01), usesA = m.some(x => x < .99);
+  for (const T of [usesA ? P : null, usesB ? P.b : null].filter(Boolean)) {
+    if (!T.amp || T.tex === 'smooth') continue;
+    if (T.tex !== 'rings') { const wl = TAU * Math.max(rMin, 5) / Math.max(1, T.freq); if (wl < w * 3) add('warn', `${texName(T.tex)} repeats every ${wl.toFixed(1)} mm at the narrowest point — finer than a ${pr.nozzle} mm nozzle can draw; lower the count.`); }
+    if (T.tex !== 'ribs') { const sh = H / T.layers; if (sh < lh * 2.2) add('warn', `${texName(T.tex)} bands are ${sh.toFixed(1)} mm tall — under ~2 layers they blur; fewer layers or a lower layer height.`); }
+    if (T.amp * 2 * MM < w * .35) add('warn', `${texName(T.tex)} depth ${(T.amp * 2 * MM).toFixed(1)} mm is subtle for a ${pr.nozzle} mm line.`);
+  }
+  if (k === 'shade') { const rTop = sampleProf(P.prof, 1) * MM - w; add('ok', `Top opening is about Ø${(rTop * 2).toFixed(0)} mm inside — check your lamp socket fits.`); }
+  if (k === 'base') add('ok', 'Base prints closed at the bottom — drill a cable hole or add a slot afterwards.');
+  return out;
+}
+const texName = t => ({ smooth:'Smooth', woven:'Woven', ribs:'Ribs', rings:'Coil', diamond:'Lattice', wave:'Wave' })[t] || t;
+function makePrintable(k) { easeSlope(state[k], 45 + (state.print.nozzle - .4) * 15); }
+function textureStep(k) { // biggest layer-to-layer jump caused by the textures alone (mm)
+  const pr = state.print, P = state[k], m = getMask(k), lh = pr.layerH, H = P.h * MM;
+  const tex = (th, v) => disp(P, th, v, m) * rimFade(v);
+  let step = 0; const layers = Math.floor(H / lh), stride = Math.max(1, Math.floor(layers / 160));
+  for (let L = 2; L < layers - 1; L += stride) {
+    const va = (L * lh) / H, vb = ((L + 1) * lh) / H;
+    for (let i = 0; i < 180; i++) { const th = i / 180 * TAU; const d = Math.abs(tex(th, vb) - tex(th, va)) * MM; if (d > step) step = d; }
+  }
+  return step;
+}
+function fitTexture(k) {
+  const P = state[k], target = lineW(state.print.nozzle) * .4;
+  for (let it = 0; it < 4; it++) { const s = textureStep(k); if (s <= target) break; const f = Math.max(.1, target / s * .97); P.amp = +(P.amp * f).toFixed(4); P.b.amp = +(P.b.amp * f).toFixed(4); }
+}
+
+/* ═════════════════════ G-code ═════════════════════ */
+function gcode(k) {
+  const pr = state.print, printer = PRINTERS[pr.printer], fil = FILAMENTS[pr.filament];
+  const tp = toolpath(k), st = pathStats(tp);
+  const cx = printer.bed[0] / 2, cy = printer.bed[1] / 2;
+  const nozT = fil.nozzle + (pr.nozzle >= .8 ? 10 : pr.nozzle >= .6 ? 5 : 0);
+  let fp = [Infinity, Infinity, -Infinity, -Infinity];
+  for (let i = 0; i < tp.X.length; i++) { if (tp.Z[i] > tp.lh * (tp.bottom || 1) + 1e-6) break; fp = [Math.min(fp[0], tp.X[i]), Math.min(fp[1], tp.Y[i]), Math.max(fp[2], tp.X[i]), Math.max(fp[3], tp.Y[i])]; }
+  const fx0 = (cx + fp[0] - 5).toFixed(1), fy0 = (cy + fp[1] - 5).toFixed(1), fw = (fp[2] - fp[0] + 10).toFixed(1), fh = (fp[3] - fp[1] + 10).toFixed(1);
+  const totalMin = Math.round(st.sec / 60);
+  const o = [];
+  o.push(`; HEADER_BLOCK_START`, `; generated by Lamp Studio (spiral vase, single continuous line)`, `; printer_model = Bambu Lab ${printer.name}`, `; nozzle_diameter = ${pr.nozzle}`, `; filament_type = ${fil.name}`,
+    `; layer_height = ${pr.layerH}`, `; line_width = ${tp.w}`, `; total layer number: ${tp.revs + Math.max(tp.bottom, 1)}`, `; estimated printing time = ${totalMin} min`, `; filament used [g] = ${st.grams.toFixed(1)}`, `; HEADER_BLOCK_END`, ``);
+  if (pr.customStart.trim()) {
+    o.push('; ===== custom start G-code =====', pr.customStart.replaceAll('[bed_temperature_initial_layer_single]', fil.bed).replaceAll('[nozzle_temperature_initial_layer]', nozT), '; ===== end custom start =====');
+  } else {
+    o.push(`; ===== start =====`, `M73 P0 R${totalMin}`, `G90`, `M83`, `M220 S100`, `M221 S100`, `M204 S5000`,
+      `M106 P1 S0`, `M140 S${fil.bed}`, `M104 S140 ; warm nozzle without oozing`, `G28 ; home`, `M190 S${fil.bed}`, `M109 S140`);
+    if (pr.abl) o.push(`G29.2 S1 ; enable bed-mesh compensation`, `G29 A X${fx0} Y${fy0} I${fw} J${fh} ; probe the footprint only`, `M400`);
+    else o.push(`G29.2 S1 ; use stored bed mesh`);
+    o.push(`M109 S${nozT}`, `M975 S1 ; vibration compensation`, `; purge line`,
+      `G1 X18 Y${printer.purgeY} Z5 F12000`, `G1 Z0.3 F600`, `G1 X${Math.min(120, printer.bed[0] - 40)} E14 F900`, `G1 X${Math.min(140, printer.bed[0] - 20)} E2 F1800`, `G1 Z1 F600`, `; ===== print =====`);
+  }
+  const f3 = x => x.toFixed(3), f2 = x => x.toFixed(2);
+  let lastF = 0, lastZ = -1, layer = 0, fanOn = false, elapsed = 0, ox = tp.X[0], oy = tp.Y[0];
+  const revStart = tp.X.length - tp.revs * tp.segs;
+  for (let i = 0; i < tp.X.length; i++) {
+    const x = cx + tp.X[i], y = cy + tp.Y[i], z = tp.Z[i];
+    const d = Math.hypot(tp.X[i] - ox, tp.Y[i] - oy); ox = tp.X[i]; oy = tp.Y[i];
+    elapsed += d / (tp.K[i] ? 200 : tp.F[i]);
+    const newLayer = i < revStart ? z > lastZ + 1e-6 : (i - revStart) % tp.segs === 0;
+    if (newLayer) {
+      layer++;
+      o.push(`; LAYER ${layer}`, `M73 L${layer}`, `M73 P${Math.min(99, Math.round(elapsed * 1.12 / st.sec * 100))} R${Math.max(0, Math.round((st.sec - elapsed * 1.12) / 60))}`);
+      if (layer === 2 && !fanOn) { o.push(`M106 P1 S${Math.round(fil.fan * 2.55)}`); fanOn = true; }
+      if (i >= revStart && layer === Math.max(tp.bottom, 1) + 1) o.push('; spiral vase: Z rises continuously from here, no seams');
+    }
+    if (tp.K[i]) {
+      o.push(`G1 E-0.8 F1800`, `G1 Z${f3(Math.max(z, lastZ) + .4)} F1200`, `G1 X${f2(x)} Y${f2(y)} F12000`, `G1 Z${f3(z)} F1200`, `G1 E0.8 F1800`);
+      lastF = 0;
+    } else {
+      const F = Math.round(tp.F[i] * 60);
+      o.push(`G1 X${f2(x)} Y${f2(y)}${Math.abs(z - lastZ) > 1e-4 ? ' Z' + f3(z) : ''} E${tp.E[i].toFixed(5)}${F !== lastF ? ' F' + F : ''}`);
+      lastF = F;
+    }
+    lastZ = z;
+  }
+  const topZ = lastZ, parkZ = Math.min(printer.maxZ - 2, topZ + 30);
+  o.push(`; ===== end =====`, `M400`, `G1 E-0.8 F1800`, `G91`, `G1 Z2 F900`, `G90`, `G1 X${printer.park[0]} Y${printer.park[1]} F12000`, `G1 Z${parkZ.toFixed(1)} F900`,
+    `M104 S0`, `M140 S0`, `M106 P1 S0`, `M73 P100 R0`, `M84`, ``);
+  return { text:o.join('\n'), st, tp };
+}
+
+/* ═════════════════════ UI ═════════════════════ */
+const $ = s => document.querySelector(s);
+const undoBtn = $('#undoBtn'), redoBtn = $('#redoBtn'), lightBtn = $('#lightBtn'), viewBtn = $('#viewBtn');
+function setView(v) { state.view = v; busy(() => { rebuild(); applyLook(); renderPanel(); toast(v === 'printed' ? 'Printed layers: ' + state.print.layerH.toFixed(2) + ' mm × ' + lineW(state.print.nozzle) + ' mm bead' : 'Design view'); }); }
+viewBtn.onclick = () => setView(state.view === 'printed' ? 'design' : 'printed');
+const toastEl = $('#toast'); let toastT;
+function toast(m) { toastEl.textContent = m; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('show'), 2200); }
+let hintHidden = false; function hideHint() { if (!hintHidden) { hintHidden = true; $('#hint').style.opacity = 0; } }
+const busy = async fn => { $('#busy').classList.add('show'); await new Promise(r => setTimeout(r, 40)); try { return await fn(); } finally { $('#busy').classList.remove('show'); } };
+function updateBadge() {
+  const pr = state.print; const k = printPart();
+  const g = state.view === 'printed' && geoms[parts()[0]]?.printed && meshes[parts()[0]].geometry === geoms[parts()[0]].printed ? geoms[parts()[0]].printed.userData : null;
+  $('#badge').innerHTML = (state.view === 'printed' ? `<b>Printed preview</b>${g ? ' · ' + g.layers + ' layers' : ' · building…'}${state.risks ? ' · <span style="color:#f08a7a">red = risky layers</span>' : ''}<br>` : '') + `Nozzle <b>${pr.nozzle} mm</b> · layer <b>${pr.layerH.toFixed(2)}</b> · line <b>${lineW(pr.nozzle)}</b><br>${PRINTERS[pr.printer].name} · ${FILAMENTS[pr.filament].name}`;
+}
+
+function setTool(t) {
+  ui.tool = t; document.querySelectorAll('#tools [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
+  U.uMaskShow.value = isPaint() ? 1 : 0; showBrush(null);
+  $('#hint').textContent = isPaint() ? 'Paint where pattern B should appear · it blends smoothly into A' : 'Drag on the surface to sculpt · drag empty space to orbit';
+}
+document.querySelectorAll('#tools [data-tool]').forEach(b => b.onclick = () => { setTool(b.dataset.tool); if (isPaint() && ui.tab !== 'surface') { ui.tab = 'surface'; renderTabs(); renderPanel(); } });
+function loadState(s) { state = upgrade(s); for (const k in maskCache) delete maskCache[k]; if (state.mode === 'vessel') ui.surf = 'vessel'; else if (ui.surf === 'vessel') ui.surf = 'shade'; }
+undoBtn.onclick = () => { if (!undoStack.length) return; flushMasks(); redoStack.push(JSON.stringify(state)); loadState(JSON.parse(undoStack.pop())); syncUndo(); rebuild(); applyLook(); renderAll(); };
+redoBtn.onclick = () => { if (!redoStack.length) return; flushMasks(); undoStack.push(JSON.stringify(state)); loadState(JSON.parse(redoStack.pop())); syncUndo(); rebuild(); applyLook(); renderAll(); };
+lightBtn.onclick = () => { pushUndo(); state.light.on = !state.light.on; applyLook(); renderPanel(); };
+document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+function setMode(m) {
+  if (state.mode === m) return; pushUndo(); state.mode = m; ui.surf = m === 'vessel' ? 'vessel' : 'shade';
+  if (!TABS_FOR().includes(ui.tab)) ui.tab = 'shape';
+  rebuild(); applyLook(); frameCamera(); renderAll();
+}
+addEventListener('keydown', e => {
+  if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'range') return;
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); (e.shiftKey ? redoBtn : undoBtn).onclick(); return; }
+  const map = { o:'orbit', g:'grab', i:'inflate', p:'deflate', s:'smooth', b:'paint', e:'erase' };
+  if (!e.metaKey && !e.ctrlKey && map[e.key]) setTool(map[e.key]);
+});
+const panel = $('#panel');
+const openPanel = o => { panel.classList.toggle('open', o); document.body.classList.toggle('panel-open', o); };
+$('#editBtn').onclick = () => openPanel(!panel.classList.contains('open'));
+$('#grab').onclick = () => openPanel(false);
+stage.addEventListener('pointerdown', () => { if (panel.classList.contains('open')) openPanel(false); });
+
+const TAB_NAMES = { shape:'Shape', surface:'Surface', light:'Light', print:'Print', file:'File' };
+const TABS_FOR = () => state.mode === 'lamp' ? ['shape', 'surface', 'light', 'print', 'file'] : ['shape', 'surface', 'print', 'file'];
+const tabsEl = $('#tabs'), body = $('#body');
+function renderTabs() {
+  tabsEl.innerHTML = '';
+  for (const k of TABS_FOR()) { const b = document.createElement('button'); b.textContent = TAB_NAMES[k]; b.classList.toggle('on', ui.tab === k); b.onclick = () => { ui.tab = k; renderTabs(); renderPanel(); }; tabsEl.appendChild(b); }
+  document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.mode === state.mode));
+}
+function renderAll() { renderTabs(); renderPanel(); updateBadge(); }
+const el = (tag, attrs = {}, kids = []) => { const e = document.createElement(tag); Object.assign(e, attrs); kids.forEach(k => e.append(k)); return e; };
+function section(title, sub, tag) { const s = el('div', { className:'sec' }); const h = el('h3', { textContent:title }); if (tag) h.append(el('small', { textContent:tag })); s.append(h); if (sub) s.append(el('div', { className:'sub', textContent:sub })); body.append(s); return s; }
+function slider(parent, label, get, set, min, max, step, fmt = v => v, onSet) {
+  const row = el('div', { className:'row' }), val = el('b', { textContent:fmt(get()) });
+  const inp = el('input', { type:'range', min, max, step, value:get() });
+  inp.oninput = () => { if (!sliderDirty) { pushUndo(); sliderDirty = true; } set(+inp.value); val.textContent = fmt(+inp.value); onSet?.(); };
+  inp.onchange = () => { sliderDirty = false; onCommit?.(); };
+  row.append(el('label', {}, [label, val]), inp); parent.append(row); return inp;
+}
+let onCommit = null;
+function chips(parent, opts, cur, pick) {
+  const c = el('div', { className:'chips' });
+  for (const [k, n] of opts) { const b = el('button', { textContent:n }); b.classList.toggle('on', k === cur); b.onclick = () => pick(k); c.append(b); }
+  parent.append(c); return c;
+}
+function toggle(parent, label, on, set) {
+  const t = el('div', { className:'toggle' }, [el('span', { textContent:label })]);
+  const b = el('button', { textContent:on ? 'On' : 'Off' }); b.classList.toggle('on', on); b.onclick = () => { pushUndo(); set(!on); renderPanel(); };
+  t.append(b); parent.append(t);
+}
+function swatches(parent, list, cur, pick) {
+  const w = el('div', { className:'swatches' });
+  for (const c of list) { const b = el('button', { className:'sw' + (c.toLowerCase() === cur.toLowerCase() ? ' on' : '') }); b.style.background = c; b.onclick = () => { pushUndo(); pick(c); renderPanel(); }; w.append(b); }
+  const ci = el('input', { type:'color', value:cur }); ci.oninput = () => { if (!sliderDirty) { pushUndo(); sliderDirty = true; } pick(ci.value); }; ci.onchange = () => { sliderDirty = false; renderPanel(); };
+  w.append(ci); parent.append(w);
+}
+const mmF = v => (v * MM).toFixed(1) + ' mm', pct = v => Math.round(v * 100) + '%', cmF = v => (v * 10).toFixed(1) + ' cm';
+const TEX_OPTS = [['smooth', 'Smooth'], ['woven', 'Woven'], ['ribs', 'Ribs'], ['rings', 'Coil'], ['diamond', 'Lattice'], ['wave', 'Wave']];
+
+function patternControls(s, k, T) {
+  const rb = () => rebuild(k);
+  chips(s, TEX_OPTS, T.tex, t => { pushUndo(); T.tex = t; if (!T.amp) T.amp = .012; rb(); renderPanel(); });
+  if (T.tex === 'smooth') return;
+  const w = lineW(state.print.nozzle);
+  slider(s, 'Depth', () => T.amp, v => T.amp = v, 0, .04, .001, v => `${(v * 2 * MM).toFixed(1)} mm · ${(v * 2 * MM / w).toFixed(1)}× line`, rb);
+  if (T.tex !== 'rings') slider(s, T.tex === 'ribs' ? 'Rib count' : 'Repeats around', () => T.freq, v => T.freq = v, 4, 96, 1, v => v, rb);
+  if (T.tex !== 'ribs') slider(s, 'Bands up the height', () => T.layers, v => T.layers = v, 4, 80, 1, v => `${v} · ${(state[k].h * MM / v).toFixed(1)} mm each`, rb);
+  if (T.tex !== 'rings') slider(s, 'Twist', () => T.twist, v => T.twist = v, -1, 1, .01, v => Math.round(v * 360) + '°', rb);
+}
+function renderPanel() {
+  body.innerHTML = ''; onCommit = null;
+  const lamp = state.mode === 'lamp';
+  if (ui.tab === 'shape') {
+    const s = section('Start from', lamp ? 'Pick a lamp, then sculpt it.' : 'Vases and bowls for dried flowers, pens, anything.');
+    const g = el('div', { className:'presets' }), P = lamp ? LAMP_PRESETS : VESSEL_PRESETS;
+    for (const [k, p] of Object.entries(P)) {
+      const b = el('button', {}, [el('span', { textContent:p.name }), el('small', { textContent:p.note })]);
+      b.classList.toggle('on', (lamp ? state.preset : state.vpreset) === k);
+      b.onclick = () => { pushUndo(); if (lamp) { state.preset = k; state.shade = clone(p.shade); state.base = clone(p.base); delete maskCache.shade; delete maskCache.base; } else { state.vpreset = k; state.vessel = clone(p.vessel); delete maskCache.vessel; } rebuild(); applyLook(); frameCamera(); renderPanel(); };
+      g.append(b);
+    }
+    s.append(g);
+    const s2 = section('Proportions');
+    if (lamp) {
+      slider(s2, 'Shade height', () => state.shade.h, v => state.shade.h = v, .2, 1.4, .01, cmF, () => rebuild());
+      slider(s2, 'Base height', () => state.base.h, v => state.base.h = v, .3, 1.8, .01, cmF, () => rebuild());
+    } else slider(s2, 'Height', () => state.vessel.h, v => state.vessel.h = v, .2, 2.4, .01, cmF, () => rebuild());
+    const wi = slider(s2, 'Overall width', () => 1, () => {}, .5, 1.5, .01, pct);
+    wi.oninput = function () {
+      if (!sliderDirty) { pushUndo(); sliderDirty = true; this._ref = parts().map(k => state[k].prof.slice()); }
+      const f = +this.value; parts().forEach((k, i) => state[k].prof = this._ref[i].map(r => +clampR(r * f).toFixed(4)));
+      this.previousElementSibling.querySelector('b').textContent = pct(f); rebuild();
+    };
+    wi.onchange = function () { sliderDirty = false; this.value = 1; this.previousElementSibling.querySelector('b').textContent = '100%'; };
+    const s3 = section('Sculpt brush', 'Grab pulls the outline · Inflate / Pinch push while held · Smooth evens it out.');
+    slider(s3, 'Size', () => ui.brush, v => ui.brush = v, .04, .5, .01, pct);
+    slider(s3, 'Strength', () => ui.strength, v => ui.strength = v, .1, 1, .01, pct);
+    if (lamp) { const s4 = section('Collar'); swatches(s4, ['#b8b5ae', '#d4b07a', '#2b2b2b', '#8c6b52'], state.collar, c => { state.collar = c; applyLook(); }); }
+  }
+  else if (ui.tab === 'surface') {
+    if (lamp) { const s0 = section('Part'); chips(s0, [['shade', 'Shade'], ['base', 'Base']], ui.surf, k => { ui.surf = k; renderPanel(); }); }
+    const k = lamp ? ui.surf : 'vessel', P = state[k];
+    patternControls(section('Pattern A', 'The base texture everywhere.', 'everywhere'), k, P);
+    patternControls(section('Pattern B', 'Shows wherever you paint.', 'painted'), k, P.b);
+    const sp = section('Paint the mix', 'Use Paint B / Paint A in the toolbar. Edges blend gradually, so the line stays one smooth continuous path.');
+    const tb = el('div', { className:'chips' });
+    [['Paint B', 'paint'], ['Paint A', 'erase']].forEach(([n, t]) => { const b = el('button', { textContent:n }); b.classList.toggle('on', ui.tool === t); b.onclick = () => { setTool(t); renderPanel(); }; tb.append(b); });
+    sp.append(tb);
+    slider(sp, 'Paint size', () => ui.paintSize, v => ui.paintSize = v, 4, 80, 1, v => v + ' mm');
+    slider(sp, 'Paint flow', () => ui.strength, v => ui.strength = v, .1, 1, .01, pct);
+    const ops = el('div', { className:'chips' });
+    const maskOp = (name, fn) => { const b = el('button', { textContent:name }); b.onclick = () => { pushUndo(); const m = getMask(k); maskCache[k].live = true; fn(m); flushMasks(); rebuild(k); }; ops.append(b); };
+    maskOp('Fill B', m => m.fill(1));
+    maskOp('Clear', m => m.fill(0));
+    maskOp('Invert', m => { for (let i = 0; i < m.length; i++) m[i] = 1 - m[i]; });
+    maskOp('Soften', m => { const s = m.slice(); for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) { let a = 0, n = 0; for (let dj = -2; dj <= 2; dj++) { const jj = j + dj; if (jj < 0 || jj >= MH) continue; for (let di = -2; di <= 2; di++) { a += s[jj * MW + (i + di + MW) % MW]; n++; } } m[j * MW + i] = a / n; } });
+    maskOp('Top half', m => { for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) m[j * MW + i] = smooth(.4, .6, j / (MH - 1)); });
+    maskOp('Stripes', m => { for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) m[j * MW + i] = smooth(-.3, .3, Math.sin(i / MW * TAU * 6)); });
+    sp.append(ops);
+    const s2 = section('Petals', 'Break the round symmetry. Whole numbers only, so the loop always closes.');
+    slider(s2, 'Petals', () => P.lobes, v => P.lobes = v, 0, 12, 1, v => v || 'off', () => rebuild(k));
+    slider(s2, 'Petal depth', () => P.lobeAmt, v => P.lobeAmt = v, 0, .25, .005, pct, () => rebuild(k));
+    const s3 = section('Colour');
+    swatches(s3, k === 'base' ? ['#3b2622', '#2f2420', '#5a3b2c', '#ddd3c4', '#6b6258', '#8a5a3b'] : ['#ece3d6', '#f0d9b5', '#e8c8a8', '#d9d2c5', '#b88a6a', '#7f8f7a'], P.color, c => { P.color = c; applyLook(); });
+  }
+  else if (ui.tab === 'light') {
+    const s = section('Light');
+    toggle(s, 'Lamp on', state.light.on, v => { state.light.on = v; applyLook(); });
+    slider(s, 'Brightness', () => state.light.power, v => state.light.power = v, .2, 2, .01, pct, applyLook);
+    slider(s, 'Warmth', () => state.light.warmth, v => state.light.warmth = v, 0, 1, .01, v => Math.round(4000 - v * 1800) + ' K', applyLook);
+    s.append(el('div', { className:'note', textContent:'Grooves in the texture glow brighter, like light passing through thinner walls.' }));
+  }
+  else if (ui.tab === 'print') renderPrint();
+  else if (ui.tab === 'file') {
+    const s = section('Design file');
+    const st = el('div', { className:'stack' });
+    const b2 = el('button', { textContent:'Save design (.json)' }); b2.onclick = () => { flushMasks(); saveFile('lamp-design.json', new Blob([JSON.stringify(state)], { type:'application/json' })); };
+    const b3 = el('button', { textContent:'Load design…' }); b3.onclick = () => $('#fileIn').click();
+    const b4 = el('button', { textContent:'Start over' }); b4.onclick = () => { pushUndo(); const pr = state.print; loadState(defaultState()); state.print = pr; rebuild(); applyLook(); frameCamera(); renderAll(); toast('Reset'); };
+    st.append(b2, b3, b4); s.append(st);
+  }
+}
+let lastChecks = null;
+function renderPrint() {
+  const pr = state.print, lamp = state.mode === 'lamp';
+  const rr = () => { updateBadge(); applyLook(); renderPanel(); };
+  const s1 = section('Printer', 'Bambu Lab. G-code is made for the printer you choose here.');
+  chips(s1, Object.entries(PRINTERS).map(([k, p]) => [k, p.name]), pr.printer, k => { pushUndo(); pr.printer = k; rr(); });
+  const s2 = section('Nozzle', 'Bigger nozzle → thicker, faster, bolder layers. Match the nozzle that’s installed.');
+  chips(s2, NOZZLES.map(n => [n, n + ' mm']), pr.nozzle, n => { pushUndo(); pr.nozzle = n; pr.layerH = +(n * .5).toFixed(2); pr.speed = n === .4 ? 90 : n === .6 ? 70 : 50; pr.bottom = Math.max(2, Math.ceil(.9 / pr.layerH)); busy(() => { rebuild(); rr(); }); });
+  slider(s2, 'Layer height', () => pr.layerH, v => pr.layerH = v, +(pr.nozzle * .25).toFixed(2), +(pr.nozzle * .75).toFixed(2), .01, v => v.toFixed(2) + ' mm', () => { updateBadge(); applyLook(); if (state.view === 'printed') parts().forEach(schedulePrinted); });
+  onCommit = () => renderPanel();
+  slider(s2, 'Wall speed', () => pr.speed, v => pr.speed = v, 15, 200, 1, v => { const cap = FILAMENTS[pr.filament].flow / (lineW(pr.nozzle) * pr.layerH); return v > cap ? `${v} → ${Math.round(cap)} mm/s (flow limit)` : v + ' mm/s'; });
+  const sv = section('Preview', 'Printed view builds the real bead spiral at this layer height and line width.');
+  chips(sv, [['printed', 'Printed layers'], ['design', 'Design surface']], state.view, v => setView(v));
+  if (state.view === 'printed') toggle(sv, 'Highlight risky layers (red) and droop', state.risks, v => { state.risks = v; applyLook(); });
+  else toggle(sv, 'Show layer lines on model', pr.layerLines, v => { pr.layerLines = v; applyLook(); });
+  const s3 = section('Filament');
+  chips(s3, Object.entries(FILAMENTS).map(([k, f]) => [k, f.name]), pr.filament, k => { pushUndo(); pr.filament = k; rr(); });
+  const s4 = section('What to print');
+  if (lamp) {
+    chips(s4, [['shade', 'Shade'], ['base', 'Base']], pr.part, k => { pr.part = k; clearPath(); renderPanel(); });
+    if (pr.part === 'shade') { s4.append(el('div', { className:'sub', textContent:'Shade orientation on the bed' })); chips(s4, [['rim', 'Rim down'], ['top', 'Top down']], pr.orient, k => { pushUndo(); pr.orient = k; clearPath(); renderPanel(); }); }
+  }
+  if (printPart() !== 'shade') slider(s4, 'Solid bottom layers', () => pr.bottom, v => pr.bottom = v, 0, 10, 1, v => `${v} · ${(v * pr.layerH).toFixed(1)} mm`);
+  toggle(s4, 'Auto bed leveling (footprint)', pr.abl, v => pr.abl = v);
+
+  const k = printPart();
+  const sc = section('Printability', 'One continuous spiral line — checked against your nozzle.');
+  const card = el('div', { className:'card' });
+  (lastChecks = checks(k)).forEach(c => card.append(el('div', { className:'chk' }, [el('span', { className:'dot ' + c.lvl }), el('span', { textContent:c.msg })])));
+  sc.append(card);
+  if (lastChecks.some(c => c.lvl !== 'ok' && /overhang/i.test(c.msg))) {
+    const fix = el('button', { textContent:'Ease overhangs automatically', style:'margin-top:8px' });
+    fix.onclick = () => { pushUndo(); makePrintable(k); rebuild(k); renderPanel(); toast('Silhouette eased'); };
+    sc.append(fix);
+  }
+  if (lastChecks.some(c => c.lvl !== 'ok' && /Texture moves/.test(c.msg))) {
+    const fx = el('button', { textContent:'Fit texture depth to this nozzle', style:'margin-top:8px;margin-left:6px' });
+    fx.onclick = () => busy(() => { pushUndo(); fitTexture(k); rebuild(k); renderPanel(); toast('Texture depth fitted'); });
+    sc.append(fx);
+  }
+  // quick estimate without building the full path
+  const H = state[k].h * MM, w = lineW(pr.nozzle);
+  let per = 0; for (let j = 0; j < 30; j++) per += TAU * sampleProf(state[k].prof, (j + .5) / 30) * MM; per /= 30;
+  const layers = Math.floor(H / pr.layerH), speed = Math.min(pr.speed, FILAMENTS[pr.filament].flow / (w * pr.layerH));
+  const mins = Math.round((layers * per / speed + 240) / 60 * 1.12);
+  const grams = layers * per * w * pr.layerH * 1.24e-3;
+  const stats = el('div', { className:'stats card' });
+  [['Layers', layers], ['Line width', w + ' mm'], ['Est. time', mins >= 60 ? `${Math.floor(mins / 60)} h ${mins % 60} min` : mins + ' min'], ['Filament', `≈ ${Math.round(grams)} g`]]
+    .forEach(([a, b]) => stats.append(el('div', {}, [a, el('b', { textContent:b })])));
+  sc.append(stats);
+
+  const se = section('Export');
+  const st = el('div', { className:'stack' });
+  const bp = el('button', { textContent:pathLine ? 'Hide toolpath' : 'Preview toolpath (the one line)' });
+  bp.onclick = () => busy(() => { if (pathLine) { clearPath(); requestRender(); } else { const tp = showPath(); toast(`${tp.revs} spiral laps, ${tp.X.filter((_, i) => tp.K[i]).length} travel moves`); } renderPanel(); });
+  const pn = { shade:'shade', base:'base', vessel:'vessel' };
+  st.append(bp);
+  for (const kk of parts()) {
+    const bg = el('button', { className:kk === k ? 'primary' : '', textContent:`G-code · ${pn[kk]} (${PRINTERS[pr.printer].name}, ${pr.nozzle} mm)` });
+    bg.onclick = () => busy(async () => {
+      if (checks(kk).some(c => c.lvl === 'bad')) toast('Heads up: ' + pn[kk] + ' has red printability issues');
+      await saveFile(`${kk}-${pr.printer}-${pr.nozzle}mm.gcode`, new Blob([gcode(kk).text], { type:'text/plain' }), true);
+    });
+    const bs = el('button', { textContent:`STL · ${pn[kk]}` }); bs.onclick = () => busy(() => exportSTL(kk));
+    st.append(bg, bs);
+  }
+  if (lamp) { const ba = el('button', { textContent:'Everything · shade + base G-code & STL (.zip)' }); ba.onclick = () => busy(exportAll); st.append(ba); }
+  se.append(st);
+  se.append(el('div', { className:'note', innerHTML:
+    `<b>Printing the G-code:</b> copy the file to the printer's microSD card (or send it over LAN/FTP), load ${FILAMENTS[pr.filament].name} and check a <b>${pr.nozzle} mm</b> nozzle is fitted, then start it from the printer screen. It uses a simplified start sequence, so open it in a G-code viewer first.<br><br>` +
+    `<b>Most reliable route:</b> open the STL in Bambu Studio, turn on <i>Spiral vase</i>, choose the same nozzle and print as usual.` }));
+  const adv = section('Advanced', 'Paste your own start G-code (e.g. from Bambu Studio’s printer settings) to replace the built-in one.');
+  const ta = el('textarea', { value:pr.customStart, placeholder:'Leave empty to use the built-in start sequence' });
+  ta.onchange = () => { pr.customStart = ta.value; persist(); };
+  adv.append(ta);
+}
+$('#fileIn').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const d = JSON.parse(await f.text()); if (!d.shade?.prof && !d.vessel?.prof) throw 0; pushUndo(); loadState(d); rebuild(); applyLook(); frameCamera(); renderAll(); toast('Design loaded'); }
+  catch (err) { toast('That file isn’t a Lamp Studio design'); }
+  e.target.value = '';
+};
+
+/* ═════════════════════ files ═════════════════════ */
+function stlFromGeometry(geom, scale = MM) {
+  const pos = geom.attributes.position.array, idx = geom.index.array, tris = idx.length / 3;
+  const buf = new ArrayBuffer(84 + tris * 50), dv = new DataView(buf);
+  new Uint8Array(buf).set(new TextEncoder().encode('Lamp Studio export'), 0); dv.setUint32(80, tris, true);
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), n = new THREE.Vector3(), t = new THREE.Vector3();
+  let o = 84;
+  for (let i = 0; i < tris; i++) {
+    a.fromArray(pos, idx[i * 3] * 3); b.fromArray(pos, idx[i * 3 + 1] * 3); c.fromArray(pos, idx[i * 3 + 2] * 3);
+    n.subVectors(c, b).cross(t.subVectors(a, b)).normalize();
+    for (const v of [n, a, b, c]) { const s = v === n ? 1 : scale; dv.setFloat32(o, v.x * s, true); dv.setFloat32(o + 4, -v.z * s, true); dv.setFloat32(o + 8, v.y * s, true); o += 12; }
+    o += 2;
+  }
+  return new Uint8Array(buf);
+}
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = d => { let c = 0xffffffff; for (let i = 0; i < d.length; i++) c = CRC[(c ^ d[i]) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+function zip(files) {
+  const enc = new TextEncoder(), out = [], central = []; let off = 0;
+  for (const f of files) {
+    const name = enc.encode(f.name), crc = crc32(f.data), sz = f.data.length;
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(12, 0x21, true); h.setUint32(14, crc, true); h.setUint32(18, sz, true); h.setUint32(22, sz, true); h.setUint16(26, name.length, true);
+    out.push(new Uint8Array(h.buffer), name, f.data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(14, 0x21, true); c.setUint32(16, crc, true); c.setUint32(20, sz, true); c.setUint32(24, sz, true); c.setUint16(28, name.length, true); c.setUint32(42, off, true);
+    central.push(new Uint8Array(c.buffer), name); off += 30 + name.length + sz;
+  }
+  const cd = central.reduce((s, p) => s + p.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cd, true); e.setUint32(16, off, true);
+  return new Blob([...out, ...central, new Uint8Array(e.buffer)], { type:'application/zip' });
+}
+function stlOf(k) { const g = buildPart(k, null, true); const d = stlFromGeometry(g); g.dispose(); return d; }
+const readme = () => new TextEncoder().encode(`Lamp Studio export\n\nUnits: millimetres. Each STL is a closed solid.\nBambu Studio: import, enable "Spiral vase" (Others > Special mode), choose the ${state.print.nozzle} mm nozzle, slice, print.\nShade: set bottom shell layers to 0 (it is open at both ends).\nG-code files are made for ${PRINTERS[state.print.printer].name}, ${state.print.nozzle} mm nozzle, ${FILAMENTS[state.print.filament].name}. Copy to the printer's microSD card and start from the printer screen.\n`);
+async function exportSTL(k) {
+  flushMasks();
+  await saveFile(`${k}.stl`, new Blob([stlOf(k)], { type:'model/stl' }), true);
+}
+async function exportAll() {
+  flushMasks(); const enc = new TextEncoder(), pr = state.print, files = [];
+  for (const k of parts()) {
+    files.push({ name:`${k}-${pr.printer}-${pr.nozzle}mm.gcode`, data:enc.encode(gcode(k).text) });
+    files.push({ name:`${k}.stl`, data:stlOf(k) });
+  }
+  files.push({ name:'design.json', data:enc.encode(JSON.stringify(state)) }, { name:'README.txt', data:readme() });
+  await saveFile('lamp-studio-export.zip', zip(files));
+}
+// Inside Claude the page can only offer certain file types, so G-code is wrapped in a .zip there.
+async function saveFile(name, blob, wrapIfNeeded = false) {
+  try {
+    if (window.claude?.use) {
+      const dl = await window.claude.use('downloads');
+      if (dl) {
+        let fname = name, data = blob;
+        if (wrapIfNeeded && !/\.(zip|json|txt)$/i.test(name)) { fname = name.replace(/\.[^.]+$/, '') + '.zip'; data = zip([{ name, data:new Uint8Array(await blob.arrayBuffer()) }]); }
+        try { await dl.save({ filename:fname, data }); toast('Saved ' + fname); } catch (e) { toast(e?.code === 'declined' ? 'Download cancelled' : 'Download unavailable here'); }
+        return;
+      }
+    }
+  } catch (e) {}
+  const a = el('a', { href:URL.createObjectURL(blob), download:name }); document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000); toast('Downloaded ' + name);
+}
+
+/* ═════════════════════ go ═════════════════════ */
+renderAll(); setTool('grab'); syncUndo();
+rebuild(); applyLook(); resize(); frameCamera();
+</script>
+</body>
+</html>
