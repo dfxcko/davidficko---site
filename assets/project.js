@@ -14,6 +14,10 @@ function applyLang(){ document.documentElement.lang=LANG; $$('[data-t]').forEach
 applyLang();
 $('#lang').addEventListener('click',()=>{ LANG=LANG==='en'?'sl':'en'; try{ localStorage.setItem('df-lang',LANG); }catch(e){} document.body.classList.add('swap'); setTimeout(()=>{ applyLang(); document.body.classList.remove('swap'); },350); });
 
+/* ---------- theme ---------- */
+$('#theme').addEventListener('click',()=>{ const t=document.documentElement.dataset.theme==='light'?'dark':'light';
+  document.documentElement.dataset.theme=t; try{ localStorage.setItem('df-theme',t); }catch(e){} });
+
 /* ---------- grain ---------- */
 (() => { const c=document.createElement('canvas'); c.width=c.height=160; const x=c.getContext('2d'), d=x.createImageData(160,160);
   for(let i=0;i<d.data.length;i+=4){ const v=Math.random()*255; d.data[i]=d.data[i+1]=d.data[i+2]=v; d.data[i+3]=255; }
@@ -21,6 +25,8 @@ $('#lang').addEventListener('click',()=>{ LANG=LANG==='en'?'sl':'en'; try{ local
 
 /* ---------- page transitions ---------- */
 const curtain=$('#curtain');
+try{ if(sessionStorage.getItem('df-zoom')===location.pathname.replace(/\//g,'')){ sessionStorage.removeItem('df-zoom');
+  const c=$('.p-cover img'); if(c){ curtain.style.background=`var(--ink2) center/cover no-repeat url("${c.currentSrc||c.src}")`; } } }catch(e){}
 function enter(){ requestAnimationFrame(()=>requestAnimationFrame(()=>curtain.classList.add('up'))); }
 addEventListener('pageshow',e=>{ if(e.persisted){ curtain.className='curtain up'; } });
 document.addEventListener('click',e=>{
