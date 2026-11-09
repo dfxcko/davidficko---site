@@ -6,7 +6,7 @@
   --pad:clamp(20px,3.2vw,48px);
   --ease:cubic-bezier(.7,0,.2,1);
 }
-[data-theme=light]{--ink:#efece6; --ink2:#e4e0d8; --bone:#121211; --mute:#86827a; --line:rgba(18,18,17,.14); --soft:#3b3934}
+[data-theme=light]{--ink:#ffffff; --ink2:#ffffff; --bone:#121211; --mute:#86827a; --line:rgba(18,18,17,.14); --soft:#3b3934}
 *{box-sizing:border-box;margin:0;padding:0}
 html{background:var(--ink);color:var(--bone);-webkit-font-smoothing:antialiased}
 html.lenis,html.lenis body{height:auto}
