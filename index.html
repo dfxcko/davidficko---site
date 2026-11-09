@@ -104,7 +104,7 @@ header nav a:hover span{transform:translateY(-100%)}
 .floor svg{display:block;overflow:visible}
 .floor svg *{fill:none;stroke:var(--bone)}
 .plate{position:absolute;transform-style:preserve-3d;transition:opacity 1s,filter .6s}
-.plate .lift{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .9s var(--out)}
+.plate .lift{position:absolute;inset:0;transform-style:preserve-3d}
 .plate .face,.plate .back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .plate .face{background:var(--ink2);overflow:hidden;outline:1px solid var(--line)}
 [data-theme=light] .plate .face{outline:0}
@@ -112,7 +112,6 @@ header nav a:hover span{transform:translateY(-100%)}
 .plate .back{transform:rotateY(180deg);background:var(--ink);outline:1px solid var(--line);display:flex;align-items:flex-end;padding:8px}
 .plate .post{position:absolute;left:50%;top:100%;width:1px;background:var(--bone);opacity:.35;transform-origin:top}
 .plate.on .face img,.plate:hover .face img{filter:none}
-.plate.on .lift{transform:translateZ(var(--pop)) translateY(calc(var(--h) * -.42)) scale(1.55)}
 .plate .face::after{content:attr(data-n);position:absolute;left:6px;top:5px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:#fff;mix-blend-mode:difference}
 .world.pre .plate{opacity:0}
 .hello{position:absolute;left:0;right:0;top:50%;transform:translateY(-62%);text-align:center;pointer-events:none;z-index:3;color:#F5C400}
@@ -423,18 +422,30 @@ function frame(t){
     const k=Math.round((rot - tRot)/360); drift=0; rot-=k*360; }
   rot+=(tRot-rot)*(RM?1:(intro?.09:.07)); tilt+=(tTilt-tilt)*.05; mx+=(tmx-mx)*.05;
   world.style.transform=`translateZ(-${R*.55}px) rotateX(${tilt + 0}deg) rotateY(${rot + mx*8}deg)`;
-  // snap after scrolling stops
-  if(false && !TOUCH && !intro && !dragging && !snapped && performance.now()-lastScroll>450 && Math.abs(scrollVel)<.15 && f<=N-1+.3){
-    snapped=true; const i=clamp(Math.round(f),0,N-1); if(Math.abs(f-i)>.04) goTo(i,1.1); }
+  // how far each plate is from the front, taken from the actual (smoothed) angle
+  popAmt+=((intro?0:1)-popAmt)*.06;
+  const fr=(((-rot/STEP_DEG)%N)+N)%N;
+  for(let i=0;i<N;i++){ let d=Math.abs(i-fr); d=Math.min(d,N-d); const t=Math.max(0,1-d), e=t*t*(3-2*t)*popAmt;
+    const k=Math.round(e*1000); if(k!==lastPop[i]){ lastPop[i]=k;
+      lifts[i].style.transform = k? `translateZ(${W*.9*e}px) translateY(${-.42*H*e}px) scale(${1+.55*e})` : ''; } }
+  // centring: once the wheel pauses, the glide simply ends on the nearest project
+  if(!TOUCH && !intro && !dragging && !centred && performance.now()-lastWheel>(overPlate?60:220)) centre();
 }
-let scrollVel=0, overPlate=false, driftV=.035;
+let scrollVel=0, overPlate=false, driftV=.035, popAmt=0, centred=true, lastWheel=0;
+const lifts=plates.map(p=>p.querySelector('.lift')), lastPop=plates.map(()=>-1);
 /* hovering a project: any leftover glide eases out instead of carrying on */
-world.addEventListener('pointerover',e=>{ if(e.pointerType!=='mouse'||!e.target.closest('.plate')) return; overPlate=true;
-  if(lenis && Math.abs(scrollVel)>.4){ const to=scrollY+Math.sign(scrollVel)*Math.min(Math.abs(scrollVel)*10,STEP()*.8);
-    lenis.scrollTo(to,{duration:.9,easing:t=>1-Math.pow(1-t,3)}); } });
+function centre(){
+  centred=true;
+  const dest = lenis ? lenis.targetScroll : scrollY;           // where the current glide would end
+  const fi=(dest-secTop()-INTRO())/STEP(); if(fi<-.5 || fi>N-.5) return;
+  const y=scrollForIndex(clamp(Math.round(fi),0,N-1)); if(Math.abs(y-dest)<2) return;
+  lenis ? lenis.scrollTo(y,{lerp:.05}) : scrollTo({top:y,behavior:'smooth'});
+}
+/* hovering a project ends the glide on the nearest project, gently */
+world.addEventListener('pointerover',e=>{ if(e.pointerType!=='mouse'||!e.target.closest('.plate')) return; overPlate=true; });
 world.addEventListener('pointerout',e=>{ if(!e.relatedTarget||!e.relatedTarget.closest||!e.relatedTarget.closest('.plate')) overPlate=false; });
-addEventListener('wheel',()=>{ lastScroll=performance.now(); snapped=false; },{passive:true});
-addEventListener('scroll',()=>{ if(!lenis){ lastScroll=performance.now(); snapped=false; } },{passive:true});
+addEventListener('wheel',()=>{ lastScroll=lastWheel=performance.now(); centred=false; },{passive:true});
+addEventListener('scroll',()=>{ if(!lenis){ lastScroll=performance.now(); } },{passive:true});
 
 /* touch: horizontal swipe turns the ring; vertical movement keeps scrolling the page */
 let tx0=0, ty0=0, t0=0, tracking=false, horiz=null;
@@ -461,7 +472,7 @@ let dx0=0, sy0=0, moved=0;
 stage.addEventListener('pointerdown',e=>{ if(e.pointerType!=='mouse') return; if(e.target.closest('a,button')) return; dragging=true; moved=0; dx0=e.clientX; sy0=scrollY; stage.setPointerCapture(e.pointerId); $('#ring').classList.add('drag'); });
 stage.addEventListener('pointermove',e=>{ if(!dragging) return; const d=e.clientX-dx0; moved=Math.max(moved,Math.abs(d));
   const y=sy0 - d*(STEP()/ (W*1.1)); lenis? lenis.scrollTo(clamp(y,0,1e9),{immediate:true}) : scrollTo(0,y); });
-stage.addEventListener('pointerup',e=>{ if(!dragging) return; dragging=false; $('#ring').classList.remove('drag'); snapped=false; lastScroll=performance.now();
+stage.addEventListener('pointerup',e=>{ if(!dragging) return; dragging=false; $('#ring').classList.remove('drag'); centred=false; lastScroll=lastWheel=performance.now();
   if(moved<6){ const p=document.elementFromPoint(e.clientX,e.clientY)?.closest('.plate'); if(p) plateClick(+p.dataset.i); } });
 plates.forEach(p=>p.addEventListener('click',e=>{ if(TOUCH||e.pointerType==='mouse'||e.detail===0) return; plateClick(+p.dataset.i); }));
 function plateClick(i){ if(TOUCH) started=true; if(inIntro){ goTo(i); return; } if(i===active) openProject(i); else goTo(i); }
