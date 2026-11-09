@@ -241,6 +241,23 @@ footer{display:flex;justify-content:space-between;padding-top:80px}
 .sp-stage canvas{position:absolute;inset:0;width:100%;height:100%}
 .sp-cap{position:absolute;left:0;right:0;bottom:-6px;display:flex;justify-content:space-between;color:var(--mute);pointer-events:none}
 @media(max-width:720px){.spiral-sec{grid-template-columns:1fr}.sp-stage{justify-self:stretch;max-width:none;order:-1}}
+/* spiral pop-up on the ring */
+.sp-pop{position:absolute;right:var(--pad);top:clamp(84px,12vh,120px);z-index:10;display:grid;grid-template-columns:92px 1fr;gap:14px;align-items:center;width:300px;padding:12px 14px 12px 12px;background:var(--ink);color:var(--bone);border:1px solid var(--line);border-radius:4px;opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity .7s var(--ease),transform .9s var(--ease)}
+.sp-pop.in{opacity:1;transform:none;pointer-events:auto}
+.sp-pop canvas{width:92px;height:92px;display:block}
+.sp-pop .k{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.sp-pop .k .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--bone);margin-right:7px;vertical-align:1px;animation:spblink 1.6s infinite}
+@keyframes spblink{50%{opacity:.25}}
+.sp-pop b{display:block;font-family:var(--serif);font-weight:400;font-size:30px;line-height:1;font-style:italic}
+.sp-pop p{font-size:12.5px;line-height:1.35;color:var(--mute);margin-top:4px}
+.sp-pop .go{display:inline-block;margin-top:8px}
+.sp-pop .x{background:none;border:none;color:var(--mute);font:inherit;font-size:15px;line-height:1;padding:2px 4px;cursor:pointer}
+.sp-pop .x:hover{color:var(--bone)}
+.sp-pop a.cover{position:absolute;inset:0;z-index:0}
+.sp-pop > *:not(.cover){position:relative;z-index:1;pointer-events:none}
+.sp-pop .x{pointer-events:auto}
+@media(max-width:720px){.sp-pop{top:auto;bottom:calc(clamp(24px,5vh,48px) + 150px);right:var(--pad);left:auto;width:auto;max-width:calc(100% - 2*var(--pad));grid-template-columns:56px 1fr;gap:10px;padding:8px 10px 8px 8px}.sp-pop canvas{width:56px;height:56px}.sp-pop b{font-size:22px}.sp-pop p{display:none}}
+@media (prefers-reduced-motion:reduce){.sp-pop .k .dot{animation:none}}
 </style>
 </head>
 <body class="loading">
@@ -282,6 +299,16 @@ footer{display:flex;justify-content:space-between;padding-top:80px}
           <a class="open" id="popen" href="#"><span data-t="open">Open project</span> →</a>
         </div>
       </div>
+      <aside class="sp-pop" id="spPop" aria-label="Spiral">
+        <a class="cover" href="/spiral/" aria-label="Open Spiral"></a>
+        <canvas id="spPopCanvas"></canvas>
+        <div>
+          <div class="k mono"><span class="muted"><span class="dot"></span><span data-t="popNew">New tool</span></span><button class="x" id="spPopX" aria-label="Close">×</button></div>
+          <b>Spiral</b>
+          <p data-t="popLine">Design a lamp and print it as one continuous line.</p>
+          <span class="go mono"><span data-t="popOpen">Try it</span> →</span>
+        </div>
+      </aside>
     </div>
   </section>
 
@@ -362,8 +389,8 @@ const N = PROJECTS.length;
 
 /* ---------- language ---------- */
 const T={
-  en:{cookies:'Cookies',hint:'Scroll or drag',swipe:'Swipe',sending:'Sending…',failed:'Could not send. Please write to hello@davidficko.com',work:'Work',contact:'Contact',all:'All',name:'Name',email:'Email',message:'Message',send:'Send',thanks:'Thank you.',open:'Open project',index:'Index',spKick:'Tool',spLead:'Design a lamp or vase and print it as one continuous line.',spSub:'Sculpt the form, watch the toolpath live, export G-code for Bambu Lab printers.',spOpen:'Open Spiral',title:'David Ficko — Architecture'},
-  sl:{cookies:'Piškotki',hint:'Drsaj ali povleci',swipe:'Povleci',sending:'Pošiljam…',failed:'Pošiljanje ni uspelo. Piši na hello@davidficko.com',work:'Dela',contact:'Kontakt',all:'Vse',name:'Ime',email:'E-pošta',message:'Sporočilo',send:'Pošlji',thanks:'Hvala.',open:'Odpri projekt',index:'Kazalo',spKick:'Orodje',spLead:'Oblikuj svetilko ali vazo in jo natisni kot eno samo neprekinjeno linijo.',spSub:'Oblikuj formo, v živo spremljaj pot šobe in izvozi G-kodo za tiskalnike Bambu Lab.',spOpen:'Odpri Spiral',title:'David Ficko — Arhitektura'}
+  en:{cookies:'Cookies',hint:'Scroll or drag',swipe:'Swipe',sending:'Sending…',failed:'Could not send. Please write to hello@davidficko.com',work:'Work',contact:'Contact',all:'All',name:'Name',email:'Email',message:'Message',send:'Send',thanks:'Thank you.',open:'Open project',index:'Index',spKick:'Tool',spLead:'Design a lamp or vase and print it as one continuous line.',spSub:'Sculpt the form, watch the toolpath live, export G-code for Bambu Lab printers.',spOpen:'Open Spiral',popNew:'New tool',popLine:'Design a lamp and print it as one continuous line.',popOpen:'Try it',title:'David Ficko — Architecture'},
+  sl:{cookies:'Piškotki',hint:'Drsaj ali povleci',swipe:'Povleci',sending:'Pošiljam…',failed:'Pošiljanje ni uspelo. Piši na hello@davidficko.com',work:'Dela',contact:'Kontakt',all:'Vse',name:'Ime',email:'E-pošta',message:'Sporočilo',send:'Pošlji',thanks:'Hvala.',open:'Odpri projekt',index:'Kazalo',spKick:'Orodje',spLead:'Oblikuj svetilko ali vazo in jo natisni kot eno samo neprekinjeno linijo.',spSub:'Oblikuj formo, v živo spremljaj pot šobe in izvozi G-kodo za tiskalnike Bambu Lab.',spOpen:'Odpri Spiral',popNew:'Novo orodje',popLine:'Oblikuj svetilko in jo natisni iz ene same linije.',popOpen:'Preizkusi',title:'David Ficko — Arhitektura'}
 };
 let LANG=(()=>{ if(location.hash==='#sl') return 'sl'; if(location.hash==='#en') return 'en';
   try{ const s=localStorage.getItem('df-lang'); if(s==='sl'||s==='en') return s; }catch(e){}
@@ -695,13 +722,10 @@ else { const t0=performance.now(), D=1500; (function c(t){ const p=clamp((t-t0)/
 })();
 </script>
 <script>
-/* Spiral teaser: a printer toolpath drawing itself, layer by layer — plain canvas, no libraries */
+/* Spiral teaser + pop-up: a printer toolpath drawing itself, layer by layer — plain canvas, no libraries */
 (function(){
-  const cv = document.getElementById('spCanvas'); if (!cv) return;
-  const ctx = cv.getContext('2d'), TAU = Math.PI * 2;
-  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const nameEl = document.getElementById('spName'), metaEl = document.getElementById('spMeta');
-  // three designs, same maths as the tool (radius r(θ, v) and height offset z(θ, v)), one continuous spiral each
+  const TAU = Math.PI * 2, RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lang = () => document.documentElement.lang === 'sl' ? 'sl' : 'en';
   const DESIGNS = [
     { name:{ en:'Mesh shade', sl:'Mrežasti senčnik' }, layers:150, H:.62,
       r:(th, v, L) => { const base = .23 + .66 * Math.pow(Math.sin((1 - v) * Math.PI / 2 + .12), 1.3);
@@ -714,44 +738,63 @@ else { const t0=performance.now(), D=1500; (function c(t){ const p=clamp((t-t0)/
       r:(th, v) => { const k = v * 14, L = Math.floor(k), bead = Math.sin(Math.PI * (k - L)), w = .5 + .5 * Math.sin(40 * th + (L & 1) * Math.PI); return .34 + .42 * Math.sin(v * Math.PI / 2) + .012 * (bead * (.25 + .75 * w) - .5) * 2; },
       z:() => 0 }
   ];
-  const SEG = 128;
-  let di = 0, t0 = performance.now(), running = false, raf = 0, W = 0, Hh = 0, dpr = 1, ink = '#121211';
-  const lang = () => document.documentElement.lang === 'sl' ? 'sl' : 'en';
-  function readInk(){ ink = getComputedStyle(document.documentElement).getPropertyValue('--bone').trim() || '#121211'; }
-  function size(){ const r = cv.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1); W = r.width; Hh = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(Hh * dpr); }
-  function label(){ const d = DESIGNS[di]; nameEl.textContent = '0' + (di + 1) + ' — ' + d.name[lang()]; metaEl.textContent = (lang() === 'sl' ? 'Pot šobe' : 'Toolpath') + ' · ' + (lang() === 'sl' ? 'ena linija' : 'one line'); }
-  function draw(now){
-    const d = DESIGNS[di], el = (now - t0) / 1000;
-    const grow = RM ? 1 : Math.min(1, el / 7);                     // print for 7 s, hold, then next design
-    if (!RM && el > 10.5) { di = (di + 1) % DESIGNS.length; t0 = now; label(); }
-    const rot = RM ? .6 : now / 1000 * .22, tilt = .42, ct = Math.cos(tilt), st = Math.sin(tilt);
-    const scale = Math.min(W, Hh) * .5, cx = W / 2, cy = Hh * .5 + d.H * scale * .46;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, Hh);
-    ctx.lineWidth = .7; ctx.lineJoin = 'round';
-    const shown = Math.max(1, Math.floor(d.layers * grow)), steps = shown * SEG;
-    const back = new Path2D(), front = new Path2D();
-    let prev = null;
-    for (let j = 0; j <= steps; j++) {
-      const t = j / SEG, L = Math.floor(t), th = (j % SEG) / SEG * TAU, v = t / d.layers;
-      const r = d.r(th, v, L), y = v * d.H + d.z(th, v);
-      const a = th + rot, x3 = r * Math.cos(a), z3 = r * Math.sin(a);
-      const px = cx + x3 * scale, py = cy - (y * ct - z3 * st) * scale, isFront = z3 > 0;
-      if (prev) { const p = prev[2] && isFront ? front : back; p.moveTo(prev[0], prev[1]); p.lineTo(px, py); }
-      prev = [px, py, isFront];
+  function spiral(cv, o = {}) {
+    const ctx = cv.getContext('2d'), SEG = o.seg || 128, stride = o.stride || 1, lw = o.lw || .7;
+    let di = o.start || 0, t0 = performance.now(), running = false, raf = 0, W = 0, Hh = 0, dpr = 1, ink = '#121211';
+    const readInk = () => { ink = getComputedStyle(cv).color || getComputedStyle(document.documentElement).getPropertyValue('--bone').trim() || '#121211'; };
+    const size = () => { const r = cv.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1); W = r.width; Hh = r.height; cv.width = Math.max(1, Math.round(W * dpr)); cv.height = Math.max(1, Math.round(Hh * dpr)); };
+    const label = () => o.onDesign && o.onDesign(DESIGNS[di], di);
+    function draw(now) {
+      const d = DESIGNS[di], el = (now - t0) / 1000;
+      const grow = RM ? 1 : Math.min(1, el / 7);
+      if (!RM && el > 10.5) { di = (di + 1) % DESIGNS.length; t0 = now; label(); }
+      const rot = RM ? .6 : now / 1000 * .22, tilt = .42, ct = Math.cos(tilt), st = Math.sin(tilt);
+      const scale = Math.min(W, Hh) * .5, cx = W / 2, cy = Hh * .5 + d.H * scale * .46;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, Hh);
+      ctx.lineWidth = lw; ctx.lineJoin = 'round';
+      const shown = Math.max(1, Math.floor(d.layers * grow)), back = new Path2D(), front = new Path2D();
+      let prev = null;
+      for (let L = 0; L < shown; L += stride) {
+        prev = null;
+        for (let s = 0; s <= SEG; s++) {
+          const t = L + s / SEG, th = (s % SEG) / SEG * TAU, v = t / d.layers;
+          const r = d.r(th, v, L), y = v * d.H + d.z(th, v), a = th + rot, x3 = r * Math.cos(a), z3 = r * Math.sin(a);
+          const px = cx + x3 * scale, py = cy - (y * ct - z3 * st) * scale, f = z3 > 0;
+          if (prev) { const p = prev[2] && f ? front : back; p.moveTo(prev[0], prev[1]); p.lineTo(px, py); }
+          prev = [px, py, f];
+        }
+      }
+      ctx.strokeStyle = ink; ctx.globalAlpha = .16; ctx.stroke(back); ctx.globalAlpha = .9; ctx.stroke(front);
+      if (prev && grow < 1) { ctx.globalAlpha = 1; ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(prev[0], prev[1], o.dot || 2.6, 0, TAU); ctx.fill(); }
+      ctx.globalAlpha = 1;
     }
-    ctx.strokeStyle = ink; ctx.globalAlpha = .16; ctx.stroke(back);
-    ctx.globalAlpha = .9; ctx.stroke(front);
-    // nozzle
-    if (prev && grow < 1) { ctx.globalAlpha = 1; ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(prev[0], prev[1], 2.6, 0, TAU); ctx.fill(); }
-    ctx.globalAlpha = 1;
+    const loop = now => { draw(now); if (running) raf = requestAnimationFrame(loop); };
+    const api = {
+      start(){ if (running || RM) return; running = true; raf = requestAnimationFrame(loop); },
+      stop(){ running = false; cancelAnimationFrame(raf); },
+      refresh(){ readInk(); size(); label(); if (!running) draw(performance.now()); }
+    };
+    api.refresh();
+    new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? api.start() : api.stop()), { rootMargin:'80px' }).observe(cv);
+    addEventListener('resize', () => api.refresh());
+    new MutationObserver(() => api.refresh()).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme', 'lang'] });
+    return api;
   }
-  function loop(now){ draw(now); if (running) raf = requestAnimationFrame(loop); }
-  function start(){ if (running || RM) return; running = true; raf = requestAnimationFrame(loop); }
-  function stop(){ running = false; cancelAnimationFrame(raf); }
-  readInk(); size(); label(); draw(performance.now());
-  new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? start() : stop()), { rootMargin:'120px' }).observe(cv);
-  addEventListener('resize', () => { size(); if (!running) draw(performance.now()); });
-  new MutationObserver(() => { readInk(); label(); if (!running) draw(performance.now()); }).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme', 'lang'] });
+  // section teaser
+  const cv = document.getElementById('spCanvas');
+  if (cv) { const nameEl = document.getElementById('spName'), metaEl = document.getElementById('spMeta');
+    spiral(cv, { onDesign:(d, i) => { nameEl.textContent = '0' + (i + 1) + ' — ' + d.name[lang()]; metaEl.textContent = (lang() === 'sl' ? 'Pot šobe' : 'Toolpath') + ' · ' + (lang() === 'sl' ? 'ena linija' : 'one line'); } }); }
+  // pop-up on the ring: slides in after the intro, closable for this visit
+  const pop = document.getElementById('spPop');
+  if (pop) {
+    let closed = false; try { closed = sessionStorage.getItem('df-spiral-pop') === '0'; } catch (e) {}
+    if (!closed) {
+      const anim = spiral(document.getElementById('spPopCanvas'), { seg:72, stride:6, lw:.55, dot:1.8, start:0 });
+      setTimeout(() => { pop.classList.add('in'); anim.refresh(); }, RM ? 600 : 2600);
+      document.getElementById('spPopX').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); pop.classList.remove('in'); anim.stop(); try { sessionStorage.setItem('df-spiral-pop', '0'); } catch (err) {} });
+      ['pointerdown', 'touchstart', 'mousedown', 'wheel'].forEach(ev => pop.addEventListener(ev, e => e.stopPropagation(), { passive:true }));  // don't drag the ring when using the card
+    } else pop.remove();
+  }
 })();
 </script>
 </body>
