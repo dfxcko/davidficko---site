@@ -1,4 +1,162 @@
 {
+"cdn": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/",
+"order": [
+{
+"name": "Mura",
+"year": 2026,
+"slug": "mura",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/2f6b94a4-e0fb-449c-bbd2-9c6ae24cfa89_rwc_0x401x3840x3002x640.jpg?h=fac8fe3dd89c3356ebbea0ede581d5c0",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/2f6b94a4-e0fb-449c-bbd2-9c6ae24cfa89_rwc_0x401x3840x3002x1280.jpg?h=8e4eaa2e83eb3a97b463104f0420617a"
+},
+{
+"name": "Light",
+"year": 2026,
+"slug": "light",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/0cfc81b6-16ff-4bb2-91b6-fdc47757d691_rwc_0x838x3024x2364x640.jpeg?h=3999122c300c4396bfa041cbdd7cdd56",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/0cfc81b6-16ff-4bb2-91b6-fdc47757d691_rwc_0x838x3024x2364x1280.jpeg?h=8ec55beae53e2336e20bf35fe253062f"
+},
+{
+"name": "Oculus",
+"year": 2025,
+"slug": "oculus",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/4e4e2127-b573-4efc-8d24-f9144f59995b_rwc_267x429x700x547x640.jpg?h=30fbdbb74d7af07283845376a814211c",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/4e4e2127-b573-4efc-8d24-f9144f59995b_rwc_267x429x700x547x700.jpg?h=8f398ebaef8f65657a0af3a06adad499"
+},
+{
+"name": "Countryard",
+"year": 2025,
+"slug": "countryard",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/82d02020-5c5f-4681-b0c1-142732800ba3_rwc_189x0x3472x2715x640.jpg?h=cea49304ff961f559b5dbe618b58dea7",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/82d02020-5c5f-4681-b0c1-142732800ba3_rwc_189x0x3472x2715x1280.jpg?h=1f9c1dd4f4c03cbace472650772396b2"
+},
+{
+"name": "Saja",
+"year": 2025,
+"slug": "saja",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/d7e4f17b-4239-486b-b259-aee757175b1a_rwc_0x0x2762x2160x640.png?h=0aa012c236d818af8640b5e5bb693b76",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/d7e4f17b-4239-486b-b259-aee757175b1a_rwc_0x0x2762x2160x1280.png?h=780502dfc82f68f2eacda65267e9b58a"
+},
+{
+"name": "MTS",
+"year": 2025,
+"slug": "mts",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/0acf1903-bf8d-4ba1-8973-294494727cbd_rwc_276x233x1558x1218x640.png?h=2a91ef96a72a336d1488ce66fc0021fa",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/0acf1903-bf8d-4ba1-8973-294494727cbd_rwc_276x233x1558x1218x1280.png?h=1d758f56ff5571398fde73fe8400f81a"
+},
+{
+"name": "Kapital ubija?",
+"year": 2024,
+"slug": "kapital-ubija",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/da05c9db-e2de-4372-b1f3-52a27a86ac5e_carw_202x158x640.jpg?h=4292f5b619f56dda21d261bd22294c90",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/da05c9db-e2de-4372-b1f3-52a27a86ac5e_carw_202x158x1280.jpg?h=9ec8fdd9d85618808708160d962d8dcd"
+},
+{
+"name": "Research Hub",
+"year": 2024,
+"slug": "research-hub",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/3ff6547b-37a8-43e2-8e24-358584c1291d_carw_202x158x640.gif?h=e639c805222744e074c36621af68e7dd",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/3ff6547b-37a8-43e2-8e24-358584c1291d_carw_202x158x1280.gif?h=0c2738c73cd4319d6953a7b01d7ff935"
+},
+{
+"name": "UMAG",
+"year": 2024,
+"slug": "umag",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/d227a59d-6ad7-47c6-bcef-b1e98b7ec8a8_rwc_224x0x4486x3508x640.png?h=c6093e4c75302defa89544ab475e17de",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/d227a59d-6ad7-47c6-bcef-b1e98b7ec8a8_rwc_224x0x4486x3508x1280.png?h=93c3655a32650d1ecf059db65cc40502"
+},
+{
+"name": "MNO",
+"year": 2024,
+"slug": "mno",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/3d3515a4-991f-485b-b28d-53254df3c087_rwc_74x0x1493x1168x640.jpg?h=54d7719b3d3b6ef750ca6b791130a330",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/3d3515a4-991f-485b-b28d-53254df3c087_rwc_74x0x1493x1168x1280.jpg?h=d0a5e8b1347e574a86b728ffa6ac274d"
+},
+{
+"name": "MC01DF",
+"year": 2024,
+"slug": "mc01df",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/821b1981-620e-488e-896e-62b03c2c79a4_rwc_154x265x1062x830x640.png?h=a1e51e1a7472fd342efbf04fa9d8d90c",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/821b1981-620e-488e-896e-62b03c2c79a4_rwc_154x265x1062x830x1280.png?h=ba0d83471e9b1c3848aa7067c8d37a4a"
+},
+{
+"name": "ZVM",
+"year": 2024,
+"slug": "zvm",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/93af4277-5d6d-401e-99ff-e0ec480ad826_rwc_96x88x886x692x640.png?h=fb4e82ac4f9e7dc9f42a03d56f9fabc8",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/93af4277-5d6d-401e-99ff-e0ec480ad826_rwc_96x88x886x692x1280.png?h=c5266754c8e5c78670051ec8ebbf17ce"
+},
+{
+"name": "House",
+"year": 2024,
+"slug": "hisa",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/a35c2a8b-dd07-438c-a15f-723fbfbbad4c_rwc_326x0x5983x4678x640.png?h=4e8ed0d773a022b098c2ec39e6e3f232",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/a35c2a8b-dd07-438c-a15f-723fbfbbad4c_rwc_326x0x5983x4678x1280.png?h=af63832b00c5c80163f1afe338a72079"
+},
+{
+"name": "NVIII",
+"year": 2024,
+"slug": "nviii",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/1706218f-dfb2-48d9-9d07-4d47eeef536b_rwc_19x0x2174x1700x640.png?h=1d73ae2684a6c0e243b1362a87b3434f",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/1706218f-dfb2-48d9-9d07-4d47eeef536b_rwc_19x0x2174x1700x1280.png?h=a31fe7630d54203a31c8595704f92317"
+},
+{
+"name": "MC Center",
+"year": 2022,
+"slug": "prenova-mc-center",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/327aa42a-1b83-42fc-a529-233a35dd838e_rwc_345x306x1071x837x640.png?h=2018f2b8e57da8eaa167ceef4643c791",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/327aa42a-1b83-42fc-a529-233a35dd838e_rwc_345x306x1071x837x1280.png?h=1aee730bffa264367f3302b4d46e61de"
+},
+{
+"name": "Stadion DF01",
+"year": 2022,
+"slug": "stadion-df01",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/261c29d9-5023-44f4-b86d-d48512495e0d_rwc_495x238x1028x803x640.png?h=756ae8418f69c265b7485e536c11e0b4",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/261c29d9-5023-44f4-b86d-d48512495e0d_rwc_495x238x1028x803x1280.png?h=9943e297d1252e17e997e778dea70ab1"
+},
+{
+"name": "Therme 3L",
+"year": 2022,
+"slug": "therme-3l",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/2233d9e4-59e1-4bf8-a2de-4f13d27cb4d5_carw_202x158x640.png?h=31e6a61eb630df3076454ae9a40849cb",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/2233d9e4-59e1-4bf8-a2de-4f13d27cb4d5_carw_202x158x1280.png?h=b3825c8092d002093a0df318ecaf6287"
+},
+{
+"name": "CS8",
+"year": 2021,
+"slug": "case-study-8",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/785a5d8c-4a0d-4275-881b-75358d0529dc_rwc_0x120x1103x862x640.jpg?h=e1cb6858cbca4100a12ece1ad6fe53d4",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/785a5d8c-4a0d-4275-881b-75358d0529dc_rwc_0x120x1103x862x1103.jpg?h=f7f2ad71ec4a426b513a476af3213872"
+},
+{
+"name": "01H",
+"year": 2021,
+"slug": "01h",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/ecf449e2-2810-4389-b055-1c280dac7237_rwc_0x117x1080x844x640.jpg?h=6e42ce054914ead210e11426c344844c",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/ecf449e2-2810-4389-b055-1c280dac7237_rwc_0x117x1080x844x1080.jpg?h=ac0a5a90367590fcaeeb0bd207e3925c"
+},
+{
+"name": "AE2",
+"year": 2021,
+"slug": "ae2",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/02d47cb4-06a8-4781-b56c-1157721e3b4a_rwc_284x131x1526x1193x640.jpg?h=861408495848420bb43daf9d2452ddf3",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/02d47cb4-06a8-4781-b56c-1157721e3b4a_rwc_284x131x1526x1193x1280.jpg?h=99c3ef0345e462f14588c5f80eb44d31"
+},
+{
+"name": "Light",
+"year": 2021,
+"slug": "light-painting",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/5119cd60-2155-423d-91d3-5886830cbcfc_carw_202x158x640.JPG?h=c55a4d42d34172af23bae79e0ea42b3e",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/5119cd60-2155-423d-91d3-5886830cbcfc_carw_202x158x1280.JPG?h=92f24f1cd455b37d08f6107eb79c2564"
+},
+{
+"name": "Skala",
+"year": 2020,
+"slug": "mountain-home",
+"thumb": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/9245143a-ed8d-494e-bd26-5ccd9debaeb2_rwc_0x213x1959x1531x640.jpg?h=3748b07dd0cc3a17eb6745c4308826ac",
+"cover": "https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/9245143a-ed8d-494e-bd26-5ccd9debaeb2_rwc_0x213x1959x1531x1280.jpg?h=3109a409542ba551ee642360dad49756"
+}
+],
+"projects": {
 "mura": {
 "meta": "",
 "mods": [
@@ -339,5 +497,6 @@
 "t": "GENTRIFIKACIJA?\nSlovar slovenskega knjižnega jezika termin gentrifikacija opredeljuje kot:\n»spreminjanje pretežno bivalnih mestnih predelov z lokalnim prebivalstvom s pozidavo, prenovo v predele s turistično, storitveno namembnostjo višjega razreda.« [1] Besedo je skovala ter prvič uporabila britanska sociologinja Ruth Glass, ko je v Londonu opazovala preseljevanje srednjega, premožnejšega sloja (»the gentry«) v revnejše predele delavskega razreda. Definicja besede, ki jo najdemo v SSKJ je v skladu z opažanji Glassove:\n»Ena za drugo so mnoge četrti delavskega razreda v Londonu zasedli srednji razredi, zgornji in spodnji. Zanikrne, skromne hiše in koče z dvema prostoroma zgoraj in dvema spodaj so bile prevzete, ko so jim potekle najemne pogodbe, in so postale elegantna, draga bivališča. (...) Ko se ta proces 'gentrifikacije' začne v neki četrti, poteka hitro, dokler niso vsi ali večina prvotnih prebivalcev delavskega razreda izpodrinjeni, in se celoten socialni značaj četrti spremeni.«\n[2, Glass, 1964, xviii – xix]\nSharon Zukin, profesorica emerita sociologije, je analizirala spreminjanje\npredela SoHo v New Yorku. V večinoma delavski predel mesta so se začeli priseljevati umetniki, ki so si v starejših, cenovno dostopnih hišah začeli urejati studie in stanovanja. [3] Umetniki so v sosesko prinesli »kulturni kapital«[4], kar je pritegnilo višje družbene razrede, ki so s časom zaradi večje kupne moči umetnike izrinili. Po Bordieu se kulturni kapital nanaša na neekonomske vire, kot so znanje, veščine, poznavanje norm in vrednot ter kulturne dobrine. [5, 1986]\nGary Bridge, socialni urbani geograf, omenja, da sta distirbucija in kroženje kulturnega kapitala ključni sili, ki vplivata na usodo mest v metropolitanskih območjih po svetu, predvsem v okviru sprememb, ki jih povzroča gentrifikacija.[6, v Velkavrh, 26]\nNeil Smith, geografski teoretik, poudarja, da je gentrifikacija del širšega procesa urbanega razvoja. Ne vidi težav v povpraševanju novega srednjega razreda, temveč v ponudbi na nempremičninskem trgu. Pudarja, da je ključni dejavnik gentrifikacije vse večja razlika med potencialno vrednostjo zemljiščne rente in kapitalizirano vrednostjo zemljišča.  Ustvarjeno rentno vrzel izkoriščajo nepremičninski agenti in razvijalci tako, da najprej načrtno razvrednotijo\nsosesko, nato pa jo za dobiček obnovijo. [7, Smith v Hekič]\nHackworth gentrifikacijo razloži kot »produkcijo prostora za postopoma vse bolj premožne uporabnike« [6, v Velkavrh, 27] Sklepamo lahko, da je ključna razlika med gentrifikacijo nekega območja in prenovo ali revitalizacijo v tem, da gentrifikacija zmeraj vodi do izrinjenja ali razpada prvotne skupnosti. Zaradi zvišanega standarda so prvotni prebivalci primorani zapustiti gentrificirano območje.\n\nGENTRIFIKACIJA V LJUBLJANI?\nKritični geograf David Harvey, ki je zagovornik Lefebvrejevega koncepta »Pravica do mesta«, spremembo v načinu upravljanja mest, v okoliščinah neoliberalizma, opiše kot pomik od menedžerske kulture k podjetniški. Staro mesto je bilo organizirano okoli tovarne, novo mesto, ki je kot podjetje, pa je organizirano okoli porabe. [8] Mesta se danes vse bolj ukvarjajo s tem kako privabiti čim več kapitala ter porabnikov. Zukin ugotavlja: »Koncept se je preselil od kvalitete ljudi h kvaliteti stvari in nedavno h kvaliteti izkušnje.«[9]\n\nPrebivalec mesta postaja hkrati turist, ki mesto doživlja in predvsem troši denar, kvaliteta življenja pa se prodaja kot turistična znamenitost.[8] Ploštajner poudarja, da se prenova Ljubljanjskega mestenga središča ravna po tej podjetniški strategiji: »Še pred desetletjem smo se lahko zgražali nad tem, da središče mesta propada, ker se je poraba preselila v BTC, zdaj pa smo priča oživljanju mestnega središča, ki pa je postalo zgolj premišljeno in v skladu z načeli »novega urbanizma« urejeno trgovsko središče.«[8]\nPodobno se dogaja z javnimi prostori, postajajo prostori spektakla.\n»V družbah, kjer vladajo moderne produkcijske razmere, se celotno življenje kaže kot neizmerno kopičenje spektaklov.« [10, Debord] Debord spektakel razlaga kot »medosebni družbeni odnos, katerega posrednik so podobe.«[11]\nPloštajner opisuje proces nastajanja prostora spektakla:»S trgov se umikajo parkirišča in na njih rastejo koncertni odri, na ulicah ni več avtomobilov, ampak stojnice, nabrežja niso več prazna, temveč polna lokalov.«[8]\nČe so včasih mesta predstavljala zatočišče najbolj propulzivnih, ustvarjalnih, inovativnih, tudi čudnih posameznikov in skupnosti, gentrifikacija pomeni ravno obratno. Povzroči izrinjenje ravno teh posameznikov in skupnosti, mesta si več ne morejo privoščiti. Prostor rojevanja novih trendov, kulturnih gibanj in inovacije, postane spektakel kulture, dobrin in storitev. Vsakdanje meščansko življenje, se je primorano umakniti spektaklu, ki mesto spremeni v stroj za ustvarjanje zasebnih dobičkov. [12]\n\nKAPITAL UBIJA?\nPrenova nekdanje tovarne Rog je vzbudila bujen odziv. Skvoterji so bili pred prenovo iz tovarne nasilno izgnani, njihova oprema pa uničena. Anonimna uporabnica, ki je od leta 2002 aktivno dejavna v boju izbrisanih kot raziskovalka, aktivistka, podpornica in sopotnica, zapisuje: »Ob tem brez svojega političnega doma niso ostali le izbrisani in migrantska skupnost, ampak so brez prostorov in svojih sanj ostali številni kolektivi na področju športa, cirkusa, glasbe, plesa, kreativnega pisanja, kvir-anarhističnega samoorganiziranja, gledališča, skupnostnega kuhanja in prehranjevanja, solidarnostnih in prijateljskih vezi, uničen je bil tako skejt park kot cirkusarna, koncertna dvorana, gore knjig, računalniška oprema in tako dalje. Kot je dejal Irfan Beširović – uničevanje prostorov, opreme in arhiva, vključno s transparenti, plakati, zapisniki skupščin in tako dalje spominja na zažiganje knjig v totalitarnih režimih.« [13]\nIdeja prvotne skupine Temp, ki je tovarno zasedla leta 2006, je bila vzpostavitev prostora ustvarjalnosti, ki ga je takrat v mestu primanjkovalo. »Kmalu se vzpostavi nov prostor za dialog, sodelovanje, neposredno demokracijo, skupščino – z namenom ustvariti mesto inovacij in novih načinov raziskovanja.« [14, Grabar] Ideja, ki je oblikovala Avtonomno tovarno Rog že pred prenovo, se je po evikciji in prenovi ponovno udejanjila v Centru Rog. Obstoječi uporabniki so bili z območja izrinjeni, prostor pa je postal del podjetniškega mesta, ki je organizirano okoli porabe. Avtentičnost Avtonomne tovarne Rog je nadomestil prostor spektakla kulture, dobrin in storitev.\nProjekt z arhitekturnega vidika predstavlja dober primer prenove obstoječega stavbnega tkiva. Arhitektura je zadržana, a hkrati kvalitetna. Boris Bežan, arhitekt, ki vodi studio BAX, je v intervjuju zapisal: » Želimo si, da bi objekt zares zaživel. Stavba je dovolj prilagodljiva, da so v njej mogoči kakršnikoli programi. Predvsem mlajša populacija želi prostore, ki omogočajo demokratično vključevanje posameznikov. Upam, da jim bo Rog namenil vsaj del prostorov: da bodo našli svojo delavnico, kjer bodo lahko počeli vse, kar bi običajno počeli v garaži staršev. Želim si, da bi v Rogu našli dopolnilo tistemu, kar pogrešajo v vsakdanjem življenju. «[15]\n\n»Kot ni bilo mogoče izbrisati ljudi, tudi ideje Avtonomne tovarne Rog ni mogoče ne izbrisati, ne uničiti. Prostori so uničeni, ideje in ljudje smo preživeli. Čeprav je bil uničen velik del arhiva izbrisanih, zgodovino tega boja, ki je tudi boj proti gentrifikaciji, predajamo prihajajočim generacijam.«[13]\n\nGentrifikacija predstavlja velik izziv nadaljnemu razvoju urbanih območij. Dokler se mesta razvijajo v smeri porabe in spektakla, lahko hitro podležejo gentrifikaciji in postanejo prostor za vedno bolj premožne uporabnike. Vskaršna prenova ali revitalizacija mestnega tkiva mora biti dobro premišljena, tako da gradi avtentičnost mesta in ne ruši obstoječe skupnosti. Če prenova tovarne Rog predstavlja kvaliteten primer prenove, pa sodelovanje investitorja z obstoječimi uporabniki predstavlja ravno nasprotno. Namesto participativnega oblikovanja je prišlo do nasilne evikcije ter izrinjenja. Kapital ubija? V primeru Roga je odgovor pritridilen. Kapital, ki za nekatere ubija, za druge gradi. Namesto da se sprašujemo, ali kapital ubija, bi se morali vprašati, ali kapital resnično prispeva k izgradnji skupnosti.\n\n1. Slovar slovenskega knjižnega jezika, www.fran.si [online]. Dostopno: https://www.fran.si/iskanje?View=2&Query=gentrifikacija. [Dostop 7.8.2024]\n2. Glass, R. (1964): Aspects of change. Glass, R. (ur): London: Aspects of change, str. xviii–xix. London: MacGibbon & Kee.\n3. Inštitut za politike prostora (2018): Kratka pot od revitalizacije do gentrifikacije: primer Ljubljane. Dostopno: https://ipop.si/2018/04/20/ kratka-pot-od-revitalizacije-do-gentrifikacije-primer-ljubljane [Dostop 6. 8. 2024]\n4. Bourdieu, Pierre (1986) »The Forms of Capital.« V John G. Richardson (ur.) Handbook of Theory and Research for the Sociology of Education. New York: Greenwood Press: 241–258.\n5. lbid.\n6. VELKAVRH, Zala, 2017, Kulturni kapital in mesto : analiza bivanjskih preferenc glede na kulturno tipologijo prebivalcev Ljubljane [na spletu]. Magistrsko delo. Ljubljana : Z. Velkavrh. Dostopno: http://dk.fdv.uni-lj.si/magistrska_dela_2/pdfs/mb22_velkavrh-zala.pdf. . [Dostop 7.8.2024]\n7. A. Hekič, Gentrifikacija središča Ljubljane: magistrsko delo. Ljubljana: [A. Hekič], 2023. [Na spletu]. Dostopno: http://revis.openscience.si/IzpisGradiva.php?id=9657.\n8. Ploštajner, Klemen. »Iskanje urbanega v podjetniškem mestu«. Spremna beseda. Novo urbano vprašanje. Andy Merrifield. Prev. Ana Kralj. Ljubljana: *cf., 2016, pp. 181-195\n9. S. Zukin, Naked City: The Death and Life of Authentic Urban Places, Oxford University Press, 2010.\n10. Debord, G. Družba spektakla ; Komentarji k Družbi spektakla ; Panegirik: prvi del. Ljubljana: ŠOU, Študentska založba, 1999, pp. 29-30\n11. Debord, G. »Society of the spectacle«. Rebel Press, London,2008, pp.12\n12. Inštitut za politike prostora (2023): Vsakdanja gentrifikacija Ljubljane ali kako nam je mesto spolzelo med prsti. Dostopno: https://ipop.si/2023/06/21/vsakdanja-gentrifikacija-ljubljane-ali-kako-nam-je-mesto-spolzelo-med-prsti/ [Dostop 6. 8. 2024]\n13. Radio študent: Od izbrisa ljudi do izbrisa prostorov, www.radiostudent.si [online]. Dostopno: https://radiostudent.si/druzba/crna-luknja/od-izbrisa-ljudi-do-izbrisa-prostorov. [Dostop: 10.8.2024]\n14. Nika Grabar, \"Prenovljene fasade ne morejo skriti problema revščine\" old.delo.si, Jul. 1, 2016 [Online]. Dostopno: https://old.delo.si/sobotna/prenovljene-fasade-ne-morejo-skriti-problema-revscine-1.html [Dostop 10.8.2024]\n15. Dostopno: https://outsider.si/studio-bax-intervju/ [Dostop: 10.8.2024]"
 }
 ]
+}
 }
 }

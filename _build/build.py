@@ -3,13 +3,24 @@ Run:  python3 _build/build.py   (from the repository root or anywhere)"""
 import json, re, html, os, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-CDN = 'https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/'
-data = json.load(open(ROOT / '_build' / 'projects.json', encoding='utf-8'))
+ALL = json.load(open(ROOT / '_build' / 'projects.json', encoding='utf-8'))
+CDN, ORDER, data = ALL['cdn'], ALL['order'], ALL['projects']
+MAN_PATH = ROOT / '_build' / 'images.json'
+MAN = json.load(open(MAN_PATH)) if MAN_PATH.exists() else {}
 
-# order, display name, year, cover (1280 crop) — read from the index page so both stay in sync
-idx = open(ROOT / 'index.html', encoding='utf-8').read()
-plist = json.loads('[' + re.search(r'const PROJECTS = \[(.*?)\n\];', idx, re.S).group(1) + ']')
-ORDER = [{'name': p[0], 'year': p[1], 'slug': p[2], 'cover': CDN + p[4]} for p in plist]
+def local(url):
+    """Local copy (made by fetch_images.py) if present, else the original CDN url."""
+    m = MAN.get(url)
+    if m and all((ROOT / f.lstrip('/')).exists() for f in m['files']):
+        return m
+    return {'src': url, 'set': '', 'w': 0, 'h': 0}
+
+def img_attrs(url, sizes):
+    m = local(url)
+    a = f'src="{esc(m["src"])}"'
+    if m['set']: a += f' srcset="{esc(m["set"])}" sizes="{sizes}"'
+    if m['w']: a += f' width="{m["w"]}" height="{m["h"]}"'
+    return a
 
 esc = lambda s: html.escape(s, quote=True)
 norm = lambda s: re.sub(r'[^a-z0-9]', '', s.lower())
@@ -56,14 +67,15 @@ def render_text(texts, title, meta):
 
 def render_gallery(imgs, title):
     out, i, n = [], 0, 0
-    def fig(u):
+    def fig(u, sizes='(max-width:720px) 100vw, 96vw'):
         nonlocal n; n += 1
-        return (f'<figure class="p-fig"><img src="{esc(CDN + u)}" alt="{esc(title)} — {n:02d}" '
+        return (f'<figure class="p-fig"><img {img_attrs(CDN + u, sizes)} alt="{esc(title)} — {n:02d}" '
                 f'loading="{"eager" if n < 3 else "lazy"}" decoding="async"><span class="n mono">{n:02d}</span></figure>')
     while i < len(imgs):
         kind, u = imgs[i].split(' ', 1)
         if kind == 'G' and i + 1 < len(imgs) and imgs[i + 1].startswith('G '):
-            out.append('<div class="p-pair">' + fig(u) + fig(imgs[i + 1].split(' ', 1)[1]) + '</div>'); i += 2
+            half = '(max-width:720px) 100vw, 48vw'
+            out.append('<div class="p-pair">' + fig(u, half) + fig(imgs[i + 1].split(' ', 1)[1], half) + '</div>'); i += 2
         else:
             out.append(fig(u)); i += 1
     return '\n'.join(out)
@@ -84,13 +96,24 @@ for k, p in enumerate(ORDER):
         .replace('{{NO}}', f'{k + 1:02d}')
         .replace('{{TOTAL}}', f'{len(ORDER):02d}')
         .replace('{{COUNT}}', f'{len(imgs):02d}')
-        .replace('{{COVER}}', esc(p['cover']))
+        .replace('{{COVER_ATTRS}}', img_attrs(p['cover'], '100vw'))
+        .replace('{{COVER}}', esc(local(p['cover'])['src'] if local(p['cover'])['w'] else p['cover']))
         .replace('{{TEXT}}', render_text(texts, p['name'], d['meta']))
         .replace('{{GALLERY}}', render_gallery(imgs, p['name']))
         .replace('{{NEXT_SLUG}}', nxt['slug'])
         .replace('{{NEXT_NAME}}', esc(nxt['name']))
-        .replace('{{NEXT_COVER}}', esc(nxt['cover'])))
+        .replace('{{NEXT_COVER_ATTRS}}', img_attrs(nxt['cover'], '100vw')))
     out = ROOT / p['slug'] / 'index.html'
     out.parent.mkdir(exist_ok=True)
     out.write_text(page, encoding='utf-8')
+
+# keep the home page list in sync (names, years, links, thumbnails)
+idx_path = ROOT / 'index.html'
+idx = idx_path.read_text(encoding='utf-8')
+thumb = lambda p: (MAN[p['cover']]['files'][0] if local(p['cover'])['w'] else p['thumb'])
+big = lambda p: (MAN[p['cover']]['files'][-1] if local(p['cover'])['w'] else p['cover'])
+rows = ',\n'.join('  ' + json.dumps([p['name'], p['year'], p['slug'], thumb(p), big(p)], ensure_ascii=False) for p in ORDER)
+idx = re.sub(r"const IMG='[^']*';", "const IMG='';", idx)
+idx = re.sub(r'const PROJECTS = \[.*?\n\];', lambda _: 'const PROJECTS = [\n' + rows + '\n];', idx, flags=re.S)
+idx_path.write_text(idx, encoding='utf-8')
 print(f'built {len(ORDER)} project pages')

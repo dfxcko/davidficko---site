@@ -1,0 +1,31 @@
+name: Copy images from old portfolio
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['_build/fetch_images.py', '_build/projects.json', '.github/workflows/images.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pillow
+      - name: Download and optimise images
+        run: python _build/fetch_images.py
+      - name: Rebuild pages to use the local images
+        run: python _build/build.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add images _build/images.json index.html */index.html
+          git diff --cached --quiet && echo "nothing to commit" || (git commit -m "Store project images in the site" && git push)

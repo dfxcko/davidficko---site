@@ -11,7 +11,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.myportfolio.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/project.css">
 </head>
@@ -40,7 +39,7 @@
     </div>
   </section>
 
-  <div class="p-cover"><img src="{{COVER}}" alt="{{TITLE}}" fetchpriority="high"></div>
+  <div class="p-cover"><img {{COVER_ATTRS}} alt="{{TITLE}}" fetchpriority="high"></div>
 
   <section class="p-intro">
     <div class="p-facts mono">
@@ -58,7 +57,7 @@
   </section>
 
   <a class="p-next" href="/{{NEXT_SLUG}}/">
-    <div class="bg"><img src="{{NEXT_COVER}}" alt="" loading="lazy"></div>
+    <div class="bg"><img {{NEXT_COVER_ATTRS}} alt="" loading="lazy"></div>
     <span class="mono muted" data-t="next">Next project</span>
     <div class="t">{{NEXT_NAME}} <em>→</em></div>
   </a>
