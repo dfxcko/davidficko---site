@@ -417,7 +417,9 @@ let rot=0, rotV=0, tRot=0, active=-1, inIntro=true, drift=0, lastScroll=0, snapp
 const secTop=()=>sec.offsetTop;
 function fFromScroll(){ return (scrollY - secTop() - INTRO())/STEP(); }
 function scrollForIndex(i){ return secTop() + INTRO() + i*STEP(); }
-function goTo(i, dur=1.1){ i=clamp(i,0,N-1); settled=i; if(TOUCH){ mTarget=i; $('#swipe').classList.add('gone'); return; } const y=scrollForIndex(i); lenis? lenis.scrollTo(y,{duration:dur}) : scrollTo({top:y,behavior:'smooth'}); }
+function goTo(i, dur=1.1){ i=clamp(i,0,N-1); settled=i; if(TOUCH){ mTarget=i; $('#swipe').classList.add('gone'); return; } const y=scrollForIndex(i); centred=true; lenis? lenis.scrollTo(y,{duration:dur,easing:wheelEase}) : scrollTo({top:y,behavior:'smooth'}); }
+/* like a heavy wheel: starts gently, gathers speed, settles softly */
+const wheelEase=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 
 function setActive(i){
   if(i===active) return; const dir=i>active?1:-1; active=i;
@@ -499,7 +501,7 @@ function armHover(i){
   hoverTimer=setTimeout(()=>{
     if(hoverIdx!==i || Math.abs(i-active)!==1 || Math.abs(rotV)>.15) return;
     hoverReady=false; hx=cxLast; hy=cyLast;   // wait for a real mouse move before this can happen again
-    goTo(i,.9);
+    goTo(i,1.35);
   },260);
 }
 let cxLast=0, cyLast=0; addEventListener('pointermove',e=>{ cxLast=e.clientX; cyLast=e.clientY; },{passive:true});
