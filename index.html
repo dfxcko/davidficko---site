@@ -226,21 +226,7 @@ footer{display:flex;justify-content:space-between;padding-top:80px}
 @media(max-width:720px){form.inq{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.grain,.cue i::after{animation:none}}
 
-/* ===== spiral teaser ===== */
-.spiral-sec{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(28px,5vw,80px);align-items:center;padding:clamp(80px,9vw,140px) var(--pad);border-top:1px solid var(--line)}
-.spiral-sec .sp-kick{display:flex;gap:14px;margin-bottom:22px}
-.spiral-sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(64px,10vw,150px);line-height:.88;letter-spacing:-.02em}
-.spiral-sec h2 i{font-style:italic}
-.spiral-sec .sp-lead{font-family:var(--serif);font-size:clamp(22px,2.3vw,32px);line-height:1.15;max-width:22ch;margin-top:26px}
-.spiral-sec .sp-sub{margin-top:18px;max-width:36ch;color:var(--mute)}
-.spiral-sec .sp-open{display:inline-flex;gap:10px;align-items:center;margin-top:36px;padding:13px 20px;border:1px solid var(--bone);border-radius:99px;transition:background .4s,color .4s}
-.spiral-sec .sp-open:hover{background:var(--bone);color:var(--ink)}
-.spiral-sec .sp-open .ar{transition:transform .5s var(--ease)}
-.spiral-sec .sp-open:hover .ar{transform:translateX(4px)}
-.sp-stage{position:relative;display:block;aspect-ratio:1/1;width:100%;max-width:620px;justify-self:end}
-.sp-stage canvas{position:absolute;inset:0;width:100%;height:100%}
-.sp-cap{position:absolute;left:0;right:0;bottom:-6px;display:flex;justify-content:space-between;color:var(--mute);pointer-events:none}
-@media(max-width:720px){.spiral-sec{grid-template-columns:1fr}.sp-stage{justify-self:stretch;max-width:none;order:-1}}
+/* ===== spiral pop-up ===== */
 /* spiral pop-up on the ring */
 .sp-pop{position:absolute;right:var(--pad);top:clamp(84px,12vh,120px);z-index:10;display:grid;grid-template-columns:92px 1fr;gap:14px;align-items:center;width:300px;padding:12px 14px 12px 12px;background:var(--ink);color:var(--bone);border:1px solid var(--line);border-radius:4px;opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity .7s var(--ease),transform .9s var(--ease)}
 .sp-pop.in{opacity:1;transform:none;pointer-events:auto}
@@ -312,20 +298,6 @@ footer{display:flex;justify-content:space-between;padding-top:80px}
     </div>
   </section>
 
-  <section class="spiral-sec" id="spiral">
-    <div>
-      <div class="sp-kick mono"><span class="muted" data-t="spKick">Tool</span><span class="muted">/</span><span class="muted">2026</span></div>
-      <h2><i>Spiral</i></h2>
-      <p class="sp-lead" data-t="spLead">Design a lamp or vase and print it as one continuous line.</p>
-      <p class="sp-sub" data-t="spSub">Sculpt the form, watch the toolpath live, export G-code for Bambu Lab printers.</p>
-      <a class="sp-open mono" href="/spiral/"><span data-t="spOpen">Open Spiral</span><span class="ar">→</span></a>
-    </div>
-    <a class="sp-stage" href="/spiral/" aria-label="Open Spiral">
-      <canvas id="spCanvas"></canvas>
-      <div class="sp-cap mono"><span id="spName">Mesh shade</span><span id="spMeta"></span></div>
-    </a>
-  </section>
-
   <section class="index" id="index">
     <div class="sec-head mono"><span class="muted" data-t="index">Index</span><div class="filters" id="filters"></div></div>
     <div class="rows" id="rows"></div>
@@ -389,8 +361,8 @@ const N = PROJECTS.length;
 
 /* ---------- language ---------- */
 const T={
-  en:{cookies:'Cookies',hint:'Scroll or drag',swipe:'Swipe',sending:'Sending…',failed:'Could not send. Please write to hello@davidficko.com',work:'Work',contact:'Contact',all:'All',name:'Name',email:'Email',message:'Message',send:'Send',thanks:'Thank you.',open:'Open project',index:'Index',spKick:'Tool',spLead:'Design a lamp or vase and print it as one continuous line.',spSub:'Sculpt the form, watch the toolpath live, export G-code for Bambu Lab printers.',spOpen:'Open Spiral',popNew:'New tool',popLine:'Design a lamp and print it as one continuous line.',popOpen:'Try it',title:'David Ficko — Architecture'},
-  sl:{cookies:'Piškotki',hint:'Drsaj ali povleci',swipe:'Povleci',sending:'Pošiljam…',failed:'Pošiljanje ni uspelo. Piši na hello@davidficko.com',work:'Dela',contact:'Kontakt',all:'Vse',name:'Ime',email:'E-pošta',message:'Sporočilo',send:'Pošlji',thanks:'Hvala.',open:'Odpri projekt',index:'Kazalo',spKick:'Orodje',spLead:'Oblikuj svetilko ali vazo in jo natisni kot eno samo neprekinjeno linijo.',spSub:'Oblikuj formo, v živo spremljaj pot šobe in izvozi G-kodo za tiskalnike Bambu Lab.',spOpen:'Odpri Spiral',popNew:'Novo orodje',popLine:'Oblikuj svetilko in jo natisni iz ene same linije.',popOpen:'Preizkusi',title:'David Ficko — Arhitektura'}
+  en:{cookies:'Cookies',hint:'Scroll or drag',swipe:'Swipe',sending:'Sending…',failed:'Could not send. Please write to hello@davidficko.com',work:'Work',contact:'Contact',all:'All',name:'Name',email:'Email',message:'Message',send:'Send',thanks:'Thank you.',open:'Open project',index:'Index',popNew:'New tool',popLine:'Design a lamp and print it as one continuous line.',popOpen:'Try it',title:'David Ficko — Architecture'},
+  sl:{cookies:'Piškotki',hint:'Drsaj ali povleci',swipe:'Povleci',sending:'Pošiljam…',failed:'Pošiljanje ni uspelo. Piši na hello@davidficko.com',work:'Dela',contact:'Kontakt',all:'Vse',name:'Ime',email:'E-pošta',message:'Sporočilo',send:'Pošlji',thanks:'Hvala.',open:'Odpri projekt',index:'Kazalo',popNew:'Novo orodje',popLine:'Oblikuj svetilko in jo natisni iz ene same linije.',popOpen:'Preizkusi',title:'David Ficko — Arhitektura'}
 };
 let LANG=(()=>{ if(location.hash==='#sl') return 'sl'; if(location.hash==='#en') return 'en';
   try{ const s=localStorage.getItem('df-lang'); if(s==='sl'||s==='en') return s; }catch(e){}
@@ -723,7 +695,7 @@ else { const t0=performance.now(), D=1500; (function c(t){ const p=clamp((t-t0)/
 })();
 </script>
 <script>
-/* Spiral teaser + pop-up: a printer toolpath drawing itself, layer by layer — plain canvas, no libraries */
+/* Spiral pop-up: a printer toolpath drawing itself, layer by layer — plain canvas, no libraries */
 (function(){
   const TAU = Math.PI * 2, RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const lang = () => document.documentElement.lang === 'sl' ? 'sl' : 'en';
@@ -781,10 +753,6 @@ else { const t0=performance.now(), D=1500; (function c(t){ const p=clamp((t-t0)/
     new MutationObserver(() => api.refresh()).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme', 'lang'] });
     return api;
   }
-  // section teaser
-  const cv = document.getElementById('spCanvas');
-  if (cv) { const nameEl = document.getElementById('spName'), metaEl = document.getElementById('spMeta');
-    spiral(cv, { onDesign:(d, i) => { nameEl.textContent = '0' + (i + 1) + ' — ' + d.name[lang()]; metaEl.textContent = (lang() === 'sl' ? 'Pot šobe' : 'Toolpath') + ' · ' + (lang() === 'sl' ? 'ena linija' : 'one line'); } }); }
   // pop-up on the ring: slides in after the intro, closable for this visit
   const pop = document.getElementById('spPop');
   if (pop) {
