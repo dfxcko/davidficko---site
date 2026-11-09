@@ -497,8 +497,7 @@ function centre(){
   lenis ? lenis.scrollTo(y,{duration:.75,easing:t=>1-Math.pow(1-t,4)}) : scrollTo({top:y,behavior:'smooth'});
 }
 /* hovering a project ends the glide on the nearest project, gently */
-world.addEventListener('pointerover',e=>{ if(e.pointerType!=='mouse'||!e.target.closest('.plate')) return; overPlate=true;
-  armHover(+e.target.closest('.plate').dataset.i); });
+world.addEventListener('pointerover',e=>{ if(e.pointerType!=='mouse'||!e.target.closest('.plate')) return; overPlate=true; });
 /* resting the mouse on the project just left or right of the front one turns the ring to it */
 let hoverTimer=0, hoverIdx=-1, hoverReady=true, hx=0, hy=0;
 addEventListener('pointermove',e=>{ if(!hoverReady && Math.hypot(e.clientX-hx,e.clientY-hy)>6) hoverReady=true; });
