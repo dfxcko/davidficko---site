@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>David Ficko — Architecture</title>
 <meta name="description" content="David Ficko — architecture. Selected projects 2020–2026.">
-<script>try{document.documentElement.dataset.theme=localStorage.getItem('df-theme')||'light'}catch(e){}</script>
+<script>try{localStorage.removeItem('df-theme');document.documentElement.dataset.theme=sessionStorage.getItem('df-theme')||'light'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
@@ -313,7 +313,7 @@ $('#lang').addEventListener('click',()=>{ LANG=LANG==='en'?'sl':'en'; try{ local
 
 /* ---------- theme ---------- */
 $('#theme').addEventListener('click',()=>{ const t=document.documentElement.dataset.theme==='light'?'dark':'light';
-  document.documentElement.dataset.theme=t; try{ localStorage.setItem('df-theme',t); }catch(e){} drawFloor(); });
+  document.documentElement.dataset.theme=t; try{ sessionStorage.setItem('df-theme',t); }catch(e){} drawFloor(); });
 
 /* ---------- grain ---------- */
 (() => { const c=document.createElement('canvas'); c.width=c.height=160; const x=c.getContext('2d'), d=x.createImageData(160,160);

@@ -16,7 +16,7 @@ $('#lang').addEventListener('click',()=>{ LANG=LANG==='en'?'sl':'en'; try{ local
 
 /* ---------- theme ---------- */
 $('#theme').addEventListener('click',()=>{ const t=document.documentElement.dataset.theme==='light'?'dark':'light';
-  document.documentElement.dataset.theme=t; try{ localStorage.setItem('df-theme',t); }catch(e){} });
+  document.documentElement.dataset.theme=t; try{ sessionStorage.setItem('df-theme',t); }catch(e){} });
 
 /* ---------- grain ---------- */
 (() => { const c=document.createElement('canvas'); c.width=c.height=160; const x=c.getContext('2d'), d=x.createImageData(160,160);

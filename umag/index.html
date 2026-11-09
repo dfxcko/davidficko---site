@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="utf-8">
-<script>(function(h){try{h.dataset.theme=localStorage.getItem('df-theme')||'light';var l=localStorage.getItem('df-lang');h.lang=(l==='sl'||l==='en')?l:((navigator.language||'').toLowerCase().indexOf('sl')===0?'sl':'en')}catch(e){}})(document.documentElement)</script>
+<script>(function(h){try{localStorage.removeItem('df-theme');h.dataset.theme=sessionStorage.getItem('df-theme')||'light';var l=localStorage.getItem('df-lang');h.lang=(l==='sl'||l==='en')?l:((navigator.language||'').toLowerCase().indexOf('sl')===0?'sl':'en')}catch(e){}})(document.documentElement)</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>UMAG — David Ficko</title>
 <meta name="description" content="UM: Akademija za glasbo University of Maribor: Academy of music">
