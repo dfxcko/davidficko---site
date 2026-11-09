@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Shade — Lamp Studio — David Ficko</title>
-<meta name="description" content="Sculpt a 3D-printed lamp or vase in your browser, preview the printed layers, try non-planar and overflow textures, and export G-code for Bambu Lab printers.">
+<meta name="description" content="Sculpt a 3D-printed lamp or vase in your browser, preview the printed layers, see the live toolpath, try non-planar layers, and export G-code for Bambu Lab printers.">
 <link rel="canonical" href="https://davidficko.com/shade/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="David Ficko">
@@ -20,91 +20,98 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0F2QH31JZW"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-0F2QH31JZW',{allow_google_signals:false,allow_ad_personalization_signals:false});</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-  :root{ --bg:#3a2820; --ink:#f3ebe0; --muted:#bfae9c; --line:rgba(243,235,224,.14); --panel:rgba(30,20,16,.88); --chip:rgba(243,235,224,.08); --accent:#ffb76b; --ok:#9fd39a; --warn:#f2c46b; --bad:#f08a7a; }
+  :root{ --bg:#ffffff; --ink:#121211; --soft:#3b3934; --muted:#86827a; --line:rgba(18,18,17,.14); --hair:rgba(18,18,17,.08); --panel:rgba(255,255,255,.94);
+    --ok:#3f8f5a; --warn:#c08a2a; --bad:#d2452f; --serif:"Instrument Serif","Times New Roman",serif; --sans:"Inter Tight",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace; }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font:14px/1.4 Inter,system-ui,sans-serif}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font:300 14px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
   #stage{position:fixed;inset:0;touch-action:none}
   canvas{display:block;outline:none}
-  button{font:inherit;color:inherit;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;transition:background .15s,border-color .15s}
-  button:hover{background:rgba(243,235,224,.14)}
-  button.on{background:var(--ink);color:#2a1c16;border-color:var(--ink)}
-  button:disabled{opacity:.35;cursor:default}
-  header{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;gap:6px;padding:12px 14px;pointer-events:none;z-index:5}
-  header h1{margin:0 6px 0 0;font:400 26px/1 "Instrument Serif",serif;pointer-events:auto;white-space:nowrap}
-  header h1 i{color:var(--accent)}
-  header .back{pointer-events:auto;color:var(--muted);text-decoration:none;font-size:20px;padding:2px 6px 2px 0}
+  .mono{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+  button{font:400 13px var(--sans);color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+  button:hover{border-color:var(--ink)}
+  button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  button:disabled{opacity:.3;cursor:default}
+  header{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;gap:8px;padding:16px 18px;pointer-events:none;z-index:5}
+  header h1{margin:0 8px 0 0;font:400 28px/1 var(--serif);letter-spacing:-.01em;pointer-events:auto;white-space:nowrap}
+  header h1 i{font-style:italic}
+  header .back{pointer-events:auto;color:var(--muted);text-decoration:none;font:300 20px var(--sans);padding:2px 6px 2px 0}
   header .back:hover{color:var(--ink)}
   header .sp{flex:1}
-  header button{pointer-events:auto;padding:7px 10px}
-  .seg{display:flex;pointer-events:auto;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:2px}
-  .seg button{border:none;background:transparent;padding:5px 11px;font-size:13px}
-  .seg button.on{background:var(--ink);color:#2a1c16}
-  .icon{width:18px;height:18px;display:block}
-  #tools{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;display:flex;gap:2px;padding:5px;background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:999px;z-index:6}
-  #tools button{border:none;background:transparent;padding:9px 12px;display:flex;align-items:center;gap:6px}
-  #tools button.on{background:var(--ink);color:#2a1c16}
-  #tools .lbl{font-size:13px}
-  #tools .div{width:1px;background:var(--line);margin:6px 2px}
-  #hint{position:fixed;left:50%;transform:translateX(-50%);bottom:76px;font-size:12px;color:var(--muted);background:rgba(20,13,10,.55);padding:5px 12px;border-radius:999px;pointer-events:none;transition:opacity .4s;z-index:4;white-space:nowrap}
-  #badge{position:fixed;left:14px;top:56px;font-size:11.5px;color:var(--muted);z-index:4;pointer-events:none;line-height:1.5}
-  #badge b{color:var(--ink);font-weight:500}
-  #panel{position:fixed;top:60px;right:14px;bottom:14px;width:330px;background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:20px;display:flex;flex-direction:column;z-index:7;overflow:hidden}
-  #tabs{display:flex;gap:2px;padding:8px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
-  #tabs button{border:none;background:transparent;padding:7px 11px;font-size:13px;color:var(--muted);white-space:nowrap}
-  #tabs button.on{background:var(--chip);color:var(--ink)}
-  #body{flex:1;overflow-y:auto;padding:4px 16px 24px}
-  .sec{margin-top:16px}
-  .sec h3{margin:0 0 8px;font:400 19px/1.1 "Instrument Serif",serif}
-  .sec h3 small{font:500 11px Inter,sans-serif;color:var(--muted);margin-left:6px;letter-spacing:.3px;text-transform:uppercase}
-  .sub{color:var(--muted);font-size:12px;margin:-4px 0 10px}
-  .row{margin:9px 0}
-  .row label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px}
-  .row label b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
-  input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:22px;background:transparent}
-  input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--line);border-radius:3px}
-  input[type=range]::-moz-range-track{height:3px;background:var(--line);border-radius:3px}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-7.5px;border-radius:50%;background:var(--ink);border:none}
-  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:none}
-  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
-  .chips button{padding:6px 11px;font-size:12.5px}
-  .presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .presets button{border-radius:14px;padding:10px;text-align:left;display:flex;flex-direction:column;gap:2px}
-  .presets button small{color:var(--muted);font-size:11px}
-  .presets button.on small{color:#5a4538}
+  header button{pointer-events:auto;padding:7px 9px;background:rgba(255,255,255,.8)}
+  .seg{display:flex;pointer-events:auto;border:1px solid var(--line);border-radius:999px;padding:2px;background:rgba(255,255,255,.85)}
+  .seg button{border:none;padding:5px 11px;font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+  .seg button.on{background:var(--ink);color:#fff}
+  .icon{width:17px;height:17px;display:block}
+  #viewbar{position:fixed;left:18px;top:62px;z-index:5;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+  #badge{font:400 10.5px/1.7 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);pointer-events:none}
+  #badge b{color:var(--ink);font-weight:400}
+  #badge .r{color:var(--bad)}
+  #tools{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;display:flex;gap:2px;padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:999px;z-index:6;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  #tools button{border:none;padding:8px 11px;display:flex;align-items:center;gap:6px}
+  #tools button.on{background:var(--ink);color:#fff}
+  #tools .lbl{font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+  #tools .div{width:1px;background:var(--line);margin:6px 3px}
+  #hint{position:fixed;left:50%;transform:translateX(-50%);bottom:72px;font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);pointer-events:none;transition:opacity .4s;z-index:4;white-space:nowrap}
+  #panel{position:fixed;top:64px;right:18px;bottom:18px;width:332px;background:var(--panel);border:1px solid var(--line);border-radius:4px;display:flex;flex-direction:column;z-index:7;overflow:hidden;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  #tabs{display:flex;gap:0;padding:0 8px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+  #tabs button{border:none;border-radius:0;padding:13px 10px 11px;font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid transparent;margin-bottom:-1px;white-space:nowrap}
+  #tabs button.on{background:none;color:var(--ink);border-bottom-color:var(--ink)}
+  #body{flex:1;overflow-y:auto;padding:2px 18px 26px}
+  .sec{margin-top:20px;padding-top:16px;border-top:1px solid var(--hair)}
+  .sec:first-child{border-top:none;padding-top:4px}
+  .sec h3{margin:0 0 6px;font:400 21px/1.1 var(--serif)}
+  .sec h3 small{font:400 10px var(--mono);color:var(--muted);margin-left:8px;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle}
+  .sub{color:var(--muted);font-size:12.5px;margin:0 0 10px}
+  .row{margin:10px 0}
+  .row label{display:flex;justify-content:space-between;font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+  .row label b{color:var(--ink);font-weight:400;text-transform:none;letter-spacing:0;font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:20px;background:transparent}
+  input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--ink);opacity:.9}
+  input[type=range]::-moz-range-track{height:1px;background:var(--ink)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;margin-top:-6px;border-radius:50%;background:#fff;border:1px solid var(--ink)}
+  input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#fff;border:1px solid var(--ink)}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0}
+  .chips button{padding:5px 10px;font-size:12.5px}
+  .presets{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .presets button{border-radius:3px;padding:10px;text-align:left;display:flex;flex-direction:column;gap:3px}
+  .presets button span{font:400 17px/1 var(--serif)}
+  .presets button small{color:var(--muted);font:400 9.5px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+  .presets button.on small{color:rgba(255,255,255,.65)}
   .swatches{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .sw{width:28px;height:28px;border-radius:50%;border:2px solid transparent;padding:0;cursor:pointer}
-  .sw.on{border-color:var(--ink)}
-  input[type=color]{width:28px;height:28px;border:none;padding:0;background:none;border-radius:50%;cursor:pointer}
+  .sw{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);padding:0;cursor:pointer}
+  .sw.on{outline:1px solid var(--ink);outline-offset:2px}
+  input[type=color]{width:24px;height:24px;border:none;padding:0;background:none;border-radius:50%;cursor:pointer}
   .toggle{display:flex;align-items:center;justify-content:space-between;margin:8px 0;font-size:13px}
-  .toggle button{padding:5px 12px;font-size:12.5px}
-  .stack{display:flex;flex-direction:column;gap:8px}
-  .stack button{border-radius:12px;text-align:left;padding:11px 14px}
-  .stack button.primary{background:var(--accent);color:#2a1c16;border-color:var(--accent);font-weight:600}
+  .toggle button{padding:4px 11px;font:400 10px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+  .stack{display:flex;flex-direction:column;gap:6px}
+  .stack button{border-radius:3px;text-align:left;padding:11px 13px}
+  .stack button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
   .note{font-size:12px;color:var(--muted);margin-top:10px}
-  .card{background:rgba(243,235,224,.05);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-top:8px}
-  .chk{display:flex;gap:8px;font-size:12.5px;margin:5px 0;align-items:flex-start}
-  .dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex:none}
+  .note b{color:var(--ink);font-weight:500}
+  .card{border:1px solid var(--line);border-radius:3px;padding:10px 12px;margin-top:8px}
+  .chk{display:flex;gap:9px;font-size:12.5px;margin:6px 0;align-items:flex-start}
+  .dot{width:7px;height:7px;border-radius:50%;margin-top:6px;flex:none}
   .dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.bad{background:var(--bad)}
-  .stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:12px;color:var(--muted)}
-  .stats b{display:block;color:var(--ink);font-weight:500;font-size:13px}
-  textarea{width:100%;min-height:90px;background:rgba(0,0,0,.25);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px;font:11px/1.4 ui-monospace,monospace}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font:400 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .stats b{display:block;color:var(--ink);font:400 15px var(--sans);letter-spacing:0;text-transform:none}
+  textarea{width:100%;min-height:90px;background:#fafaf8;color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:8px;font:11px/1.4 var(--mono)}
   #grab{display:none}
-  #toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-10px);background:var(--ink);color:#2a1c16;padding:8px 14px;border-radius:999px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:20;white-space:nowrap}
+  #toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--ink);color:#fff;padding:7px 13px;border-radius:999px;font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;opacity:0;transition:.25s;pointer-events:none;z-index:20;white-space:nowrap}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  #busy{position:fixed;inset:0;background:rgba(10,6,4,.55);display:none;align-items:center;justify-content:center;z-index:30;font-size:14px}
+  #busy{position:fixed;inset:0;background:rgba(255,255,255,.6);display:none;align-items:center;justify-content:center;z-index:30;font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase}
   #busy.show{display:flex}
   @media (max-width:760px){
-    #panel{top:auto;left:0;right:0;bottom:0;width:auto;border-radius:20px 20px 0 0;max-height:56vh;transform:translateY(100%);transition:transform .3s ease;padding-bottom:env(safe-area-inset-bottom)}
+    #panel{top:auto;left:0;right:0;bottom:0;width:auto;border-radius:10px 10px 0 0;max-height:56vh;transform:translateY(100%);transition:transform .3s ease;padding-bottom:env(safe-area-inset-bottom)}
     #panel.open{transform:translateY(0)}
-    #grab{display:block;width:40px;height:4px;border-radius:4px;background:var(--line);margin:8px auto 0;cursor:pointer}
+    #grab{display:block;width:36px;height:3px;border-radius:3px;background:var(--line);margin:8px auto 0;cursor:pointer}
     #tools{bottom:calc(14px + env(safe-area-inset-bottom))}
     #tools .lbl{display:none}
-    #tools button{padding:10px 9px}
+    #tools button{padding:9px 8px}
     body.panel-open #tools,body.panel-open #hint{opacity:0;pointer-events:none}
-    header h1{font-size:21px} header h1 .full{display:none}
-    #badge{top:52px}
+    header{padding:12px 12px} header h1{font-size:23px} header h1 .full{display:none}
+    #viewbar{left:12px;top:54px}
   }
   @media (min-width:761px){ #editBtn{display:none} }
 </style>
@@ -124,10 +131,8 @@
   <div class="sp"></div>
   <button id="undoBtn" title="Undo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
   <button id="redoBtn" title="Redo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
-  <button id="viewBtn" title="Printed layers view"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-  <button id="lightBtn" title="Light on/off"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg></button>
 </header>
-<div id="badge"></div>
+<div id="viewbar"><div class="seg" id="viewSeg"><button data-view="path">Path</button><button data-view="printed">Beads</button><button data-view="surface">Surface</button></div><div id="badge"></div></div>
 <div id="hint">Drag on the lamp to sculpt · drag empty space to orbit</div>
 <div id="tools">
   <button data-tool="orbit" title="Orbit (O)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M3 12a9 4 0 0 0 18 0M12 3a4 9 0 0 1 0 18"/></svg><span class="lbl">Orbit</span></button>
@@ -151,10 +156,6 @@
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 /* ═════════════════════ constants & presets ═════════════════════ */
 const N = 41;                 // profile samples per part (v: 0 bottom → 1 top)
@@ -164,7 +165,7 @@ const prof = f => Array.from({length:N}, (_, i) => +f(i / (N - 1)).toFixed(4));
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 const pat = (tex, amp, freq, layers, twist = 0) => ({ tex, amp, freq, layers, twist });
 const NP0 = () => ({ mid:0, rim:0, waves:4, tilt:0 });
-const MOD0 = () => ({ src:'none', target:'depth', strength:.8, invert:false, radius:30, attrs:[], img:'', repeat:1, noise:3, seed:7 });
+const MOD0 = () => ({ src:'none', target:'depth', lift:2, strength:.8, invert:false, radius:30, attrs:[], img:'', repeat:1, noise:3, seed:7 });
 const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod } });
 
 const LAMP_PRESETS = {
@@ -190,8 +191,8 @@ const VESSEL_PRESETS = {
     vessel:part(.66, prof(v => .38 + .4 * Math.sin(v * Math.PI / 2)), pat('woven', .005, 56, 14), pat('rings', .006, 40, 12), '#efe6d8') },
   tide:{ name:'Tide vase', note:'Non-planar wavy layers',
     vessel:part(1.2, prof(v => .27 + .06 * Math.sin(v * Math.PI) - .03 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#d9cbb6', 0, 0, { mid:5, waves:2 }) },
-  crown:{ name:'Crown bowl', note:'Wavy rim, overflow texture',
-    vessel:part(.7, prof(v => .36 + .36 * Math.sin(v * Math.PI / 2)), pat('ribs', .006, 48, 20), pat('woven', .005, 40, 14), '#efe2cf', 0, 0, { rim:4, waves:5 }, { src:'noise', target:'flow', strength:.7, noise:3 }) },
+  crown:{ name:'Crown bowl', note:'Wavy rim, noise texture',
+    vessel:part(.7, prof(v => .36 + .36 * Math.sin(v * Math.PI / 2)), pat('ribs', .006, 48, 20), pat('woven', .005, 40, 14), '#efe2cf', 0, 0, { rim:4, waves:5 }, { src:'noise', target:'depth', strength:.7, noise:3 }) },
   pot:{ name:'Petal pot', note:'Lobed tumbler',
     vessel:part(.95, prof(v => .33 - .05 * v + .02 * smooth(.9, 1, v)), pat('ribs', .01, 56, 20), pat('diamond', .005, 28, 16), '#b88a6a', 8, .05) },
 };
@@ -223,7 +224,7 @@ const lineW = n => +(n * 1.12).toFixed(2);
 const clone = o => JSON.parse(JSON.stringify(o));
 function defaultState() {
   const L = LAMP_PRESETS.mushroom, V = VESSEL_PRESETS.bud;
-  return { v:3, view:'printed', risks:true, mode:'lamp', preset:'mushroom', vpreset:'bud', shade:clone(L.shade), base:clone(L.base), vessel:clone(V.vessel),
+  return { v:4, view:'path', risks:true, mode:'lamp', preset:'mushroom', vpreset:'bud', shade:clone(L.shade), base:clone(L.base), vessel:clone(V.vessel),
     collar:'#b8b5ae', light:{ on:false, power:1, warmth:.35 },
     print:{ printer:'x1c', nozzle:.4, filament:'pla', layerH:.2, speed:90, orient:'rim', bottom:4, abl:true, part:'shade', layerLines:true, customStart:'' } };
 }
@@ -236,7 +237,8 @@ function upgrade(s) {
     o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) }, np:{ ...NP0(), ...(P.np || {}) }, mod:{ ...MOD0(), ...(P.mod || {}) } };
     if (o[k].prof.length !== N) o[k].prof = d[k].prof;
   }
-  if (!s.v || s.v < 3) { o.light.on = false; o.view = 'printed'; o.v = 3; }
+  if (!s.v || s.v < 4) { o.view = 'path'; o.v = 4; }
+  for (const k of ['shade', 'base', 'vessel']) if (o[k].mod.target !== 'lift') o[k].mod.target = 'depth';
   return o;
 }
 let state;
@@ -340,16 +342,18 @@ function field(P, th, v) {
   } else if (M.src === 'noise') f = noiseF(M, th, v);
   return M.invert ? 1 - f : f;
 }
-const depthMul = (P, th, v) => (P.mod.src === 'none' || P.mod.target === 'flow') ? 1 : 1 - P.mod.strength * (1 - field(P, th, v));
-// Extrusion multiplier: "controlled overflow". Speed is divided by it so the extruder turns at a steady rate.
-const flowMul = (P, th, v) => (P.mod.src === 'none' || P.mod.target === 'depth') ? 1 : 1 + P.mod.strength * .5 * (2 * field(P, th, v) - 1);
+const depthMul = (P, th, v) => (P.mod.src === 'none' || P.mod.target !== 'depth') ? 1 : 1 - P.mod.strength * (1 - field(P, th, v));
+// The line keeps one width everywhere: fields only move it in/out (depth) or up/down (lift) — never more or less plastic.
+const flowMul = () => 1;
 // Non-planar layers ("isocurves"): layers bend up and down; flat where they meet the bed / bottom.
 function baseFrac(P, k) { const pr = state.print; const z0 = k === 'shade' ? pr.layerH : Math.max(1, Math.round(pr.bottom)) * pr.layerH; return Math.min(.3, z0 / (P.h * MM)); }
 function warpMM(P, k, th, v) {
-  const np = P.np; if (!np || (!np.mid && !(np.rim && k === 'vessel'))) return 0;
-  const vb = baseFrac(P, k), u = Math.min(1, Math.max(0, (v - vb) / (1 - vb))), n = Math.max(1, Math.round(np.waves));
-  let w = np.mid ? np.mid * Math.sin(n * th) * Math.sin(Math.PI * u) : 0;
+  const np = P.np, lift = P.mod.src !== 'none' && P.mod.target === 'lift' && P.mod.lift;
+  if (!np || (!np.mid && !(np.rim && k === 'vessel') && !lift)) return 0;
+  const vb = baseFrac(P, k), u = Math.min(1, Math.max(0, (v - vb) / (1 - vb))), n = Math.max(1, Math.round(np.waves)), env = Math.sin(Math.PI * u);
+  let w = np.mid ? np.mid * Math.sin(n * th) * env : 0;
   if (np.rim && k === 'vessel') w += np.rim * ((1 - np.tilt) * Math.sin(n * th) + np.tilt * Math.cos(th)) * u * u;
+  if (lift) w += P.mod.lift * P.mod.strength * (2 * field(P, th, v) - 1) * env;
   return w;
 }
 const lobeF = (P, th) => 1 + P.lobeAmt * Math.cos(Math.round(P.lobes) * th);
@@ -393,13 +397,11 @@ function buildPart(k, geom, closed = false) {
   const cosT = new Float32Array(segs), sinT = new Float32Array(segs);
   for (let i = 0; i < segs; i++) { const th = i / segs * TAU; cosT[i] = Math.cos(th); sinT[i] = Math.sin(th); }
   let p = 0, g = 0;
-  const wl = lineW(state.print.nozzle) / MM, hasFlow = P.mod.src !== 'none' && P.mod.target !== 'depth';
   for (let j = 0; j <= rings; j++) {
     const v = j / rings, y = y0 + v * P.h;
     for (let i = 0; i < segs; i++) {
       const th = i / segs * TAU;
       let r = surfR(P, th, v, m); const gl = GLOW, mk = MASKV;
-      if (hasFlow && !closed) r += (flowMul(P, th, v) - 1) * wl * .5;
       pos[p++] = r * cosT[i]; pos[p++] = y + warpMM(P, k, th, v) / MM; pos[p++] = r * sinT[i];
       GLOW = gl; MASKV = mk;
       glow[g] = .45 + .55 * GLOW; pm[g++] = MASKV;
@@ -442,8 +444,8 @@ function buildPrinted(k, geom) {
   let p = 0, q = 0;
   for (let j = 0; j <= steps; j++) {
     const th = (j % segs) / segs * TAU, c = Math.cos(th), s = Math.sin(th);
-    const lhj = ZH[j], fm = FM[j] * (lh / lhj) ** .5;                       // flow is compensated for layer height; overflow fattens the bead
-    let r = R[j] + (fm - 1) * w * .5, zc = ZC[j], rk = 0;
+    const lhj = ZH[j];                                                      // local layer height; width stays constant
+    let r = R[j], zc = ZC[j], rk = 0;
     if (j >= segs) {
       const d = r - R[j - segs], ratio = Math.abs(d) / ws;   // shift vs the layer below, in line widths
       rk = smooth(.5, .85, ratio);
@@ -454,7 +456,7 @@ function buildPrinted(k, geom) {
     const thp = (jp % segs) / segs * TAU, thm = (jm % segs) / segs * TAU;
     let tx = R[jp] * Math.cos(thp) - R[jm] * Math.cos(thm), tz = R[jp] * Math.sin(thp) - R[jm] * Math.sin(thm);
     let nx = tz, nz = -tx; const nl = Math.hypot(nx, nz) || 1; nx /= nl; nz /= nl;
-    const ins = lhj * .34 * Math.min(1.4, fm), rows = [[r - ins, zc - lhj / 2, -.85], [r, zc, 0], [r - ins, zc + lhj / 2, .85]];
+    const ins = lhj * .34, rows = [[r - ins, zc - lhj / 2, -.85], [r, zc, 0], [r - ins, zc + lhj / 2, .85]];
     for (const [rr, z, tilt] of rows) {
       pos[p] = rr * c; pos[p + 1] = y0 + z; pos[p + 2] = rr * s;
       const f = 1 / Math.hypot(.62, tilt) ; const h = tilt ? .62 : 1;
@@ -491,22 +493,27 @@ function buildPrinted(k, geom) {
 const stage = document.getElementById('stage');
 const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
 stage.appendChild(renderer.domElement);
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(32, 1, .05, 100);
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xffffff);
+const camera = new THREE.PerspectiveCamera(30, 1, .02, 100);
 camera.position.set(3.4, 2.3, 3.6);
-const hemi = new THREE.HemisphereLight(0xfff4e6, 0x3a2820, 1.1); scene.add(hemi);
-const key = new THREE.DirectionalLight(0xfff0dc, 1.6); key.position.set(3, 5, 2.5);
-key.castShadow = true; key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left:-2.5, bottom:-2.5, right:2.5, top:2.5 }); key.shadow.bias = -.0005; scene.add(key);
-const rim = new THREE.DirectionalLight(0xffd9b0, .6); rim.position.set(-3, 2, -3); scene.add(rim);
-const bulb = new THREE.PointLight(0xffb36b, 8, 0, 2); bulb.castShadow = true; bulb.shadow.mapSize.set(512, 512); bulb.shadow.bias = -.002; scene.add(bulb);
-const table = new THREE.Mesh(new THREE.CircleGeometry(6, 64), new THREE.MeshStandardMaterial({ color:0x2a1b15, roughness:.85 }));
-table.rotation.x = -Math.PI / 2; table.receiveShadow = true; scene.add(table);
-
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d5ce, 1.7));
+const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(2.2, 4, 3.2); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, .55); fill.position.set(-3, 1.2, -2); scene.add(fill);
+// build plate: printer-sized, 10 mm grid
+const bed = new THREE.Group(); scene.add(bed);
+function drawBed() {
+  bed.clear(); const [bx, by] = PRINTERS[state.print.printer].bed.map(v => v / MM);
+  const plate = new THREE.Mesh(new THREE.PlaneGeometry(bx, by), new THREE.MeshBasicMaterial({ color:0xf4f3ef }));
+  plate.rotation.x = -Math.PI / 2; plate.position.y = -.0008; bed.add(plate);
+  const pts = []; for (let x = -bx / 2; x <= bx / 2 + 1e-6; x += .1) pts.push(x, 0, -by / 2, x, 0, by / 2); for (let z = -by / 2; z <= by / 2 + 1e-6; z += .1) pts.push(-bx / 2, 0, z, bx / 2, 0, z);
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+  bed.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color:0x121211, transparent:true, opacity:.06 })));
+  const e = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(bx, by)), new THREE.LineBasicMaterial({ color:0x121211, transparent:true, opacity:.28 }));
+  e.rotation.x = -Math.PI / 2; bed.add(e);
+}
 // shared uniforms: printed layer lines + paint-mask tint
-const U = { uRisk:{ value:1 }, uRiskCol:{ value:new THREE.Color(0xe0453a) }, uLayer:{ value:.002 }, uLayerAmt:{ value:1 }, uMaskShow:{ value:0 }, uMaskCol:{ value:new THREE.Color(0xff9b4a) } };
+const U = { uRisk:{ value:1 }, uRiskCol:{ value:new THREE.Color(0xd2452f) }, uLayer:{ value:.002 }, uLayerAmt:{ value:1 }, uMaskShow:{ value:0 }, uMaskCol:{ value:new THREE.Color(0x3d6bff) } };
 function patch(mat, glow) {
   mat.onBeforeCompile = sh => {
     Object.assign(sh.uniforms, U);
@@ -525,42 +532,87 @@ function patch(mat, glow) {
   };
   return mat;
 }
-const shadeMat = patch(new THREE.MeshStandardMaterial({ roughness:.75, side:THREE.DoubleSide, emissive:0xffa64d }), true);
-const baseMat = patch(new THREE.MeshStandardMaterial({ roughness:.6, side:THREE.DoubleSide }), false);
-const vesselMat = patch(new THREE.MeshStandardMaterial({ roughness:.7, side:THREE.DoubleSide }), false);
-const collarMat = new THREE.MeshStandardMaterial({ metalness:.9, roughness:.28 });
+const matOpts = { roughness:.85, side:THREE.DoubleSide, polygonOffset:true, polygonOffsetFactor:1, polygonOffsetUnits:1 };
+const shadeMat = patch(new THREE.MeshStandardMaterial(matOpts), false);
+const baseMat = patch(new THREE.MeshStandardMaterial(matOpts), false);
+const vesselMat = patch(new THREE.MeshStandardMaterial(matOpts), false);
+const collarMat = new THREE.MeshStandardMaterial({ color:0xc9c6bf, metalness:.2, roughness:.5 });
 const meshes = {
   shade:new THREE.Mesh(new THREE.BufferGeometry(), shadeMat),
   base:new THREE.Mesh(new THREE.BufferGeometry(), baseMat),
   vessel:new THREE.Mesh(new THREE.BufferGeometry(), vesselMat),
 };
-meshes.base.castShadow = meshes.vessel.castShadow = true;
-Object.values(meshes).forEach(m => { m.receiveShadow = true; scene.add(m); });
-const collarMesh = new THREE.Mesh(undefined, collarMat); collarMesh.castShadow = true; scene.add(collarMesh);
+Object.values(meshes).forEach(m => scene.add(m));
+const collarMesh = new THREE.Mesh(undefined, collarMat); scene.add(collarMesh);
 let pathLine = null;
 
 const ringGeo = () => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(97 * 3), 3)); return g; };
-const brushRings = [0, 1, 2].map(i => { const l = new THREE.Line(ringGeo(), new THREE.LineBasicMaterial({ color:0xffc58a, transparent:true, opacity:i ? .35 : .95, depthTest:false })); l.renderOrder = 10; l.visible = false; scene.add(l); return l; });
-const paintCursor = new THREE.Mesh(new THREE.RingGeometry(.9, 1, 48), new THREE.MeshBasicMaterial({ color:0xffc58a, transparent:true, opacity:.9, depthTest:false, side:THREE.DoubleSide }));
+const brushRings = [0, 1, 2].map(i => { const l = new THREE.Line(ringGeo(), new THREE.LineBasicMaterial({ color:0x3d6bff, transparent:true, opacity:i ? .35 : .95, depthTest:false })); l.renderOrder = 10; l.visible = false; scene.add(l); return l; });
+const paintCursor = new THREE.Mesh(new THREE.RingGeometry(.9, 1, 48), new THREE.MeshBasicMaterial({ color:0x3d6bff, transparent:true, opacity:.9, depthTest:false, side:THREE.DoubleSide }));
 paintCursor.renderOrder = 11; paintCursor.visible = false; scene.add(paintCursor);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, .85, 0); controls.minDistance = .8; controls.maxDistance = 9; controls.maxPolarAngle = Math.PI * .52;
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .5, .5, .82); composer.addPass(bloom);
-composer.addPass(new OutputPass());
 
 function resize() {
   const w = stage.clientWidth, h = stage.clientHeight;
-  renderer.setSize(w, h); composer.setSize(w, h); camera.aspect = w / h;
-  camera.setViewOffset(w, h, innerWidth > 760 ? 160 : 0, innerWidth > 760 ? 0 : 40, w, h);
+  renderer.setSize(w, h); camera.aspect = w / h;
+  camera.setViewOffset(w, h, innerWidth > 760 ? 170 : 0, innerWidth > 760 ? 0 : 50, w, h);
   camera.updateProjectionMatrix(); requestRender();
 }
 addEventListener('resize', resize);
 let renderQueued = false;
-function requestRender() { if (!renderQueued) { renderQueued = true; requestAnimationFrame(() => { renderQueued = false; composer.render(); }); } }
-controls.addEventListener('change', requestRender);
+function requestRender() { if (!renderQueued) { renderQueued = true; requestAnimationFrame(() => { renderQueued = false; renderer.render(scene, camera); }); } }
+let strideT;
+controls.addEventListener('change', () => { requestRender(); if (state.view === 'path') { clearTimeout(strideT); strideT = setTimeout(() => { if (strideNow() !== pathStride) rebuildPaths(); }, 140); } });
+
+/* ───── live toolpath lines: the actual spiral the nozzle follows, drawn on the design ───── */
+let pathStride = 1; const pathObjs = {};
+const pathMat = new THREE.LineBasicMaterial({ vertexColors:true, transparent:true, opacity:.92 });
+function strideNow() {
+  const d = camera.position.distanceTo(controls.target), wpp = 2 * d * Math.tan(camera.fov * Math.PI / 360) / Math.max(200, stage.clientHeight);
+  const need = 3.4 / ((state.print.layerH / MM) / wpp);
+  return [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100].find(x => x >= need) || 100;
+}
+function buildPathLines(k) {
+  const pr = state.print, P = state[k], m = getMask(k), lh = pr.layerH / MM, w = lineW(pr.nozzle) / MM, H = P.h, y0 = partY0(k);
+  const layers = Math.max(2, Math.floor(H / lh)), rMax = Math.max(...P.prof) * (1 + P.lobeAmt);
+  const segs = Math.round(Math.min(360, Math.max(96, Math.max(P.freq, P.b.freq) * 6, TAU * rMax * MM / 1.2)));
+  const sel = []; for (let L = 0; L < layers; L += pathStride) sel.push(L); if (sel[sel.length - 1] !== layers - 1) sel.push(layers - 1);
+  const pos = new Float32Array(sel.length * segs * 6), col = new Float32Array(sel.length * segs * 6);
+  const ink = [.07, .07, .067], red = [.82, .27, .18], risks = state.risks;
+  const ptR = new Float32Array(segs + 1), ptY = new Float32Array(segs + 1), ptK = new Float32Array(segs + 1);
+  let o = 0;
+  for (const L of sel) {
+    for (let s = 0; s <= segs; s++) {
+      const t = L + s / segs, th = (s % segs) / segs * TAU;
+      const zb = Math.max(0, (t - 1) * lh), zt = Math.max(lh, t * lh), vc = Math.min(1, (zb + zt) / 2 / H);
+      const zc = (zb + zt) / 2 + (warpMM(P, k, th, Math.min(1, zb / H)) + warpMM(P, k, th, Math.min(1, zt / H))) / 2 / MM;
+      const r = surfR(P, th, vc, m);
+      let rk = 0;
+      if (risks && t >= 1) { const rp = surfR(P, th, Math.max(0, vc - lh / H), m); rk = smooth(.5, .85, Math.abs(r - rp) / w); }
+      ptR[s] = r + w * .06; ptY[s] = y0 + zc; ptK[s] = rk;
+    }
+    for (let s = 0; s < segs; s++) for (const q of [s, s + 1]) {
+      const th = (q % segs) / segs * TAU, kk = ptK[q];
+      pos[o] = ptR[q] * Math.cos(th); pos[o + 1] = ptY[q]; pos[o + 2] = ptR[q] * Math.sin(th);
+      col[o] = ink[0] + (red[0] - ink[0]) * kk; col[o + 1] = ink[1] + (red[1] - ink[1]) * kk; col[o + 2] = ink[2] + (red[2] - ink[2]) * kk; o += 3;
+    }
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  return { g, layers, shown:sel.length };
+}
+function rebuildPaths(list = parts()) {
+  pathStride = strideNow();
+  for (const k of ['shade', 'base', 'vessel']) if (pathObjs[k] && (!parts().includes(k) || state.view !== 'path')) { scene.remove(pathObjs[k]); pathObjs[k].geometry.dispose(); delete pathObjs[k]; }
+  if (state.view !== 'path') { updateBadge(); return; }
+  for (const k of list) {
+    const { g, layers, shown } = buildPathLines(k);
+    if (pathObjs[k]) { pathObjs[k].geometry.dispose(); pathObjs[k].geometry = g; } else { pathObjs[k] = new THREE.LineSegments(g, pathMat); scene.add(pathObjs[k]); }
+    pathObjs[k].userData = { layers, shown };
+  }
+  updateBadge(); requestRender();
+}
 
 const geoms = { shade:{}, base:{}, vessel:{} }, pendingPrinted = new Set(); let printedT;
 const interacting = () => !!drag || sliderDirty;
@@ -588,13 +640,12 @@ function rebuild(which = 'all', keepPath = false) {
     const rTop = Math.max(sampleProf(state.base.prof, 1), sampleProf(state.shade.prof, 1)) + .015;
     collarMesh.geometry?.dispose(); collarMesh.geometry = new THREE.CylinderGeometry(rTop, rTop, COLLAR_H, 72);
     collarMesh.position.y = state.base.h + COLLAR_H / 2;
-    bulb.position.set(0, state.base.h + COLLAR_H - Math.min(.32, state.shade.h * .45), 0);
   }
-  drawAttractors();
+  drawAttractors(); rebuildPaths(list);
   updateBadge(); persist(); requestRender();
 }
 const attrGroup = new THREE.Group(); scene.add(attrGroup);
-const attrGeo = new THREE.SphereGeometry(.018, 16, 12), attrMat = new THREE.MeshBasicMaterial({ color:0xff7a3d, depthTest:false });
+const attrGeo = new THREE.SphereGeometry(.018, 16, 12), attrMat = new THREE.MeshBasicMaterial({ color:0x3d6bff, depthTest:false });
 function drawAttractors() {
   attrGroup.clear();
   for (const k of parts()) {
@@ -603,22 +654,15 @@ function drawAttractors() {
   }
 }
 function applyLook() {
-  const L = state.light, lamp = state.mode === 'lamp', on = lamp && L.on;
-  const warm = new THREE.Color().lerpColors(new THREE.Color(0xffc98f), new THREE.Color(0xff8a2e), L.warmth);
-  shadeMat.color.set(state.shade.color); baseMat.color.set(state.base.color); vesselMat.color.set(state.vessel.color); collarMat.color.set(state.collar);
-  shadeMat.emissive.copy(warm); shadeMat.emissiveIntensity = on ? 1.15 * L.power : 0;
-  bulb.color.copy(warm); bulb.intensity = on ? 7 * L.power : 0; bulb.visible = on;
-  hemi.intensity = on ? .35 : 1.1; key.intensity = on ? .45 : 1.7; rim.intensity = on ? .2 : .6;
-  scene.background = new THREE.Color(on ? 0x140d0a : 0x3a2820);
-  table.material.color.set(on ? 0x22160f : 0x2c1d16);
-  bloom.enabled = on; bloom.strength = .45 + .25 * L.power;
-  document.documentElement.style.setProperty('--bg', on ? '#140d0a' : '#3a2820');
-  lightBtn.classList.toggle('on', on); lightBtn.style.display = lamp ? '' : 'none';
-  U.uLayer.value = state.print.layerH / MM; U.uLayerAmt.value = state.print.layerLines && state.view !== 'printed' ? 1 : 0;
-  U.uRisk.value = state.view === 'printed' && state.risks ? 1 : 0;
-  meshes.shade.castShadow = !on;
-  viewBtn.classList.toggle('on', state.view === 'printed');
-  persist(); requestRender();
+  const v = state.view, white = new THREE.Color(0xffffff);
+  // path view: pale surface so the dark toolpath reads clearly; beads/surface: filament colour
+  const tone = c => v === 'path' ? new THREE.Color(c).lerp(white, .82) : new THREE.Color(c);
+  shadeMat.color.copy(tone(state.shade.color)); baseMat.color.copy(tone(state.base.color)); vesselMat.color.copy(tone(state.vessel.color));
+  U.uLayer.value = state.print.layerH / MM; U.uLayerAmt.value = state.print.layerLines && v === 'surface' ? 1 : 0;
+  U.uRisk.value = v === 'printed' && state.risks ? 1 : 0;
+  key.intensity = v === 'printed' ? 1.9 : 1.5;
+  document.querySelectorAll('#viewSeg button').forEach(b => b.classList.toggle('on', b.dataset.view === v));
+  drawBed(); persist(); requestRender();
 }
 function frameCamera() {
   const H = state.mode === 'lamp' ? state.base.h + COLLAR_H : state.vessel.h;
@@ -774,7 +818,7 @@ function toolpath(k) {
   };
   const thM = th => flip ? -th : th;
   const W = (th, z) => { const w = warpMM(P, k, thM(th), vOf(z)); return flip ? -w : w; };  // non-planar offset in print space
-  const FMul = (th, z) => flowMul(P, thM(th), vOf(z));
+
   const wallSpeed = Math.min(pr.speed, fil.flow / (w * lh));
   const bottom = (k === 'shade') ? 0 : Math.max(0, Math.round(pr.bottom));
   // 1) solid bottom layers: outer loop + concentric loops inward, one continuous line per layer
@@ -811,8 +855,7 @@ function toolpath(k) {
     for (let s = 1; s <= segs; s++) {
       const t = rv + s / segs, z = z0 + t * lh, th = s / segs * TAU, r = R(th, z - lh / 2);
       const wz = W(th, z), lhe = Math.max(lh * .3, lh + wz - W(th, z - lh));   // local layer height
-      const fm = FMul(th, z - lh / 2);
-      push(r * Math.cos(th), r * Math.sin(th), z + wz, 0, Math.max(5, feed / fm), (rv === 0 ? s / segs : 1) * (lhe / lh) * fm); // first lap ramps up; E follows layer height & overflow
+      push(r * Math.cos(th), r * Math.sin(th), z + wz, 0, feed, (rv === 0 ? s / segs : 1) * (lhe / lh)); // first lap ramps up; E follows local layer height so width stays constant
     }
   }
   return { X, Y, Z, E, F, K, flip, H, lh, w, segs, revs, bottom, wallSpeed };
@@ -831,7 +874,7 @@ function showPath() {
   const k = printPart(); const tp = toolpath(k);
   clearPath();
   const n = tp.X.length, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
-  const y0 = partY0(k), c0 = new THREE.Color(0xffb76b), c1 = new THREE.Color(0xf3ebe0), c = new THREE.Color();
+  const y0 = partY0(k), c0 = new THREE.Color(0x121211), c1 = new THREE.Color(0x86827a), c = new THREE.Color();
   for (let i = 0; i < n; i++) {
     const zm = tp.flip ? tp.H - tp.Z[i] : tp.Z[i];
     pos[i * 3] = tp.X[i] / MM; pos[i * 3 + 1] = y0 + zm / MM; pos[i * 3 + 2] = (tp.flip ? -tp.Y[i] : tp.Y[i]) / MM;
@@ -876,7 +919,7 @@ function checks(k) {
     if (T.amp * 2 * MM < w * .35) add('warn', `${texName(T.tex)} depth ${(T.amp * 2 * MM).toFixed(1)} mm is subtle for a ${pr.nozzle} mm line.`);
   }
   // non-planar layers: layer-height range and how steeply the nozzle climbs within a layer
-  if (P.np.mid || (P.np.rim && k === 'vessel')) {
+  if (P.np.mid || (P.np.rim && k === 'vessel') || (P.mod.src !== 'none' && P.mod.target === 'lift')) {
     let lo = Infinity, hi = 0, slope = 0;
     for (let j = 1; j < 60; j++) { const v = j / 60, dv = lh / H;
       for (let i = 0; i < 120; i++) { const th = i / 120 * TAU, a = warpMM(P, k, th, v), b = warpMM(P, k, th, v - dv), l = lh + a - b; lo = Math.min(lo, l); hi = Math.max(hi, l);
@@ -885,10 +928,6 @@ function checks(k) {
     add(hi > lmax || lo < lmin ? 'bad' : (hi > pr.nozzle * .65 || lo < pr.nozzle * .2) ? 'warn' : 'ok', `Non-planar layers vary ${lo.toFixed(2)}–${hi.toFixed(2)} mm (extrusion is scaled to match; ${lmin.toFixed(2)}–${lmax.toFixed(2)} works for this nozzle).`);
     const deg = Math.atan(slope) * 180 / Math.PI;
     add(deg > 30 ? 'bad' : deg > 18 ? 'warn' : 'ok', `Nozzle climbs up to ${deg.toFixed(0)}° within a layer — above ~20° the nozzle cone can scrape the layer below. Fewer waves or less amplitude lowers it.`);
-  }
-  if (P.mod.src !== 'none' && P.mod.target !== 'depth') {
-    const mx = 1 + P.mod.strength * .5;
-    add(mx > 1.42 ? 'warn' : 'ok', `Overflow up to ${Math.round((mx - 1) * 100)}% more plastic (speed drops to match). Past ~40% beads start to blob.`);
   }
   if (P.mod.src === 'attract' && !P.mod.attrs.length) add('warn', 'Attractor source chosen but no points placed yet — tap the surface with the Attractor tool.');
   if (k === 'shade') { const rTop = sampleProf(P.prof, 1) * MM - w; add('ok', `Top opening is about Ø${(rTop * 2).toFixed(0)} mm inside — check your lamp socket fits.`); }
@@ -967,19 +1006,22 @@ function gcode(k) {
 
 /* ═════════════════════ UI ═════════════════════ */
 const $ = s => document.querySelector(s);
-const undoBtn = $('#undoBtn'), redoBtn = $('#redoBtn'), lightBtn = $('#lightBtn'), viewBtn = $('#viewBtn');
-function setView(v) { state.view = v; busy(() => { rebuild(); applyLook(); renderPanel(); toast(v === 'printed' ? 'Printed layers: ' + state.print.layerH.toFixed(2) + ' mm × ' + lineW(state.print.nozzle) + ' mm bead' : 'Design view'); }); }
-viewBtn.onclick = () => setView(state.view === 'printed' ? 'design' : 'printed');
+const undoBtn = $('#undoBtn'), redoBtn = $('#redoBtn');
+const VIEW_NAMES = { path:'Path · the nozzle line on the design', printed:'Beads · printed layers', surface:'Surface · design only' };
+function setView(v) { state.view = v; busy(() => { rebuild(); applyLook(); renderPanel(); toast(VIEW_NAMES[v]); }); }
+document.querySelectorAll('#viewSeg button').forEach(b => b.onclick = () => setView(b.dataset.view));
 const toastEl = $('#toast'); let toastT;
 function toast(m) { toastEl.textContent = m; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('show'), 2200); }
 let hintHidden = false; function hideHint() { if (!hintHidden) { hintHidden = true; $('#hint').style.opacity = 0; } }
 const busy = async fn => { $('#busy').classList.add('show'); await new Promise(r => setTimeout(r, 40)); try { return await fn(); } finally { $('#busy').classList.remove('show'); } };
 function updateBadge() {
   const pr = state.print; const k = printPart();
-  const g = state.view === 'printed' && geoms[parts()[0]]?.printed && meshes[parts()[0]].geometry === geoms[parts()[0]].printed ? geoms[parts()[0]].printed.userData : null;
-  $('#badge').innerHTML = (state.view === 'printed' ? `<b>Printed preview</b>${g ? ' · ' + g.layers + ' layers' : ' · building…'}${state.risks ? ' · <span style="color:#f08a7a">red = risky layers</span>' : ''}<br>` : '') + `Nozzle <b>${pr.nozzle} mm</b> · layer <b>${pr.layerH.toFixed(2)}</b> · line <b>${lineW(pr.nozzle)}</b><br>${PRINTERS[pr.printer].name} · ${FILAMENTS[pr.filament].name}`;
+  const v = state.view, k0 = parts()[0];
+  let line1 = '';
+  if (v === 'path') { const u = pathObjs[k0]?.userData; line1 = `<b>Toolpath</b> · ${u ? (pathStride > 1 ? `every ${pathStride}th of ${u.layers} layers — zoom in for all` : `all ${u.layers} layers`) : '…'}${state.risks ? ' · <span class="r">red = risky</span>' : ''}<br>`; }
+  else if (v === 'printed') { const g = geoms[k0]?.printed && meshes[k0].geometry === geoms[k0].printed ? geoms[k0].printed.userData : null; line1 = `<b>Printed beads</b>${g ? ' · ' + g.layers + ' layers' : ' · building…'}${state.risks ? ' · <span class="r">red = risky</span>' : ''}<br>`; }
+  $('#badge').innerHTML = line1 + `Nozzle <b>${pr.nozzle}</b> · layer <b>${pr.layerH.toFixed(2)}</b> · line <b>${lineW(pr.nozzle)} mm</b><br>${PRINTERS[pr.printer].name} · ${FILAMENTS[pr.filament].name}`;
 }
-
 function setTool(t) {
   ui.tool = t; document.querySelectorAll('#tools [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
   U.uMaskShow.value = isPaint() ? 1 : 0; showBrush(null);
@@ -989,7 +1031,6 @@ document.querySelectorAll('#tools [data-tool]').forEach(b => b.onclick = () => {
 function loadState(s) { state = upgrade(s); for (const k in maskCache) delete maskCache[k]; for (const k in imgCache) delete imgCache[k]; if (state.mode === 'vessel') ui.surf = 'vessel'; else if (ui.surf === 'vessel') ui.surf = 'shade'; }
 undoBtn.onclick = () => { if (!undoStack.length) return; flushMasks(); redoStack.push(JSON.stringify(state)); loadState(JSON.parse(undoStack.pop())); syncUndo(); rebuild(); applyLook(); renderAll(); };
 redoBtn.onclick = () => { if (!redoStack.length) return; flushMasks(); undoStack.push(JSON.stringify(state)); loadState(JSON.parse(redoStack.pop())); syncUndo(); rebuild(); applyLook(); renderAll(); };
-lightBtn.onclick = () => { pushUndo(); state.light.on = !state.light.on; applyLook(); renderPanel(); };
 document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
 function setMode(m) {
   if (state.mode === m) return; pushUndo(); state.mode = m; ui.surf = m === 'vessel' ? 'vessel' : 'shade';
@@ -1009,7 +1050,7 @@ $('#grab').onclick = () => openPanel(false);
 stage.addEventListener('pointerdown', () => { if (panel.classList.contains('open')) openPanel(false); });
 
 const TAB_NAMES = { shape:'Shape', surface:'Surface', light:'Light', print:'Print', file:'File' };
-const TABS_FOR = () => state.mode === 'lamp' ? ['shape', 'surface', 'light', 'print', 'file'] : ['shape', 'surface', 'print', 'file'];
+const TABS_FOR = () => ['shape', 'surface', 'print', 'file'];
 const tabsEl = $('#tabs'), body = $('#body');
 function renderTabs() {
   tabsEl.innerHTML = '';
@@ -1106,13 +1147,14 @@ function renderPanel() {
     maskOp('Top half', m => { for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) m[j * MW + i] = smooth(.4, .6, j / (MH - 1)); });
     maskOp('Stripes', m => { for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) m[j * MW + i] = smooth(-.3, .3, Math.sin(i / MW * TAU * 6)); });
     sp.append(ops);
-    const sm = section('Modulate', 'From the attractor / Image Sampler technique: a field drives texture depth, or extrusion (overflow) with speed adjusted to match.');
+    const sm = section('Modulate', 'Attractor / Image Sampler technique: a field moves the line in and out, or lifts layers up and down. The line width never changes.');
     const M = P.mod, rbm = () => rebuild(k);
     chips(sm, [['none', 'Off'], ['attract', 'Attractors'], ['image', 'Image'], ['noise', 'Noise']], M.src, v => { pushUndo(); M.src = v; if (v === 'attract') setTool('attract'); rbm(); renderPanel(); });
     if (M.src !== 'none') {
       sm.append(el('div', { className:'sub', textContent:'Drives', style:'margin:8px 0 2px' }));
-      chips(sm, [['depth', 'Texture depth'], ['flow', 'Line thickness'], ['both', 'Both']], M.target, v => { pushUndo(); M.target = v; rbm(); renderPanel(); });
+      chips(sm, [['depth', 'In / out'], ['lift', 'Up / down']], M.target, v => { pushUndo(); M.target = v; rbm(); renderPanel(); });
       slider(sm, 'Strength', () => M.strength, v => M.strength = v, 0, 1, .01, pct, rbm);
+      if (M.target === 'lift') slider(sm, 'Lift range', () => M.lift, v => M.lift = v, .5, 10, .5, v => '±' + v + ' mm', rbm);
       toggle(sm, 'Invert', M.invert, v => { M.invert = v; rbm(); });
       if (M.src === 'attract') {
         slider(sm, 'Reach', () => M.radius, v => M.radius = v, 8, 120, 1, v => v + ' mm', () => { rbm(); });
@@ -1147,13 +1189,6 @@ function renderPanel() {
     const s3 = section('Colour');
     swatches(s3, k === 'base' ? ['#3b2622', '#2f2420', '#5a3b2c', '#ddd3c4', '#6b6258', '#8a5a3b'] : ['#ece3d6', '#f0d9b5', '#e8c8a8', '#d9d2c5', '#b88a6a', '#7f8f7a'], P.color, c => { P.color = c; applyLook(); });
   }
-  else if (ui.tab === 'light') {
-    const s = section('Light');
-    toggle(s, 'Lamp on', state.light.on, v => { state.light.on = v; applyLook(); });
-    slider(s, 'Brightness', () => state.light.power, v => state.light.power = v, .2, 2, .01, pct, applyLook);
-    slider(s, 'Warmth', () => state.light.warmth, v => state.light.warmth = v, 0, 1, .01, v => Math.round(4000 - v * 1800) + ' K', applyLook);
-    s.append(el('div', { className:'note', textContent:'Grooves in the texture glow brighter, like light passing through thinner walls.' }));
-  }
   else if (ui.tab === 'print') renderPrint();
   else if (ui.tab === 'file') {
     const s = section('Design file');
@@ -1172,12 +1207,12 @@ function renderPrint() {
   chips(s1, Object.entries(PRINTERS).map(([k, p]) => [k, p.name]), pr.printer, k => { pushUndo(); pr.printer = k; rr(); });
   const s2 = section('Nozzle', 'Bigger nozzle → thicker, faster, bolder layers. Match the nozzle that’s installed.');
   chips(s2, NOZZLES.map(n => [n, n + ' mm']), pr.nozzle, n => { pushUndo(); pr.nozzle = n; pr.layerH = +(n * .5).toFixed(2); pr.speed = n === .4 ? 90 : n === .6 ? 70 : 50; pr.bottom = Math.max(2, Math.ceil(.9 / pr.layerH)); busy(() => { rebuild(); rr(); }); });
-  slider(s2, 'Layer height', () => pr.layerH, v => pr.layerH = v, +(pr.nozzle * .25).toFixed(2), +(pr.nozzle * .75).toFixed(2), .01, v => v.toFixed(2) + ' mm', () => { updateBadge(); applyLook(); if (state.view === 'printed') parts().forEach(schedulePrinted); });
+  slider(s2, 'Layer height', () => pr.layerH, v => pr.layerH = v, +(pr.nozzle * .25).toFixed(2), +(pr.nozzle * .75).toFixed(2), .01, v => v.toFixed(2) + ' mm', () => { updateBadge(); applyLook(); if (state.view === 'printed') parts().forEach(schedulePrinted); if (state.view === 'path') rebuildPaths(); });
   onCommit = () => renderPanel();
   slider(s2, 'Wall speed', () => pr.speed, v => pr.speed = v, 15, 200, 1, v => { const cap = FILAMENTS[pr.filament].flow / (lineW(pr.nozzle) * pr.layerH); return v > cap ? `${v} → ${Math.round(cap)} mm/s (flow limit)` : v + ' mm/s'; });
-  const sv = section('Preview', 'Printed view builds the real bead spiral at this layer height and line width.');
-  chips(sv, [['printed', 'Printed layers'], ['design', 'Design surface']], state.view, v => setView(v));
-  if (state.view === 'printed') toggle(sv, 'Highlight risky layers (red) and droop', state.risks, v => { state.risks = v; applyLook(); });
+  const sv = section('View', 'Path draws the nozzle line on your design. Beads builds the printed layers at this height and width.');
+  chips(sv, [['path', 'Path'], ['printed', 'Beads'], ['surface', 'Surface']], state.view, v => setView(v));
+  if (state.view !== 'surface') toggle(sv, 'Mark risky layers in red', state.risks, v => { state.risks = v; rebuild(); applyLook(); });
   else toggle(sv, 'Show layer lines on model', pr.layerLines, v => { pr.layerLines = v; applyLook(); });
   const s3 = section('Filament');
   chips(s3, Object.entries(FILAMENTS).map(([k, f]) => [k, f.name]), pr.filament, k => { pushUndo(); pr.filament = k; rr(); });
