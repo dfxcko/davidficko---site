@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Light — David Ficko</title>
+<meta name="description" content="photography project - painting with light">
+<meta property="og:title" content="Light — David Ficko">
+<meta property="og:description" content="photography project - painting with light">
+<meta property="og:image" content="https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/5119cd60-2155-423d-91d3-5886830cbcfc_carw_202x158x1280.JPG?h=92f24f1cd455b37d08f6107eb79c2564">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.myportfolio.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/project.css">
+</head>
+<body>
+<div class="curtain" id="curtain"></div>
+<div class="grain" id="grain"></div>
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="ring"><span>+</span></div>
+
+<header>
+  <a href="/" class="logo">D<em>F</em></a>
+  <nav class="mono">
+    <a href="/#index"><span data-t="work">Work</span><span data-t="work">Work</span></a>
+    <a href="/#contact"><span data-t="contact">Contact</span><span data-t="contact">Contact</span></a>
+    <button class="lang" id="lang" aria-label="Language"><b data-l="en">EN</b><i>/</i><b data-l="sl">SL</b></button>
+  </nav>
+</header>
+
+<main>
+  <section class="p-hero">
+    <a class="p-back mono" href="/#index"><i></i><span data-t="back">All work</span></a>
+    <h1 class="p-title">Light</h1>
+    <div class="p-meta mono">
+      <span><span class="muted" data-t="no">No.</span>21 / 22</span>
+      <span>2021</span>
+    </div>
+  </section>
+
+  <div class="p-cover"><img src="https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/5119cd60-2155-423d-91d3-5886830cbcfc_carw_202x158x1280.JPG?h=92f24f1cd455b37d08f6107eb79c2564" alt="Light" fetchpriority="high"></div>
+
+  <section class="p-intro">
+    <div class="p-facts mono">
+      <div><span class="muted" data-t="year">Year</span><span>2021</span></div>
+      <div><span class="muted" data-t="no">No.</span><span>21</span></div>
+      <div><span class="muted" data-t="images">Images</span><span>04</span></div>
+    </div>
+    <div class="p-text">
+<p class="p-only-meta">photography project - painting with light</p>
+    </div>
+  </section>
+
+  <section class="p-gallery">
+<figure class="p-fig"><img src="https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/e8a898a2-6071-431a-940e-a49d804241d2_rw_1920.JPG?h=6933d4bd0de289f7cbecff8e01434ef6" alt="Light — 01" loading="eager" decoding="async"><span class="n mono">01</span></figure>
+<figure class="p-fig"><img src="https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/9104c77b-273d-46e8-9de6-ab83ed7d578c_rw_1920.JPG?h=845931cfb820e605f04ac16963861833" alt="Light — 02" loading="eager" decoding="async"><span class="n mono">02</span></figure>
+<figure class="p-fig"><img src="https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/6dc61ed4-56a9-40fc-8856-2d13de868965_rw_1920.JPG?h=9f2ba78d941f75d468fbf8c6b18f2d0a" alt="Light — 03" loading="lazy" decoding="async"><span class="n mono">03</span></figure>
+<figure class="p-fig"><img src="https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/40f7440c-c58f-4099-8825-2a82638b906d_rw_1920.JPG?h=66ffbc77f28cf0ea4abd426a9f6fa93d" alt="Light — 04" loading="lazy" decoding="async"><span class="n mono">04</span></figure>
+  </section>
+
+  <a class="p-next" href="/mountain-home/">
+    <div class="bg"><img src="https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/9245143a-ed8d-494e-bd26-5ccd9debaeb2_rwc_0x213x1959x1531x1280.jpg?h=3109a409542ba551ee642360dad49756" alt="" loading="lazy"></div>
+    <span class="mono muted" data-t="next">Next project</span>
+    <div class="t">Skala <em>→</em></div>
+  </a>
+  <footer class="mono">
+    <span class="muted">© 2026 David Ficko</span>
+    <a href="#top" data-top>↑</a>
+  </footer>
+</main>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true">
+  <button class="x" id="lbX" data-t="close">Close</button>
+  <img alt="">
+  <div class="bar mono">
+    <span id="lbN">01 / 01</span>
+    <div class="nav"><button id="lbP" data-t="prev">Prev</button><button id="lbF" data-t="nxt">Next</button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="/assets/project.js"></script>
+</body>
+</html>
