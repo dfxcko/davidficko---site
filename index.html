@@ -60,8 +60,6 @@ button{font:inherit;color:inherit}
 .loader .bar i{display:block;height:100%;background:var(--bone);transform:scaleX(0);transform-origin:left}
 .curtain{position:fixed;inset:0;background:var(--ink2);z-index:96;transform:translateY(100%);pointer-events:none}
 .curtain.go{transform:translateY(0);transition:transform .75s var(--ease)}
-.zoom{position:fixed;z-index:97;overflow:hidden;transition:all .9s var(--ease);pointer-events:none}
-.zoom img{width:100%;height:100%;object-fit:cover;display:block}
 
 /* header */
 header{position:fixed;top:0;left:0;right:0;z-index:80;display:flex;justify-content:space-between;align-items:center;padding:22px var(--pad);mix-blend-mode:difference;color:#fff;transition:opacity .8s}
@@ -329,7 +327,7 @@ $$('#heroTitle .ln').forEach(ln=>{ const t=ln.textContent; ln.innerHTML=''; cons
 /* =========================================================
    RING — projects stand like seats around the Oculus plan
    ========================================================= */
-const world=$('#world'), floor=$('#floor'), stage=$('#stage'), sec=$('#ringSec');
+const world=$('#world'), floor=$('#floor'), stage=$('#stage'), sec=$('#ringSec'), curtainEl=$('#curtain');
 /* phones/tablets: the ring is turned by swiping, so page scroll goes straight on to the list */
 const TOUCH=matchMedia('(pointer: coarse)').matches || innerWidth<720;
 if(TOUCH) document.body.classList.add('touch');
@@ -451,16 +449,12 @@ addEventListener('keydown',e=>{ const r=stage.getBoundingClientRect(); if(r.bott
   if(e.key==='ArrowLeft'){ e.preventDefault(); goTo((active<0?0:active)-1,.8); }
   if(e.key==='Enter' && active>=0) openProject(active); });
 
-/* open: the plate's image grows to fill the screen, then the project page continues from it */
+/* open: same curtain transition as the list */
 function openProject(i){
-  if(i<0) return; const [n,y,slug,th,big]=PROJECTS[i];
-  const src=plates[i].querySelector('img'), r=src.getBoundingClientRect();
-  const z=document.createElement('div'); z.className='zoom';
-  Object.assign(z.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});
-  z.innerHTML=`<img src="${IMG+big}" alt="">`; document.body.appendChild(z);
-  try{ sessionStorage.setItem('df-zoom',slug); }catch(e){}
-  requestAnimationFrame(()=>requestAnimationFrame(()=>Object.assign(z.style,{left:0,top:0,width:innerWidth+'px',height:innerHeight+'px'})));
-  setTimeout(()=>location.href=`/${slug}/`, RM?0:850);
+  if(i<0) return; const slug=PROJECTS[i][2];
+  if(RM){ location.href=`/${slug}/`; return; }
+  curtainEl.className='curtain'; void curtainEl.offsetWidth; curtainEl.classList.add('go');
+  setTimeout(()=>location.href=`/${slug}/`,700);
 }
 
 /* =========================================================
@@ -495,8 +489,7 @@ if(FINE){
     rt.textContent = plate && +plate.dataset.i!==active ? '→' : (LANG==='sl'?'ODPRI':'OPEN');
     rg.classList.toggle('big',!!big || !!plate); rg.classList.toggle('link',!big && !plate && !!lk); });
 }
-const curtainEl=$('#curtain');
-addEventListener('pageshow',e=>{ if(e.persisted){ curtainEl.className='curtain'; $$('.zoom').forEach(z=>z.remove()); } });
+addEventListener('pageshow',e=>{ if(e.persisted){ curtainEl.className='curtain'; } });
 document.addEventListener('click',e=>{ const a=e.target.closest('a.row'); if(!a||e.metaKey||e.ctrlKey||e.shiftKey) return;
   e.preventDefault(); if(RM){ location.href=a.href; return; }
   curtainEl.className='curtain'; void curtainEl.offsetWidth; curtainEl.classList.add('go'); setTimeout(()=>location.href=a.href,700); });
