@@ -5,8 +5,8 @@ const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.q
 
 /* ---------- language ---------- */
 const T={
-  en:{work:'Work',index:'Index',contact:'Contact',back:'All work',next:'Next project',year:'Year',no:'No.',images:'Images',close:'Close',prev:'Prev',nxt:'Next'},
-  sl:{work:'Dela',index:'Kazalo',contact:'Kontakt',back:'Vsa dela',next:'Naslednji projekt',year:'Leto',no:'Št.',images:'Slike',close:'Zapri',prev:'Nazaj',nxt:'Naprej'}
+  en:{work:'Work',contact:'Contact',back:'All work',next:'Next project',year:'Year',no:'No.',images:'Images',close:'Close',prev:'Prev',nxt:'Next'},
+  sl:{work:'Dela',contact:'Kontakt',back:'Vsa dela',next:'Naslednji projekt',year:'Leto',no:'Št.',images:'Slike',close:'Zapri',prev:'Nazaj',nxt:'Naprej'}
 };
 let LANG=(()=>{ try{ const s=localStorage.getItem('df-lang'); if(s==='sl'||s==='en') return s; }catch(e){}
   return (navigator.language||'').toLowerCase().startsWith('sl')?'sl':'en'; })();
