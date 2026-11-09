@@ -433,7 +433,7 @@ stage.addEventListener('touchmove',e=>{ if(!tracking) return; const t=e.touches[
   if(horiz){ if(e.cancelable) e.preventDefault(); started=true; mTarget=clamp(t0 - dx/(W*.9),-.4,N-1+.4); $('#swipe').classList.add('gone'); } },{passive:false});
 stage.addEventListener('touchend',e=>{ if(!tracking) return; tracking=false;
   if(horiz){ mTarget=clamp(Math.round(mTarget),0,N-1); return; }
-  if(moved2<10 && !e.target.closest('a,button')){ const i=plateAt(tapX,tapY); if(i>=0){ if(e.cancelable) e.preventDefault(); started=true; openProject(i); } } });
+  if(moved2<10 && !e.target.closest('a,button')){ const i=plateAt(tapX,tapY); if(i>=0){ if(e.cancelable) e.preventDefault(); started=true; if(i===active) openProject(i); else goTo(i); } } });
 /* which project was tapped: 3D hit-testing first, then the on-screen box of each visible plate (front ones win) */
 function plateAt(x,y){
   const hit=document.elementFromPoint(x,y)?.closest('.plate'); if(hit) return +hit.dataset.i;
