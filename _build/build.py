@@ -95,6 +95,24 @@ def render_both(slug, texts, title, meta):
         out.append(f'<div data-lang="{lang}">\n{body}\n</div>')
     return '\n'.join(out)
 
+def og_image(p):
+    """1200x630 JPEG for link previews (WhatsApp, LinkedIn, ...), cropped from the local cover."""
+    out = ROOT / 'images' / p['slug'] / 'og.jpg'
+    if not out.exists():
+        srcs = [ROOT / 'images' / p['slug'] / n for n in ('cover-1280.webp', 'cover.gif')]
+        src = next((x for x in srcs if x.exists()), None)
+        if not src:
+            return '/og.jpg'
+        try:
+            from PIL import Image
+            im = Image.open(src).convert('RGB'); W, H = 1200, 630
+            k = max(W / im.width, H / im.height); im = im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS)
+            l, t = (im.width - W) // 2, (im.height - H) // 2
+            im.crop((l, t, l + W, t + H)).save(out, 'JPEG', quality=84, optimize=True, progressive=True)
+        except Exception:
+            return '/og.jpg'
+    return f'/images/{p["slug"]}/og.jpg'
+
 TPL = open(ROOT / '_build' / 'project.tpl.html', encoding='utf-8').read()
 for k, p in enumerate(ORDER):
     d = data[p['slug']]
@@ -104,6 +122,8 @@ for k, p in enumerate(ORDER):
     first_p = next((re.sub(r'\s+', ' ', t) for t in texts), d['meta']) or p['name']
     desc = (first_p[:155] + '…') if len(first_p) > 156 else first_p
     page = (TPL
+        .replace('{{SLUG}}', p['slug'])
+        .replace('{{OG}}', og_image(p))
         .replace('{{TITLE}}', esc(p['name']))
         .replace('{{DESC}}', esc(desc))
         .replace('{{YEAR}}', str(p['year']))

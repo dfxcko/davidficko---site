@@ -32,9 +32,12 @@ a{color:inherit;text-decoration:none}
 
 /* page transition curtain */
 .curtain{position:fixed;inset:0;background:var(--ink2);z-index:96;transform:translateY(0);pointer-events:none}
-.curtain.up{transform:translateY(-100%);transition:transform 1s var(--ease)}
+.curtain.up{transform:translateY(-100%);transition:transform .85s cubic-bezier(.65,0,.35,1)}
+main{animation:pin .9s .15s cubic-bezier(.16,1,.3,1) both}
+@keyframes pin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){main{animation:none}}
 .curtain.cover{transform:translateY(100%);transition:none}
-.curtain.cover.go{transform:translateY(0);transition:transform .75s var(--ease)}
+.curtain.cover.go{transform:translateY(0);transition:transform .6s cubic-bezier(.65,0,.35,1)}
 
 header{position:fixed;top:0;left:0;right:0;z-index:80;display:flex;justify-content:space-between;align-items:center;padding:22px var(--pad);mix-blend-mode:difference;color:#fff}
 .logo{font-family:var(--serif);font-size:26px;line-height:1;letter-spacing:-.02em}

@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>David Ficko — Architecture</title>
 <meta name="description" content="David Ficko — architecture. Selected projects 2020–2026.">
+<link rel="canonical" href="https://davidficko.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="David Ficko">
+<meta property="og:url" content="https://davidficko.com/">
+<meta property="og:title" content="David Ficko — Architecture">
+<meta property="og:description" content="Selected projects 2020–2026.">
+<meta property="og:image" content="https://davidficko.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://davidficko.com/og.jpg">
 <script>try{localStorage.removeItem('df-theme');document.documentElement.dataset.theme=sessionStorage.getItem('df-theme')||'light'}catch(e){}</script>
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -64,7 +75,7 @@ button{font:inherit;color:inherit}
 .loader .bar{width:min(320px,60vw);height:1px;background:var(--line);overflow:hidden}
 .loader .bar i{display:block;height:100%;background:var(--bone);transform:scaleX(0);transform-origin:left}
 .curtain{position:fixed;inset:0;background:var(--ink2);z-index:96;transform:translateY(100%);pointer-events:none}
-.curtain.go{transform:translateY(0);transition:transform .75s var(--ease)}
+.curtain.go{transform:translateY(0);transition:transform .6s cubic-bezier(.65,0,.35,1)}
 
 /* header */
 header{position:fixed;top:0;left:0;right:0;z-index:80;display:flex;justify-content:space-between;align-items:center;padding:22px var(--pad);mix-blend-mode:difference;color:#fff;transition:opacity .8s}
@@ -147,6 +158,15 @@ header nav a:hover span{transform:translateY(-100%)}
 .arrows.off{opacity:0;pointer-events:none}
 .arrows button{background:none;border:1px solid var(--line);width:40px;height:40px;border-radius:50%;transition:border-color .3s,background .3s,color .3s}
 .arrows button:hover{background:var(--bone);color:var(--ink);border-color:var(--bone)}
+.cue .hint{font-size:10px;opacity:.6;transition:opacity .6s}
+.cue.seen .hint{opacity:0}
+.down{position:absolute;left:50%;bottom:clamp(24px,5vh,48px);transform:translateX(-50%);display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:99px;padding:9px 16px;transition:opacity .6s,background .3s,color .3s,border-color .3s}
+.down:hover{background:var(--bone);color:var(--ink);border-color:var(--bone)}
+.down.off{opacity:0;pointer-events:none}
+@media(max-width:720px){.down{display:none}}
+.rail button{position:relative}
+.rail button::before{content:attr(data-name);position:absolute;right:46px;top:50%;transform:translate(6px,-50%);white-space:nowrap;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:0;pointer-events:none;transition:opacity .3s,transform .4s var(--out)}
+.rail button:hover::before{opacity:.8;transform:translate(0,-50%)}
 .swipe{display:none}
 body.touch .cue{display:none}
 body.touch .hello{top:17%;transform:none}
@@ -230,8 +250,9 @@ footer{display:flex;justify-content:space-between;padding-top:80px}
     <div class="stage" id="stage">
       <div class="scene"><div class="world pre" id="world"><div class="floor" id="floor"></div></div></div>
       <div class="hello pre-chars" id="hello"><h1 id="heroTitle"><span class="ln">David</span><span class="ln">Ficko</span></h1></div>
-      <div class="cue mono" id="cue"><i></i></div>
-      <div class="swipe mono" id="swipe">← →</div>
+      <div class="cue mono" id="cue"><span class="hint" data-t="hint">Scroll or drag</span><i></i></div>
+      <a class="down mono off" id="down" href="#index" data-scroll="#index"><span data-t="index">Index</span> ↓</a>
+      <div class="swipe mono" id="swipe">← <span data-t="swipe">Swipe</span> →</div>
       <div class="arrows off" id="arrows"><button id="prevP" aria-label="Previous">←</button><button id="nextP" aria-label="Next">→</button></div>
       <div class="rail off" id="rail"></div>
       <div class="info off" id="info">
@@ -257,7 +278,9 @@ footer{display:flex;justify-content:space-between;padding-top:80px}
         <label class="mono muted"><span data-t="name">Name</span><input required name="n" autocomplete="name"></label>
         <label class="mono muted"><span data-t="email">Email</span><input required type="email" name="e" autocomplete="email"></label>
         <label class="mono muted full"><span data-t="message">Message</span><textarea required name="m" rows="3"></textarea></label>
-        <button type="submit" data-t="send">Send</button>
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+        <button type="submit" id="sendBtn" data-t="send">Send</button>
+        <p class="mono muted" id="formErr" style="grid-column:1/-1;margin-top:16px;display:none"></p>
       </form>
       <div class="thanks" id="thanks" data-t="thanks">Thank you.</div>
     </div>
@@ -306,8 +329,8 @@ const N = PROJECTS.length;
 
 /* ---------- language ---------- */
 const T={
-  en:{work:'Work',contact:'Contact',all:'All',name:'Name',email:'Email',message:'Message',send:'Send',thanks:'Thank you.',open:'Open project',index:'Index',title:'David Ficko — Architecture'},
-  sl:{work:'Dela',contact:'Kontakt',all:'Vse',name:'Ime',email:'E-pošta',message:'Sporočilo',send:'Pošlji',thanks:'Hvala.',open:'Odpri projekt',index:'Kazalo',title:'David Ficko — Arhitektura'}
+  en:{hint:'Scroll or drag',swipe:'Swipe',sending:'Sending…',failed:'Could not send. Please write to hello@davidficko.com',work:'Work',contact:'Contact',all:'All',name:'Name',email:'Email',message:'Message',send:'Send',thanks:'Thank you.',open:'Open project',index:'Index',title:'David Ficko — Architecture'},
+  sl:{hint:'Drsaj ali povleci',swipe:'Povleci',sending:'Pošiljam…',failed:'Pošiljanje ni uspelo. Piši na hello@davidficko.com',work:'Dela',contact:'Kontakt',all:'Vse',name:'Ime',email:'E-pošta',message:'Sporočilo',send:'Pošlji',thanks:'Hvala.',open:'Odpri projekt',index:'Kazalo',title:'David Ficko — Arhitektura'}
 };
 let LANG=(()=>{ if(location.hash==='#sl') return 'sl'; if(location.hash==='#en') return 'en';
   try{ const s=localStorage.getItem('df-lang'); if(s==='sl'||s==='en') return s; }catch(e){}
@@ -386,7 +409,7 @@ $('#pyr').innerHTML='<span class="strip">'+PROJECTS.map(p=>`<span>${p[1]}</span>
 const tStrip=$('#ptitle .strip'), nStrip=$('#pno .strip'), yStrip=$('#pyr .strip');
 let tLine=0, nLine=0; const measure=()=>{ tLine=tStrip.firstChild.getBoundingClientRect().height; nLine=nStrip.firstChild.getBoundingClientRect().height; };
 measure(); addEventListener('resize',measure); document.fonts&&document.fonts.ready.then(measure);
-$('#rail').innerHTML=PROJECTS.map((p,i)=>`<button data-i="${i}" aria-label="${p[0]}"><i></i></button>`).join('');
+$('#rail').innerHTML=PROJECTS.map((p,i)=>`<button data-i="${i}" data-name="${p[0]}" aria-label="${p[0]}"><i></i></button>`).join('');
 layout(); addEventListener('resize',layout);
 
 /* state from scroll */
@@ -402,12 +425,20 @@ function setActive(i){
   $$('#rail button').forEach((b,j)=>b.classList.toggle('on',j===i));
   const [n,y,slug]=PROJECTS[i];
   $('#popen').href=`/${slug}/`;
+  clearTimeout(settleTimer); settleTimer=setTimeout(()=>{ if(active===i){ prefetch(slug); sharpen(i); } },450);
 }
+let settleTimer=0; const fetched=new Set(), sharp=new Set();
+function prefetch(slug){ if(fetched.has(slug)) return; fetched.add(slug);
+  const l=document.createElement('link'); l.rel='prefetch'; l.href=`/${slug}/`; document.head.appendChild(l); }
+/* only the front project: once its ring has stopped, swap in the 1280px image after it has fully decoded */
+function sharpen(i){ if(sharp.has(i)) return; sharp.add(i);
+  const big=IMG+PROJECTS[i][4], img=plates[i].querySelector('img'); if(!big) return;
+  const pre=new Image(); pre.src=big; (pre.decode?pre.decode():new Promise(r=>pre.onload=r)).then(()=>{ img.src=big; }).catch(()=>{}); }
 function setIntro(v){
   if(v===inIntro) return; inIntro=v;
   $('#hello').style.opacity=v?1:0; $('#hello').style.transition='opacity .6s';
   $('#cue').style.opacity=v?1:0;
-  ['#info','#rail','#arrows'].forEach(s=>$(s).classList.toggle('off',v));
+  ['#info','#rail','#arrows','#down'].forEach(s=>$(s).classList.toggle('off',v));
   if(v){ plates.forEach(p=>p.classList.remove('on')); active=-1; }
   if(TOUCH){ $('#hello').style.opacity=1; }
 }
@@ -515,9 +546,20 @@ addEventListener('keydown',e=>{ const r=stage.getBoundingClientRect(); if(r.bott
 /* open: same curtain transition as the list */
 function openProject(i){
   if(i<0) return; const slug=PROJECTS[i][2];
+  try{ sessionStorage.setItem('df-last',i); }catch(e){}
   if(RM){ location.href=`/${slug}/`; return; }
   curtainEl.className='curtain'; void curtainEl.offsetWidth; curtainEl.classList.add('go');
-  setTimeout(()=>location.href=`/${slug}/`,700);
+  setTimeout(()=>location.href=`/${slug}/`,560);
+}
+/* coming back from a project: the ring starts on that project */
+function restoreLast(){
+  let i=-1; try{ i=parseInt(sessionStorage.getItem('df-last')); }catch(e){}
+  if(!(i>=0 && i<N) || location.hash) return false;
+  rot=-i*STEP_DEG; drift=0; settled=i; $('#swipe').classList.add('gone');
+  if(TOUCH){ mTarget=mPos=i; started=true; }
+  else { const y=scrollForIndex(i); lenis? lenis.scrollTo(y,{immediate:true,force:true}) : scrollTo(0,y); }
+  setActive(i); hideHint();
+  return true;
 }
 
 /* =========================================================
@@ -534,7 +576,7 @@ const pv=document.createElement('div'); pv.className='preview'; pv.innerHTML='<d
 const pvImg=pv.querySelector('.pv-img'); let pvx=0,pvy=0,tpx=0,tpy=0;
 (function pf(){ pvx+=(tpx-pvx)*.12; pvy+=(tpy-pvy)*.12; pv.style.transform=pv.classList.contains('on')?'':'scale(.85)'; pv.style.left=pvx+'px'; pv.style.top=pvy+'px'; requestAnimationFrame(pf); })();
 addEventListener('pointermove',e=>{ tpx=e.clientX+(e.clientX>innerWidth-400?-370:30); tpy=e.clientY-128; });
-rowsEl.addEventListener('pointerover',e=>{ const r=e.target.closest('.row'); if(!r) return; const p=PROJECTS[+r.dataset.i];
+rowsEl.addEventListener('pointerover',e=>{ const r=e.target.closest('.row'); if(!r) return; const p=PROJECTS[+r.dataset.i]; prefetch(p[2]);
   pvImg.classList.remove('in'); pvImg.innerHTML=`<img src="${IMG+p[4]}" alt="">`; const im=pvImg.firstChild;
   const go=()=>requestAnimationFrame(()=>pvImg.classList.add('in')); im.complete?go():im.onload=go;
   pv.classList.add('on'); rowsEl.classList.add('dim'); });
@@ -553,15 +595,26 @@ if(FINE){
     rg.classList.toggle('big',!!big || !!plate); rg.classList.toggle('link',!big && !plate && !!lk); });
 }
 addEventListener('pageshow',e=>{ if(e.persisted){ curtainEl.className='curtain'; } });
-document.addEventListener('click',e=>{ const a=e.target.closest('a.row'); if(!a||e.metaKey||e.ctrlKey||e.shiftKey) return;
+document.addEventListener('click',e=>{ const a=e.target.closest('a.row'); if(!a||e.metaKey||e.ctrlKey||e.shiftKey) return; try{ sessionStorage.setItem('df-last',a.dataset.i); }catch(_){}
   e.preventDefault(); if(RM){ location.href=a.href; return; }
-  curtainEl.className='curtain'; void curtainEl.offsetWidth; curtainEl.classList.add('go'); setTimeout(()=>location.href=a.href,700); });
+  curtainEl.className='curtain'; void curtainEl.offsetWidth; curtainEl.classList.add('go'); setTimeout(()=>location.href=a.href,560); });
 
 const mg=$('#magnet');
 if(FINE){ mg.addEventListener('pointermove',e=>{ const b=mg.getBoundingClientRect(); const x=e.clientX-b.left-b.width/2, y=e.clientY-b.top-b.height/2; mg.style.transform=`translate(${x*.3}px,${y*.3}px)`; });
   mg.addEventListener('pointerleave',()=>{ mg.style.transition='transform .7s cubic-bezier(.2,1.4,.4,1),color .4s'; mg.style.transform=''; setTimeout(()=>mg.style.transition='',700); }); }
 mg.addEventListener('click',()=>{ $('#inq').classList.add('open'); setTimeout(()=>$('#inq input').focus({preventScroll:true}),400); });
-$('#inq').addEventListener('submit',e=>{ e.preventDefault(); $('#inq').classList.remove('open'); $('#thanks').style.display='block'; });
+$('#inq').addEventListener('submit',async e=>{ e.preventDefault();
+  const f=e.target, btn=$('#sendBtn'), err=$('#formErr'); if(f._honey.value) return;
+  btn.disabled=true; btn.textContent=T[LANG].sending; err.style.display='none';
+  try{
+    const r=await fetch('https://formsubmit.co/ajax/hello@davidficko.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({name:f.n.value,email:f.e.value,message:f.m.value,_subject:'New message from davidficko.com',_template:'table',_captcha:'false'})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok || String(j.success)==='false') throw new Error(j.message||r.status);
+    f.classList.remove('open'); f.reset(); $('#thanks').style.display='block';
+  }catch(x){ err.textContent=T[LANG].failed; err.style.display='block'; }
+  btn.disabled=false; btn.textContent=T[LANG].send;
+});
 
 /* ---------- smooth scroll ---------- */
 let lenis=null;
@@ -572,6 +625,13 @@ $$('[data-scroll]').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(
 applyLang();
 requestAnimationFrame(frame);
 
+/* ---------- first-visit hint ---------- */
+function hideHint(){ $('#cue').classList.add('seen'); $('#swipe').classList.add('gone'); try{ localStorage.setItem('df-hinted','1'); }catch(e){} }
+try{ if(localStorage.getItem('df-hinted')==='1'){ $('#cue').classList.add('seen'); } }catch(e){}
+addEventListener('wheel',()=>{ if(!$('#cue').classList.contains('seen')) hideHint(); },{passive:true,once:true});
+stage.addEventListener('pointerdown',()=>hideHint(),{once:true});
+stage.addEventListener('touchmove',()=>hideHint(),{passive:true,once:true});
+
 /* ---------- intro: counter (first visit only), then the ring assembles ---------- */
 let SEEN=false; try{ SEEN=sessionStorage.getItem('df-seen')==='1'; sessionStorage.setItem('df-seen','1'); }catch(e){}
 function reveal(){
@@ -580,7 +640,8 @@ function reveal(){
   plates.forEach((p,i)=>{ p.style.transitionDelay=(.4+i*.035)+'s'; });
   setTimeout(()=>world.classList.remove('pre'),200);
   setTimeout(()=>{ $('#loader').style.display='none'; plates.forEach(p=>p.style.transitionDelay=''); },2400);
-  if(TOUCH) setTimeout(()=>{ started=true; },1800);
+  const back=restoreLast();
+  if(TOUCH && !back) setTimeout(()=>{ started=true; },1800);
   if(location.hash && $(location.hash) && location.hash.length>3) setTimeout(()=>scrollToSel(location.hash),300);
 }
 if(RM || SEEN){ $('#count').parentElement.style.display='none'; reveal(); }

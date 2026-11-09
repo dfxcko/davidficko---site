@@ -33,7 +33,7 @@ document.addEventListener('click',e=>{
   const u=new URL(a.href,location.href); if(u.origin!==location.origin || (u.pathname===location.pathname && u.hash)) return;
   e.preventDefault(); if(RM){ location.href=u.href; return; }
   curtain.className='curtain cover'; void curtain.offsetWidth; curtain.classList.add('go');
-  setTimeout(()=>location.href=u.href,700);
+  setTimeout(()=>location.href=u.href,560);
 });
 
 /* ---------- cursor ---------- */
