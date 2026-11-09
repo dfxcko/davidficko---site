@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Shade — Lamp Studio — David Ficko</title>
-<meta name="description" content="Sculpt a 3D-printed lamp or vase in your browser, preview the printed layers and export G-code for Bambu Lab printers.">
+<meta name="description" content="Sculpt a 3D-printed lamp or vase in your browser, preview the printed layers, try non-planar and overflow textures, and export G-code for Bambu Lab printers.">
 <link rel="canonical" href="https://davidficko.com/shade/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="David Ficko">
@@ -139,12 +139,14 @@
   <span class="div"></span>
   <button data-tool="paint" title="Paint pattern B (B)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18.4 2.6a2 2 0 0 1 3 3L12 15l-4-4z"/><path d="M8 11c-3 0-4 2-4 4 0 1.5-1 3-2 3 2 2 7 2 8-1 .6-1.6.2-3.2-2-6z"/></svg><span class="lbl">Paint B</span></button>
   <button data-tool="erase" title="Paint back pattern A (E)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m7 21-4-4 11-11 7 7-8 8z"/><path d="M7 21h14M10 10l7 7"/></svg><span class="lbl">Paint A</span></button>
+  <button data-tool="attract" title="Place / remove attractor points (A)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/></svg><span class="lbl">Attract</span></button>
   <button id="editBtn" title="Edit"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
 </div>
 <aside id="panel"><div id="grab"></div><div id="tabs"></div><div id="body"></div></aside>
 <div id="toast"></div>
 <div id="busy">Working…</div>
 <input type="file" id="fileIn" accept=".json,application/json" hidden>
+<input type="file" id="imgIn" accept="image/*" hidden>
 
 <script type="module">
 import * as THREE from 'three';
@@ -161,7 +163,9 @@ const COLLAR_H = .07, TAU = Math.PI * 2, MM = 100; // 1 scene unit = 100 mm
 const prof = f => Array.from({length:N}, (_, i) => +f(i / (N - 1)).toFixed(4));
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 const pat = (tex, amp, freq, layers, twist = 0) => ({ tex, amp, freq, layers, twist });
-const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color });
+const NP0 = () => ({ mid:0, rim:0, waves:4, tilt:0 });
+const MOD0 = () => ({ src:'none', target:'depth', strength:.8, invert:false, radius:30, attrs:[], img:'', repeat:1, noise:3, seed:7 });
+const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod } });
 
 const LAMP_PRESETS = {
   mushroom:{ name:'Mushroom', note:'Dome shade, fluted foot',
@@ -184,6 +188,10 @@ const VESSEL_PRESETS = {
     vessel:part(1.7, prof(v => .2 + .17 * Math.exp(-(((v - .35) / .32) ** 2)) - .03 * v + .05 * smooth(.85, 1, v)), pat('ribs', .01, 48, 30, .25), pat('woven', .006, 36, 30), '#d8c7b0') },
   bowl:{ name:'Bowl', note:'Open, gently flared',
     vessel:part(.66, prof(v => .38 + .4 * Math.sin(v * Math.PI / 2)), pat('woven', .005, 56, 14), pat('rings', .006, 40, 12), '#efe6d8') },
+  tide:{ name:'Tide vase', note:'Non-planar wavy layers',
+    vessel:part(1.2, prof(v => .27 + .06 * Math.sin(v * Math.PI) - .03 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#d9cbb6', 0, 0, { mid:5, waves:2 }) },
+  crown:{ name:'Crown bowl', note:'Wavy rim, overflow texture',
+    vessel:part(.7, prof(v => .36 + .36 * Math.sin(v * Math.PI / 2)), pat('ribs', .006, 48, 20), pat('woven', .005, 40, 14), '#efe2cf', 0, 0, { rim:4, waves:5 }, { src:'noise', target:'flow', strength:.7, noise:3 }) },
   pot:{ name:'Petal pot', note:'Lobed tumbler',
     vessel:part(.95, prof(v => .33 - .05 * v + .02 * smooth(.9, 1, v)), pat('ribs', .01, 56, 20), pat('diamond', .005, 28, 16), '#b88a6a', 8, .05) },
 };
@@ -225,7 +233,7 @@ function upgrade(s) {
   const o = { ...d, ...s, print:{ ...d.print, ...(s.print || {}) }, light:{ ...d.light, ...(s.light || {}) } };
   for (const k of ['shade', 'base', 'vessel']) {
     const P = s[k]; if (!P || !Array.isArray(P.prof)) { o[k] = d[k]; continue; }
-    o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) } };
+    o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) }, np:{ ...NP0(), ...(P.np || {}) }, mod:{ ...MOD0(), ...(P.mod || {}) } };
     if (o[k].prof.length !== N) o[k].prof = d[k].prof;
   }
   if (!s.v || s.v < 3) { o.light.on = false; o.view = 'printed'; o.v = 3; }
@@ -306,9 +314,47 @@ function disp(P, th, v, m) {
   return a + (b - a) * w;
 }
 const rimFade = v => Math.min(1, Math.min(v, 1 - v) * 40);
+const keyOf = P => P === state.shade ? 'shade' : P === state.base ? 'base' : 'vessel';
+// Modulation field (0..1) after the book's "attractor" and "Image Sampler" strategies.
+const imgCache = {}, noiseCache = {};
+function getImg(k) {
+  const P = state[k], c = imgCache[k]; if (c && c.src === P.mod.img) return c.data;
+  const data = new Float32Array(MW * MH);
+  if (P.mod.img) { try { const bin = atob(P.mod.img); for (let i = 0; i < data.length && i < bin.length; i++) data[i] = bin.charCodeAt(i) / 255; } catch (e) {} }
+  imgCache[k] = { data, src:P.mod.img }; return data;
+}
+function noiseF(M, th, v) {
+  const key = M.seed + '|' + M.noise; let T = noiseCache[key];
+  if (!T) { let sd = (M.seed * 7919) % 233280; const rnd = () => (sd = (sd * 9301 + 49297) % 233280) / 233280; T = [];
+    for (let i = 0; i < 7; i++) T.push([1 + Math.floor(rnd() * Math.max(1, M.noise * 2)), (rnd() * 2 - 1) * M.noise, rnd() * TAU, rnd() * TAU, 1 / (i + 1) ** .6]); noiseCache[key] = T; }
+  let f = 0, n = 0; for (const [a, b, ph, q, wt] of T) { f += wt * Math.sin(a * th + ph + 1.5 * Math.sin(b * v * Math.PI + q) + b * v * TAU); n += wt; }
+  return Math.min(1, Math.max(0, .5 + .8 * f / n));
+}
+function field(P, th, v) {
+  const M = P.mod; if (!M || M.src === 'none') return 1;
+  let f = 0;
+  if (M.src === 'image') f = M.img ? maskAt(getImg(keyOf(P)), th * Math.round(M.repeat || 1), v) : 1;
+  else if (M.src === 'attract') {
+    const R = Math.max(.05, sampleProf(P.prof, v)) * MM;
+    for (const a of M.attrs) { let dt = Math.abs(th - a.th) % TAU; if (dt > Math.PI) dt = TAU - dt; const d = Math.hypot(dt * R, (v - a.v) * P.h * MM) / M.radius; if (d < 1) f = Math.max(f, smooth(1, 0, d)); }
+  } else if (M.src === 'noise') f = noiseF(M, th, v);
+  return M.invert ? 1 - f : f;
+}
+const depthMul = (P, th, v) => (P.mod.src === 'none' || P.mod.target === 'flow') ? 1 : 1 - P.mod.strength * (1 - field(P, th, v));
+// Extrusion multiplier: "controlled overflow". Speed is divided by it so the extruder turns at a steady rate.
+const flowMul = (P, th, v) => (P.mod.src === 'none' || P.mod.target === 'depth') ? 1 : 1 + P.mod.strength * .5 * (2 * field(P, th, v) - 1);
+// Non-planar layers ("isocurves"): layers bend up and down; flat where they meet the bed / bottom.
+function baseFrac(P, k) { const pr = state.print; const z0 = k === 'shade' ? pr.layerH : Math.max(1, Math.round(pr.bottom)) * pr.layerH; return Math.min(.3, z0 / (P.h * MM)); }
+function warpMM(P, k, th, v) {
+  const np = P.np; if (!np || (!np.mid && !(np.rim && k === 'vessel'))) return 0;
+  const vb = baseFrac(P, k), u = Math.min(1, Math.max(0, (v - vb) / (1 - vb))), n = Math.max(1, Math.round(np.waves));
+  let w = np.mid ? np.mid * Math.sin(n * th) * Math.sin(Math.PI * u) : 0;
+  if (np.rim && k === 'vessel') w += np.rim * ((1 - np.tilt) * Math.sin(n * th) + np.tilt * Math.cos(th)) * u * u;
+  return w;
+}
 const lobeF = (P, th) => 1 + P.lobeAmt * Math.cos(Math.round(P.lobes) * th);
 // outer surface radius (scene units)
-function surfR(P, th, v, m) { return Math.max(.02, sampleProf(P.prof, v) * lobeF(P, th) + disp(P, th, v, m) * rimFade(v)); }
+function surfR(P, th, v, m) { const d = disp(P, th, v, m); return Math.max(.02, sampleProf(P.prof, v) * lobeF(P, th) + d * rimFade(v) * (d ? depthMul(P, th, v) : 1)); }
 
 function resFor(P) {
   const tex = [P.tex, P.b.tex], amp = Math.max(P.amp, P.b.amp);
@@ -347,15 +393,19 @@ function buildPart(k, geom, closed = false) {
   const cosT = new Float32Array(segs), sinT = new Float32Array(segs);
   for (let i = 0; i < segs; i++) { const th = i / segs * TAU; cosT[i] = Math.cos(th); sinT[i] = Math.sin(th); }
   let p = 0, g = 0;
+  const wl = lineW(state.print.nozzle) / MM, hasFlow = P.mod.src !== 'none' && P.mod.target !== 'depth';
   for (let j = 0; j <= rings; j++) {
     const v = j / rings, y = y0 + v * P.h;
     for (let i = 0; i < segs; i++) {
-      const r = surfR(P, i / segs * TAU, v, m);
-      pos[p++] = r * cosT[i]; pos[p++] = y; pos[p++] = r * sinT[i];
+      const th = i / segs * TAU;
+      let r = surfR(P, th, v, m); const gl = GLOW, mk = MASKV;
+      if (hasFlow && !closed) r += (flowMul(P, th, v) - 1) * wl * .5;
+      pos[p++] = r * cosT[i]; pos[p++] = y + warpMM(P, k, th, v) / MM; pos[p++] = r * sinT[i];
+      GLOW = gl; MASKV = mk;
       glow[g] = .45 + .55 * GLOW; pm[g++] = MASKV;
     }
   }
-  const ringCap = (v) => { const y = y0 + v * P.h; for (let i = 0; i < segs; i++) { const r = surfR(P, i / segs * TAU, v, m); pos[p++] = r * cosT[i]; pos[p++] = y; pos[p++] = r * sinT[i]; glow[g] = 0; pm[g++] = 0; } pos[p++] = 0; pos[p++] = y; pos[p++] = 0; glow[g] = 0; pm[g++] = 0; };
+  const ringCap = (v) => { const y = y0 + v * P.h; for (let i = 0; i < segs; i++) { const th = i / segs * TAU, r = surfR(P, th, v, m); pos[p++] = r * cosT[i]; pos[p++] = y + warpMM(P, k, th, v) / MM; pos[p++] = r * sinT[i]; glow[g] = 0; pm[g++] = 0; } pos[p++] = 0; pos[p++] = y; pos[p++] = 0; glow[g] = 0; pm[g++] = 0; };
   if (capB) ringCap(0);
   if (capT) ringCap(1);
   geom.attributes.position.needsUpdate = geom.attributes.glow.needsUpdate = geom.attributes.pmask.needsUpdate = true;
@@ -379,17 +429,21 @@ function buildPrinted(k, geom) {
   const nT = steps * 4 + Math.max(0, steps - segs) * 2 + (cap ? segs : 0);
   const pos = new Float32Array(nV * 3), nor = new Float32Array(nV * 3), glow = new Float32Array(nV).fill(1), pm = new Float32Array(nV), risk = new Float32Array(nV);
   const idx = new Uint32Array(nT * 3);
-  const R = new Float32Array(steps + 1), ZC = new Float32Array(steps + 1), MK = new Float32Array(steps + 1);
+  const R = new Float32Array(steps + 1), ZC = new Float32Array(steps + 1), ZH = new Float32Array(steps + 1), MK = new Float32Array(steps + 1), FM = new Float32Array(steps + 1);
   for (let j = 0; j <= steps; j++) {
     const t = j / segs, th = (j % segs) / segs * TAU;
-    const zc = Math.max(lh / 2, (t - .5) * lh);               // first lap flat, then climbs continuously
-    R[j] = surfR(P, th, Math.min(1, zc / H), m); MK[j] = MASKV; ZC[j] = zc;
+    const zb = Math.max(0, (t - 1) * lh), zt = Math.max(lh, t * lh);       // first lap flat, then climbs continuously
+    const vc = Math.min(1, (zb + zt) / 2 / H);
+    const b = zb + warpMM(P, k, th, Math.min(1, zb / H)) / MM, tp = zt + warpMM(P, k, th, Math.min(1, zt / H)) / MM;
+    R[j] = surfR(P, th, vc, m); MK[j] = MASKV; FM[j] = flowMul(P, th, vc);
+    ZC[j] = (b + tp) / 2; ZH[j] = Math.max(lh * .2, tp - b);                // local layer height (varies when non-planar)
   }
   const inset = lh * .34, ws = w;
   let p = 0, q = 0;
   for (let j = 0; j <= steps; j++) {
     const th = (j % segs) / segs * TAU, c = Math.cos(th), s = Math.sin(th);
-    let r = R[j], zc = ZC[j], rk = 0;
+    const lhj = ZH[j], fm = FM[j] * (lh / lhj) ** .5;                       // flow is compensated for layer height; overflow fattens the bead
+    let r = R[j] + (fm - 1) * w * .5, zc = ZC[j], rk = 0;
     if (j >= segs) {
       const d = r - R[j - segs], ratio = Math.abs(d) / ws;   // shift vs the layer below, in line widths
       rk = smooth(.5, .85, ratio);
@@ -400,7 +454,7 @@ function buildPrinted(k, geom) {
     const thp = (jp % segs) / segs * TAU, thm = (jm % segs) / segs * TAU;
     let tx = R[jp] * Math.cos(thp) - R[jm] * Math.cos(thm), tz = R[jp] * Math.sin(thp) - R[jm] * Math.sin(thm);
     let nx = tz, nz = -tx; const nl = Math.hypot(nx, nz) || 1; nx /= nl; nz /= nl;
-    const rows = [[r - inset, zc - lh / 2, -.85], [r, zc, 0], [r - inset, zc + lh / 2, .85]];
+    const ins = lhj * .34 * Math.min(1.4, fm), rows = [[r - ins, zc - lhj / 2, -.85], [r, zc, 0], [r - ins, zc + lhj / 2, .85]];
     for (const [rr, z, tilt] of rows) {
       pos[p] = rr * c; pos[p + 1] = y0 + z; pos[p + 2] = rr * s;
       const f = 1 / Math.hypot(.62, tilt) ; const h = tilt ? .62 : 1;
@@ -536,7 +590,17 @@ function rebuild(which = 'all', keepPath = false) {
     collarMesh.position.y = state.base.h + COLLAR_H / 2;
     bulb.position.set(0, state.base.h + COLLAR_H - Math.min(.32, state.shade.h * .45), 0);
   }
+  drawAttractors();
   updateBadge(); persist(); requestRender();
+}
+const attrGroup = new THREE.Group(); scene.add(attrGroup);
+const attrGeo = new THREE.SphereGeometry(.018, 16, 12), attrMat = new THREE.MeshBasicMaterial({ color:0xff7a3d, depthTest:false });
+function drawAttractors() {
+  attrGroup.clear();
+  for (const k of parts()) {
+    const P = state[k]; if (P.mod.src !== 'attract') continue;
+    for (const a of P.mod.attrs) { const r = surfR(P, a.th, a.v, getMask(k)) + .01, y = partY0(k) + a.v * P.h + warpMM(P, k, a.th, a.v) / MM; const s = new THREE.Mesh(attrGeo, attrMat); s.renderOrder = 12; s.position.set(r * Math.cos(a.th), y, r * Math.sin(a.th)); attrGroup.add(s); }
+  }
 }
 function applyLook() {
   const L = state.light, lamp = state.mode === 'lamp', on = lamp && L.on;
@@ -575,13 +639,14 @@ function hitTest(ray) { // analytic march against surfaces of revolution
   for (const k of parts()) {
     const P = state[k], y0 = partY0(k), m = getMask(k), maxR = Math.max(...P.prof) * (1 + P.lobeAmt) + Math.max(P.amp, P.b.amp) + .02;
     const steps = 360, t1 = camera.position.distanceTo(controls.target) + 4, dt = t1 / steps;
-    const inside = t => { ray.at(t, p); const v = (p.y - y0) / P.h; if (v < 0 || v > 1) return false; const rr = Math.hypot(p.x, p.z); if (rr > maxR) return false; return rr <= sampleProf(P.prof, v) * lobeF(P, Math.atan2(p.z, p.x)) + Math.max(P.amp, P.b.amp) * .5; };
+    const vAt = (y, th) => { let v = (y - y0) / P.h; for (let it = 0; it < 3; it++) v = (y - y0 - warpMM(P, k, th, Math.min(1, Math.max(0, v))) / MM) / P.h; return v; };
+    const inside = t => { ray.at(t, p); const rr = Math.hypot(p.x, p.z); if (rr > maxR) return false; const th = Math.atan2(p.z, p.x), v = vAt(p.y, th); if (v < 0 || v > 1) return false; return rr <= sampleProf(P.prof, v) * lobeF(P, th) + Math.max(P.amp, P.b.amp) * .5; };
     for (let s = 0; s <= steps; s++) {
       const t = s * dt; if (best && t > best.t) break;
       if (inside(t)) {
         let lo = t - dt, hi = t; for (let b = 0; b < 12; b++) { const mid = (lo + hi) / 2; inside(mid) ? hi = mid : lo = mid; }
         ray.at(hi, p); let th = Math.atan2(p.z, p.x); if (th < 0) th += TAU;
-        const v = (p.y - y0) / P.h; best = { part:k, t:hi, v, th, point:p.clone(), r:surfR(P, th, v, m) }; break;
+        const v = Math.min(1, Math.max(0, vAt(p.y, th))); best = { part:k, t:hi, v, th, point:p.clone() }; break;
       }
     }
   }
@@ -604,7 +669,7 @@ function showBrush(hit) {
   [hit.v, hit.v - ui.brush * .7, hit.v + ui.brush * .7].forEach((vv, n) => {
     const l = brushRings[n]; if (vv < 0 || vv > 1) return;
     const R = sampleProf(P.prof, vv) + Math.max(P.amp, P.b.amp) + .012, y = y0 + vv * P.h, a = l.geometry.attributes.position.array;
-    for (let i = 0; i <= 96; i++) { const th = i / 96 * TAU, rr = R * lobeF(P, th); a[i * 3] = rr * Math.cos(th); a[i * 3 + 1] = y; a[i * 3 + 2] = rr * Math.sin(th); }
+    for (let i = 0; i <= 96; i++) { const th = i / 96 * TAU, rr = R * lobeF(P, th); a[i * 3] = rr * Math.cos(th); a[i * 3 + 1] = y + warpMM(P, hit.part, th, vv) / MM; a[i * 3 + 2] = rr * Math.sin(th); }
     l.geometry.attributes.position.needsUpdate = true; l.visible = true;
   });
   requestRender();
@@ -653,7 +718,16 @@ function holdLoop(t) {
 stage.addEventListener('pointerdown', e => {
   if (ui.tool === 'orbit' || !e.isPrimary || e.button > 0) return;
   const hit = hitTest(setRay(e)); if (!hit) return;
-  e.stopPropagation(); e.preventDefault(); stage.setPointerCapture?.(e.pointerId);
+  e.stopPropagation(); e.preventDefault();
+  if (ui.tool === 'attract') {
+    pushUndo(); hideHint();
+    const P = state[hit.part], M = P.mod; M.src = 'attract'; ui.surf = hit.part;
+    const R = Math.max(.05, sampleProf(P.prof, hit.v)) * MM;
+    const near = M.attrs.findIndex(a => { let dt = Math.abs(hit.th - a.th) % TAU; if (dt > Math.PI) dt = TAU - dt; return Math.hypot(dt * R, (hit.v - a.v) * P.h * MM) < Math.max(6, M.radius * .3); });
+    if (near >= 0) M.attrs.splice(near, 1); else M.attrs.push({ th:+hit.th.toFixed(4), v:+hit.v.toFixed(4) });
+    rebuild(hit.part); if (ui.tab === 'surface') renderPanel(); return;
+  }
+  stage.setPointerCapture?.(e.pointerId);
   pushUndo(); hideHint();
   drag = { part:hit.part, hit, id:e.pointerId, s0:planeCoord(raycaster.ray), snap:state[hit.part].prof.slice() };
   showBrush(hit);
@@ -692,12 +766,15 @@ function toolpath(k) {
   const segs = Math.min(1800, Math.max(240, Math.round(TAU * rMax / .7), maxSeg));
   const X = [], Y = [], Z = [], E = [], F = [], K = [];
   const area = (w - lh) * lh + Math.PI * (lh / 2) ** 2, eK = .98 / (Math.PI * .875 * .875);
-  let px = 0, py = 0;
+  let px = 0, py = 0, pz = 0;
   const push = (x, y, z, kind, feed, flowScale = 1) => {
-    const d = Math.hypot(x - px, y - py);
+    const d = Math.hypot(x - px, y - py, z - pz);
     X.push(x); Y.push(y); Z.push(z); K.push(kind); F.push(feed);
-    E.push(kind ? 0 : d * area * eK * flowScale); px = x; py = y;
+    E.push(kind ? 0 : d * area * eK * flowScale); px = x; py = y; pz = z;
   };
+  const thM = th => flip ? -th : th;
+  const W = (th, z) => { const w = warpMM(P, k, thM(th), vOf(z)); return flip ? -w : w; };  // non-planar offset in print space
+  const FMul = (th, z) => flowMul(P, thM(th), vOf(z));
   const wallSpeed = Math.min(pr.speed, fil.flow / (w * lh));
   const bottom = (k === 'shade') ? 0 : Math.max(0, Math.round(pr.bottom));
   // 1) solid bottom layers: outer loop + concentric loops inward, one continuous line per layer
@@ -733,7 +810,9 @@ function toolpath(k) {
     const feed = Math.max(8, Math.min(wallSpeed, revLen[rv] / 5)); // ≥5 s per layer so it can cool
     for (let s = 1; s <= segs; s++) {
       const t = rv + s / segs, z = z0 + t * lh, th = s / segs * TAU, r = R(th, z - lh / 2);
-      push(r * Math.cos(th), r * Math.sin(th), z, 0, feed, rv === 0 ? s / segs : 1); // first lap ramps flow up from zero
+      const wz = W(th, z), lhe = Math.max(lh * .3, lh + wz - W(th, z - lh));   // local layer height
+      const fm = FMul(th, z - lh / 2);
+      push(r * Math.cos(th), r * Math.sin(th), z + wz, 0, Math.max(5, feed / fm), (rv === 0 ? s / segs : 1) * (lhe / lh) * fm); // first lap ramps up; E follows layer height & overflow
     }
   }
   return { X, Y, Z, E, F, K, flip, H, lh, w, segs, revs, bottom, wallSpeed };
@@ -796,6 +875,22 @@ function checks(k) {
     if (T.tex !== 'ribs') { const sh = H / T.layers; if (sh < lh * 2.2) add('warn', `${texName(T.tex)} bands are ${sh.toFixed(1)} mm tall — under ~2 layers they blur; fewer layers or a lower layer height.`); }
     if (T.amp * 2 * MM < w * .35) add('warn', `${texName(T.tex)} depth ${(T.amp * 2 * MM).toFixed(1)} mm is subtle for a ${pr.nozzle} mm line.`);
   }
+  // non-planar layers: layer-height range and how steeply the nozzle climbs within a layer
+  if (P.np.mid || (P.np.rim && k === 'vessel')) {
+    let lo = Infinity, hi = 0, slope = 0;
+    for (let j = 1; j < 60; j++) { const v = j / 60, dv = lh / H;
+      for (let i = 0; i < 120; i++) { const th = i / 120 * TAU, a = warpMM(P, k, th, v), b = warpMM(P, k, th, v - dv), l = lh + a - b; lo = Math.min(lo, l); hi = Math.max(hi, l);
+        const R = Math.max(5, sampleProf(P.prof, v) * MM), s2 = Math.abs(warpMM(P, k, th + .01, v) - a) / (R * .01); slope = Math.max(slope, s2); } }
+    const lmax = pr.nozzle * .75, lmin = Math.max(.06, pr.nozzle * .15);
+    add(hi > lmax || lo < lmin ? 'bad' : (hi > pr.nozzle * .65 || lo < pr.nozzle * .2) ? 'warn' : 'ok', `Non-planar layers vary ${lo.toFixed(2)}–${hi.toFixed(2)} mm (extrusion is scaled to match; ${lmin.toFixed(2)}–${lmax.toFixed(2)} works for this nozzle).`);
+    const deg = Math.atan(slope) * 180 / Math.PI;
+    add(deg > 30 ? 'bad' : deg > 18 ? 'warn' : 'ok', `Nozzle climbs up to ${deg.toFixed(0)}° within a layer — above ~20° the nozzle cone can scrape the layer below. Fewer waves or less amplitude lowers it.`);
+  }
+  if (P.mod.src !== 'none' && P.mod.target !== 'depth') {
+    const mx = 1 + P.mod.strength * .5;
+    add(mx > 1.42 ? 'warn' : 'ok', `Overflow up to ${Math.round((mx - 1) * 100)}% more plastic (speed drops to match). Past ~40% beads start to blob.`);
+  }
+  if (P.mod.src === 'attract' && !P.mod.attrs.length) add('warn', 'Attractor source chosen but no points placed yet — tap the surface with the Attractor tool.');
   if (k === 'shade') { const rTop = sampleProf(P.prof, 1) * MM - w; add('ok', `Top opening is about Ø${(rTop * 2).toFixed(0)} mm inside — check your lamp socket fits.`); }
   if (k === 'base') add('ok', 'Base prints closed at the bottom — drill a cable hole or add a slot afterwards.');
   return out;
@@ -888,10 +983,10 @@ function updateBadge() {
 function setTool(t) {
   ui.tool = t; document.querySelectorAll('#tools [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
   U.uMaskShow.value = isPaint() ? 1 : 0; showBrush(null);
-  $('#hint').textContent = isPaint() ? 'Paint where pattern B should appear · it blends smoothly into A' : 'Drag on the surface to sculpt · drag empty space to orbit';
+  $('#hint').textContent = ui.tool === 'attract' ? 'Tap the surface to add an attractor · tap one again to remove it' : isPaint() ? 'Paint where pattern B should appear · it blends smoothly into A' : 'Drag on the surface to sculpt · drag empty space to orbit';
 }
-document.querySelectorAll('#tools [data-tool]').forEach(b => b.onclick = () => { setTool(b.dataset.tool); if (isPaint() && ui.tab !== 'surface') { ui.tab = 'surface'; renderTabs(); renderPanel(); } });
-function loadState(s) { state = upgrade(s); for (const k in maskCache) delete maskCache[k]; if (state.mode === 'vessel') ui.surf = 'vessel'; else if (ui.surf === 'vessel') ui.surf = 'shade'; }
+document.querySelectorAll('#tools [data-tool]').forEach(b => b.onclick = () => { setTool(b.dataset.tool); if (ui.tool === 'attract' && state[ui.surf]?.mod.src !== 'attract') { pushUndo(); const P = state[state.mode === 'vessel' ? 'vessel' : ui.surf]; P.mod.src = 'attract'; rebuild(); } if ((isPaint() || ui.tool === 'attract') && ui.tab !== 'surface') { ui.tab = 'surface'; renderTabs(); renderPanel(); } });
+function loadState(s) { state = upgrade(s); for (const k in maskCache) delete maskCache[k]; for (const k in imgCache) delete imgCache[k]; if (state.mode === 'vessel') ui.surf = 'vessel'; else if (ui.surf === 'vessel') ui.surf = 'shade'; }
 undoBtn.onclick = () => { if (!undoStack.length) return; flushMasks(); redoStack.push(JSON.stringify(state)); loadState(JSON.parse(undoStack.pop())); syncUndo(); rebuild(); applyLook(); renderAll(); };
 redoBtn.onclick = () => { if (!redoStack.length) return; flushMasks(); undoStack.push(JSON.stringify(state)); loadState(JSON.parse(redoStack.pop())); syncUndo(); rebuild(); applyLook(); renderAll(); };
 lightBtn.onclick = () => { pushUndo(); state.light.on = !state.light.on; applyLook(); renderPanel(); };
@@ -904,7 +999,7 @@ function setMode(m) {
 addEventListener('keydown', e => {
   if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'range') return;
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); (e.shiftKey ? redoBtn : undoBtn).onclick(); return; }
-  const map = { o:'orbit', g:'grab', i:'inflate', p:'deflate', s:'smooth', b:'paint', e:'erase' };
+  const map = { o:'orbit', g:'grab', i:'inflate', p:'deflate', s:'smooth', b:'paint', e:'erase', a:'attract' };
   if (!e.metaKey && !e.ctrlKey && map[e.key]) setTool(map[e.key]);
 });
 const panel = $('#panel');
@@ -1011,6 +1106,41 @@ function renderPanel() {
     maskOp('Top half', m => { for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) m[j * MW + i] = smooth(.4, .6, j / (MH - 1)); });
     maskOp('Stripes', m => { for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) m[j * MW + i] = smooth(-.3, .3, Math.sin(i / MW * TAU * 6)); });
     sp.append(ops);
+    const sm = section('Modulate', 'From the attractor / Image Sampler technique: a field drives texture depth, or extrusion (overflow) with speed adjusted to match.');
+    const M = P.mod, rbm = () => rebuild(k);
+    chips(sm, [['none', 'Off'], ['attract', 'Attractors'], ['image', 'Image'], ['noise', 'Noise']], M.src, v => { pushUndo(); M.src = v; if (v === 'attract') setTool('attract'); rbm(); renderPanel(); });
+    if (M.src !== 'none') {
+      sm.append(el('div', { className:'sub', textContent:'Drives', style:'margin:8px 0 2px' }));
+      chips(sm, [['depth', 'Texture depth'], ['flow', 'Line thickness'], ['both', 'Both']], M.target, v => { pushUndo(); M.target = v; rbm(); renderPanel(); });
+      slider(sm, 'Strength', () => M.strength, v => M.strength = v, 0, 1, .01, pct, rbm);
+      toggle(sm, 'Invert', M.invert, v => { M.invert = v; rbm(); });
+      if (M.src === 'attract') {
+        slider(sm, 'Reach', () => M.radius, v => M.radius = v, 8, 120, 1, v => v + ' mm', () => { rbm(); });
+        const row = el('div', { className:'chips' });
+        const b1 = el('button', { textContent:ui.tool === 'attract' ? 'Placing… (tap surface)' : 'Place points' }); b1.classList.toggle('on', ui.tool === 'attract'); b1.onclick = () => { setTool('attract'); renderPanel(); };
+        const b2 = el('button', { textContent:`Clear (${M.attrs.length})` }); b2.onclick = () => { pushUndo(); M.attrs = []; rbm(); renderPanel(); };
+        row.append(b1, b2); sm.append(row);
+      }
+      if (M.src === 'image') {
+        const row = el('div', { className:'chips' });
+        const b1 = el('button', { textContent:M.img ? 'Replace image…' : 'Load image…' }); b1.onclick = () => { imgTarget = k; $('#imgIn').click(); };
+        row.append(b1); sm.append(row);
+        slider(sm, 'Repeat around', () => M.repeat, v => M.repeat = v, 1, 6, 1, v => v + '×', rbm);
+        sm.append(el('div', { className:'note', textContent:'The photo is wrapped and mirrored so its edges meet — no seam in the line. Bright = full effect.' }));
+      }
+      if (M.src === 'noise') {
+        slider(sm, 'Scale', () => M.noise, v => M.noise = v, 1, 8, 1, v => v, rbm);
+        const b = el('button', { textContent:'Shuffle', style:'margin-top:4px' }); b.onclick = () => { pushUndo(); M.seed = Math.floor(Math.random() * 9999); rbm(); }; sm.append(b);
+      }
+    }
+    const sn = section('Non-planar layers', 'Isocurve printing: layers bend up and down instead of staying flat. Layer height varies, so extrusion is scaled to keep the wall even.');
+    slider(sn, 'Layer waves', () => P.np.mid, v => P.np.mid = v, 0, 20, .5, v => v ? v + ' mm' : 'flat', () => rebuild(k));
+    slider(sn, 'Waves around', () => P.np.waves, v => P.np.waves = v, 1, 12, 1, v => v, () => rebuild(k));
+    if (k === 'vessel') {
+      slider(sn, 'Wavy rim', () => P.np.rim, v => P.np.rim = v, 0, 25, .5, v => v ? v + ' mm' : 'flat', () => rebuild(k));
+      slider(sn, 'Rim tilt', () => P.np.tilt, v => P.np.tilt = v, 0, 1, .01, pct, () => rebuild(k));
+    }
+    sn.append(el('div', { className:'note', textContent:'Bottom and the bed stay flat. Check the Print tab: steep climbs can make the nozzle scrape.' }));
     const s2 = section('Petals', 'Break the round symmetry. Whole numbers only, so the loop always closes.');
     slider(s2, 'Petals', () => P.lobes, v => P.lobes = v, 0, 12, 1, v => v || 'off', () => rebuild(k));
     slider(s2, 'Petal depth', () => P.lobeAmt, v => P.lobeAmt = v, 0, .25, .005, pct, () => rebuild(k));
@@ -1110,6 +1240,22 @@ function renderPrint() {
   ta.onchange = () => { pr.customStart = ta.value; persist(); };
   adv.append(ta);
 }
+let imgTarget = 'vessel';
+$('#imgIn').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const bmp = await createImageBitmap(f), c = document.createElement('canvas'); c.width = MW; c.height = MH;
+    const g = c.getContext('2d'), half = MW / 2;
+    // cover-fit into half the width, then mirror into the other half so the wrap is seamless
+    const sc = Math.max(half / bmp.width, MH / bmp.height), dw = bmp.width * sc, dh = bmp.height * sc;
+    g.save(); g.beginPath(); g.rect(0, 0, half, MH); g.clip(); g.drawImage(bmp, (half - dw) / 2, (MH - dh) / 2, dw, dh); g.restore();
+    g.save(); g.translate(MW, 0); g.scale(-1, 1); g.beginPath(); g.rect(0, 0, half, MH); g.clip(); g.drawImage(bmp, (half - dw) / 2, (MH - dh) / 2, dw, dh); g.restore();
+    const px = g.getImageData(0, 0, MW, MH).data, d = new Float32Array(MW * MH);
+    for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) { const o = ((MH - 1 - j) * MW + i) * 4; d[j * MW + i] = (px[o] * .299 + px[o + 1] * .587 + px[o + 2] * .114) / 255; }
+    pushUndo(); const P = state[imgTarget]; P.mod.img = encodeMask(d) || btoa(String.fromCharCode(...new Uint8Array(8))); P.mod.src = 'image'; delete imgCache[imgTarget];
+    rebuild(imgTarget); renderPanel(); toast('Image mapped onto the surface');
+  } catch (err) { toast('Could not read that image'); }
+};
 $('#fileIn').onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
   try { const d = JSON.parse(await f.text()); if (!d.shade?.prof && !d.vessel?.prof) throw 0; pushUndo(); loadState(d); rebuild(); applyLook(); frameCamera(); renderAll(); toast('Design loaded'); }
