@@ -51,7 +51,8 @@ header nav a:hover span{transform:translateY(-100%)}
 [data-theme=light] .theme::after{transform:translateX(-50%)}
 html{transition:background .6s,color .6s}
 @media(max-width:720px){header nav{gap:16px}}
-[data-t]{transition:opacity .35s}.swap [data-t]{opacity:0}
+[data-t],.p-text{transition:opacity .35s}.swap [data-t],.swap .p-text{opacity:0}
+html[lang=en] [data-lang=sl],html[lang=sl] [data-lang=en]{display:none}
 
 /* hero */
 .p-hero{min-height:88svh;display:flex;flex-direction:column;justify-content:flex-end;padding:120px var(--pad) clamp(28px,5vh,56px);position:relative}

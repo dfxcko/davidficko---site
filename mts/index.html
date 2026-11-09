@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="utf-8">
-<script>try{document.documentElement.dataset.theme=localStorage.getItem('df-theme')||'light'}catch(e){}</script>
+<script>(function(h){try{h.dataset.theme=localStorage.getItem('df-theme')||'light';var l=localStorage.getItem('df-lang');h.lang=(l==='sl'||l==='en')?l:((navigator.language||'').toLowerCase().indexOf('sl')===0?'sl':'en')}catch(e){}})(document.documentElement)</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MTS — David Ficko</title>
 <meta name="description" content="Study model of Tamella Stadium by JKMM architects Materials used: concrete, plywood, wood veener Techniques: laser cutting, fiber laser engraving in concre…">
@@ -51,9 +51,16 @@
       <div><span class="muted" data-t="images">Images</span><span>09</span></div>
     </div>
     <div class="p-text">
+<div data-lang="en">
 <div class="p-sub">Study model of Tamella Stadium by JKMM architects</div>
 <div class="p-cred mono">Materials used: concrete, plywood, wood veener</div>
 <div class="p-cred mono">Techniques: laser cutting, fiber laser engraving in concrete</div>
+</div>
+<div data-lang="sl">
+<div class="p-sub">Študijski model stadiona Tamella, JKMM architects</div>
+<div class="p-cred mono">Uporabljeni materiali: beton, vezana plošča, lesni furnir</div>
+<div class="p-cred mono">Tehnike: lasersko rezanje, gravura v beton z vlakenskim laserjem</div>
+</div>
     </div>
   </section>
 

@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="utf-8">
-<script>try{document.documentElement.dataset.theme=localStorage.getItem('df-theme')||'light'}catch(e){}</script>
+<script>(function(h){try{h.dataset.theme=localStorage.getItem('df-theme')||'light';var l=localStorage.getItem('df-lang');h.lang=(l==='sl'||l==='en')?l:((navigator.language||'').toLowerCase().indexOf('sl')===0?'sl':'en')}catch(e){}})(document.documentElement)</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Light — David Ficko</title>
 <meta name="description" content="Light This project explores the possibilities of 3D printing beyond conventional layer-based fabrication. Through experimentation with custom G-code and co…">
@@ -51,9 +51,16 @@
       <div><span class="muted" data-t="images">Images</span><span>02</span></div>
     </div>
     <div class="p-text">
+<div data-lang="en">
 <p>This project explores the possibilities of 3D printing beyond conventional layer-based fabrication. Through experimentation with custom G-code and continuous extrusion paths, the lamp investigates how the printing process itself can become a tool for design.</p>
 <p>Rather than treating 3D printing solely as a means of reproducing predefined geometry, the project explores the relationship between material behaviour, toolpath generation, and the resulting form. The continuous deposition of material creates a woven, translucent structure that interacts with light, producing a distinctive texture and visual depth.</p>
 <p>Developed through an iterative process of digital experimentation and physical prototyping, the lamp represents an ongoing exploration of computational design, material expression, and additive manufacturing.</p>
+</div>
+<div data-lang="sl">
+<p>Projekt raziskuje možnosti 3D-tiska onkraj običajne izdelave po plasteh. Z eksperimentiranjem z lastno G-kodo in neprekinjenimi potmi ekstrudiranja svetilka raziskuje, kako lahko sam proces tiskanja postane orodje oblikovanja.</p>
+<p>Namesto da bi 3D-tisk obravnaval zgolj kot sredstvo za reprodukcijo vnaprej določene geometrije, projekt raziskuje odnos med obnašanjem materiala, generiranjem poti orodja in nastalo obliko. Neprekinjeno nanašanje materiala ustvari tkano, prosojno strukturo, ki se odziva na svetlobo ter ustvarja značilno teksturo in vizualno globino.</p>
+<p>Svetilka, razvita skozi iterativni proces digitalnega eksperimentiranja in fizičnega prototipiranja, predstavlja nadaljnje raziskovanje računalniškega oblikovanja, izraznosti materiala in aditivne proizvodnje.</p>
+</div>
     </div>
   </section>
 

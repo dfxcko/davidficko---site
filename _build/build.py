@@ -81,6 +81,20 @@ def render_gallery(imgs, title):
     return '\n'.join(out)
 
 
+TR_PATH = ROOT / '_build' / 'translations.json'
+TR = json.load(open(TR_PATH, encoding='utf-8')) if TR_PATH.exists() else {}
+
+def render_both(slug, texts, title, meta):
+    """English + Slovenian versions; the page shows the one matching the EN/SL switch."""
+    t = TR.get(slug)
+    if not t:
+        return render_text(texts, title, meta)
+    out = []
+    for lang in ('en', 'sl'):
+        body = render_text(t.get(lang, []), title, t.get('meta_' + lang, meta))
+        out.append(f'<div data-lang="{lang}">\n{body}\n</div>')
+    return '\n'.join(out)
+
 TPL = open(ROOT / '_build' / 'project.tpl.html', encoding='utf-8').read()
 for k, p in enumerate(ORDER):
     d = data[p['slug']]
@@ -98,7 +112,7 @@ for k, p in enumerate(ORDER):
         .replace('{{COUNT}}', f'{len(imgs):02d}')
         .replace('{{COVER_ATTRS}}', img_attrs(p['cover'], '100vw'))
         .replace('{{COVER}}', esc(local(p['cover'])['src'] if local(p['cover'])['w'] else p['cover']))
-        .replace('{{TEXT}}', render_text(texts, p['name'], d['meta']))
+        .replace('{{TEXT}}', render_both(p['slug'], texts, p['name'], d['meta']))
         .replace('{{GALLERY}}', render_gallery(imgs, p['name']))
         .replace('{{NEXT_SLUG}}', nxt['slug'])
         .replace('{{NEXT_NAME}}', esc(nxt['name']))

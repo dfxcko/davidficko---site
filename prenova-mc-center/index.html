@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="utf-8">
-<script>try{document.documentElement.dataset.theme=localStorage.getItem('df-theme')||'light'}catch(e){}</script>
+<script>(function(h){try{h.dataset.theme=localStorage.getItem('df-theme')||'light';var l=localStorage.getItem('df-lang');h.lang=(l==='sl'||l==='en')?l:((navigator.language||'').toLowerCase().indexOf('sl')===0?'sl':'en')}catch(e){}})(document.documentElement)</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MC Center — David Ficko</title>
 <meta name="description" content="PROstor^3 projekt prenove prostorov mestne četrti center, Mestne občine Maribor javna dnevna soba za prebivalce mestne četrti center Blaž Balažic/Nuša Pučk…">
@@ -51,10 +51,18 @@
       <div><span class="muted" data-t="images">Images</span><span>06</span></div>
     </div>
     <div class="p-text">
+<div data-lang="en">
+<div class="p-sub">PROstor^3</div>
+<div class="p-cred mono">renovation of the premises of the Center city district, Municipality of Maribor</div>
+<div class="p-cred mono">a public living room for the residents of the Center district</div>
+<div class="p-cred mono">Blaž Balažic/Nuša Pučko/David Ficko</div>
+</div>
+<div data-lang="sl">
 <div class="p-sub">PROstor^3</div>
 <div class="p-cred mono">projekt prenove prostorov mestne četrti center, Mestne občine Maribor</div>
 <div class="p-cred mono">javna dnevna soba za prebivalce mestne četrti center</div>
 <div class="p-cred mono">Blaž Balažic/Nuša Pučko/David Ficko</div>
+</div>
     </div>
   </section>
 
