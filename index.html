@@ -125,9 +125,17 @@ section{position:relative}
 .row.hide{display:none}
 @media(max-width:720px){.row{grid-template-columns:44px 1fr 56px 24px}.sec-head{flex-direction:column;gap:18px}}
 
-.preview{position:fixed;top:0;left:0;width:240px;height:300px;z-index:70;pointer-events:none;background:var(--ink2);border:1px solid var(--line);opacity:0;transform:scale(.85);transition:opacity .35s, transform .5s var(--ease);overflow:hidden}
+.preview{position:fixed;top:0;left:0;width:380px;height:297px;z-index:70;pointer-events:none;background:var(--ink2);border:1px solid var(--line);opacity:0;transform:scale(.85);transition:opacity .35s, transform .5s var(--ease);overflow:hidden}
 .preview.on{opacity:1;transform:scale(1)}
 .preview canvas{width:100%;height:100%;display:block}
+.pv-img{position:absolute;inset:0;clip-path:inset(100% 0 0 0);transition:clip-path .9s var(--ease)}
+.pv-img.in{clip-path:inset(0 0 0 0)}
+.pv-img img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.15);transition:transform 1.4s var(--ease)}
+.pv-img.in img{transform:scale(1)}
+.pv-img::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(11,11,10,.55),transparent 30%,transparent 60%,rgba(11,11,10,.75))}
+.preview .pv-l,.preview .pv-n{z-index:2}
+.row .th{display:none}
+@media (pointer:coarse){.row .th{display:inline-block;width:64px;height:50px;object-fit:cover;vertical-align:middle;margin-right:16px;filter:grayscale(1);opacity:.85}}
 .preview .pv-l{position:absolute;left:14px;top:12px;right:14px;display:flex;justify-content:space-between}
 .preview .pv-n{position:absolute;left:14px;bottom:10px;font-family:var(--serif);font-size:30px;line-height:1}
 @media (pointer:coarse){.preview{display:none}}
@@ -230,11 +238,30 @@ const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.q
 const BONE = '236,232,224';
 
 /* ---------- data ---------- */
+const IMG='https://cdn.myportfolio.com/082ff3c2-43cd-4de5-9163-6118ee4564e0/';
 const PROJECTS = [
-  ['Mura',2026,'mura'],['Light',2026],['Oculus',2025,'oculus'],['Countryard',2025],['Saja',2025],['MTS',2025],
-  ['Kapital ubija?',2024],['Research Hub',2024],['UMAG',2024],['MNO',2024],['MC01DF',2024],['ZVM',2024],['House',2024],['NVIII',2024],
-  ['MC Center',2022],['Stadion DF01',2022],['Therme 3L',2022],
-  ['CS8',2021,'case-study-8'],['01H',2021],['AE2',2021],['Light',2021,'light-painting'],['Skala',2020,'mountain-home']
+  ["Mura", 2026, "mura", "2f6b94a4-e0fb-449c-bbd2-9c6ae24cfa89_rwc_0x401x3840x3002x640.jpg?h=fac8fe3dd89c3356ebbea0ede581d5c0", "2f6b94a4-e0fb-449c-bbd2-9c6ae24cfa89_rwc_0x401x3840x3002x1280.jpg?h=8e4eaa2e83eb3a97b463104f0420617a"],
+  ["Light", 2026, "light", "0cfc81b6-16ff-4bb2-91b6-fdc47757d691_rwc_0x838x3024x2364x640.jpeg?h=3999122c300c4396bfa041cbdd7cdd56", "0cfc81b6-16ff-4bb2-91b6-fdc47757d691_rwc_0x838x3024x2364x1280.jpeg?h=8ec55beae53e2336e20bf35fe253062f"],
+  ["Oculus", 2025, "oculus", "4e4e2127-b573-4efc-8d24-f9144f59995b_rwc_267x429x700x547x640.jpg?h=30fbdbb74d7af07283845376a814211c", "4e4e2127-b573-4efc-8d24-f9144f59995b_rwc_267x429x700x547x700.jpg?h=8f398ebaef8f65657a0af3a06adad499"],
+  ["Countryard", 2025, "countryard", "82d02020-5c5f-4681-b0c1-142732800ba3_rwc_189x0x3472x2715x640.jpg?h=cea49304ff961f559b5dbe618b58dea7", "82d02020-5c5f-4681-b0c1-142732800ba3_rwc_189x0x3472x2715x1280.jpg?h=1f9c1dd4f4c03cbace472650772396b2"],
+  ["Saja", 2025, "saja", "d7e4f17b-4239-486b-b259-aee757175b1a_rwc_0x0x2762x2160x640.png?h=0aa012c236d818af8640b5e5bb693b76", "d7e4f17b-4239-486b-b259-aee757175b1a_rwc_0x0x2762x2160x1280.png?h=780502dfc82f68f2eacda65267e9b58a"],
+  ["MTS", 2025, "mts", "0acf1903-bf8d-4ba1-8973-294494727cbd_rwc_276x233x1558x1218x640.png?h=2a91ef96a72a336d1488ce66fc0021fa", "0acf1903-bf8d-4ba1-8973-294494727cbd_rwc_276x233x1558x1218x1280.png?h=1d758f56ff5571398fde73fe8400f81a"],
+  ["Kapital ubija?", 2024, "kapital-ubija", "da05c9db-e2de-4372-b1f3-52a27a86ac5e_carw_202x158x640.jpg?h=4292f5b619f56dda21d261bd22294c90", "da05c9db-e2de-4372-b1f3-52a27a86ac5e_carw_202x158x1280.jpg?h=9ec8fdd9d85618808708160d962d8dcd"],
+  ["Research Hub", 2024, "research-hub", "3ff6547b-37a8-43e2-8e24-358584c1291d_carw_202x158x640.gif?h=e639c805222744e074c36621af68e7dd", "3ff6547b-37a8-43e2-8e24-358584c1291d_carw_202x158x1280.gif?h=0c2738c73cd4319d6953a7b01d7ff935"],
+  ["UMAG", 2024, "umag", "d227a59d-6ad7-47c6-bcef-b1e98b7ec8a8_rwc_224x0x4486x3508x640.png?h=c6093e4c75302defa89544ab475e17de", "d227a59d-6ad7-47c6-bcef-b1e98b7ec8a8_rwc_224x0x4486x3508x1280.png?h=93c3655a32650d1ecf059db65cc40502"],
+  ["MNO", 2024, "mno", "3d3515a4-991f-485b-b28d-53254df3c087_rwc_74x0x1493x1168x640.jpg?h=54d7719b3d3b6ef750ca6b791130a330", "3d3515a4-991f-485b-b28d-53254df3c087_rwc_74x0x1493x1168x1280.jpg?h=d0a5e8b1347e574a86b728ffa6ac274d"],
+  ["MC01DF", 2024, "mc01df", "821b1981-620e-488e-896e-62b03c2c79a4_rwc_154x265x1062x830x640.png?h=a1e51e1a7472fd342efbf04fa9d8d90c", "821b1981-620e-488e-896e-62b03c2c79a4_rwc_154x265x1062x830x1280.png?h=ba0d83471e9b1c3848aa7067c8d37a4a"],
+  ["ZVM", 2024, "zvm", "93af4277-5d6d-401e-99ff-e0ec480ad826_rwc_96x88x886x692x640.png?h=fb4e82ac4f9e7dc9f42a03d56f9fabc8", "93af4277-5d6d-401e-99ff-e0ec480ad826_rwc_96x88x886x692x1280.png?h=c5266754c8e5c78670051ec8ebbf17ce"],
+  ["House", 2024, "hisa", "a35c2a8b-dd07-438c-a15f-723fbfbbad4c_rwc_326x0x5983x4678x640.png?h=4e8ed0d773a022b098c2ec39e6e3f232", "a35c2a8b-dd07-438c-a15f-723fbfbbad4c_rwc_326x0x5983x4678x1280.png?h=af63832b00c5c80163f1afe338a72079"],
+  ["NVIII", 2024, "nviii", "1706218f-dfb2-48d9-9d07-4d47eeef536b_rwc_19x0x2174x1700x640.png?h=1d73ae2684a6c0e243b1362a87b3434f", "1706218f-dfb2-48d9-9d07-4d47eeef536b_rwc_19x0x2174x1700x1280.png?h=a31fe7630d54203a31c8595704f92317"],
+  ["MC Center", 2022, "prenova-mc-center", "327aa42a-1b83-42fc-a529-233a35dd838e_rwc_345x306x1071x837x640.png?h=2018f2b8e57da8eaa167ceef4643c791", "327aa42a-1b83-42fc-a529-233a35dd838e_rwc_345x306x1071x837x1280.png?h=1aee730bffa264367f3302b4d46e61de"],
+  ["Stadion DF01", 2022, "stadion-df01", "261c29d9-5023-44f4-b86d-d48512495e0d_rwc_495x238x1028x803x640.png?h=756ae8418f69c265b7485e536c11e0b4", "261c29d9-5023-44f4-b86d-d48512495e0d_rwc_495x238x1028x803x1280.png?h=9943e297d1252e17e997e778dea70ab1"],
+  ["Therme 3L", 2022, "therme-3l", "2233d9e4-59e1-4bf8-a2de-4f13d27cb4d5_carw_202x158x640.png?h=31e6a61eb630df3076454ae9a40849cb", "2233d9e4-59e1-4bf8-a2de-4f13d27cb4d5_carw_202x158x1280.png?h=b3825c8092d002093a0df318ecaf6287"],
+  ["CS8", 2021, "case-study-8", "785a5d8c-4a0d-4275-881b-75358d0529dc_rwc_0x120x1103x862x640.jpg?h=e1cb6858cbca4100a12ece1ad6fe53d4", "785a5d8c-4a0d-4275-881b-75358d0529dc_rwc_0x120x1103x862x1103.jpg?h=f7f2ad71ec4a426b513a476af3213872"],
+  ["01H", 2021, "01h", "ecf449e2-2810-4389-b055-1c280dac7237_rwc_0x117x1080x844x640.jpg?h=6e42ce054914ead210e11426c344844c", "ecf449e2-2810-4389-b055-1c280dac7237_rwc_0x117x1080x844x1080.jpg?h=ac0a5a90367590fcaeeb0bd207e3925c"],
+  ["AE2", 2021, "ae2", "02d47cb4-06a8-4781-b56c-1157721e3b4a_rwc_284x131x1526x1193x640.jpg?h=861408495848420bb43daf9d2452ddf3", "02d47cb4-06a8-4781-b56c-1157721e3b4a_rwc_284x131x1526x1193x1280.jpg?h=99c3ef0345e462f14588c5f80eb44d31"],
+  ["Light", 2021, "light-painting", "5119cd60-2155-423d-91d3-5886830cbcfc_carw_202x158x640.JPG?h=c55a4d42d34172af23bae79e0ea42b3e", "5119cd60-2155-423d-91d3-5886830cbcfc_carw_202x158x1280.JPG?h=92f24f1cd455b37d08f6107eb79c2564"],
+  ["Skala", 2020, "mountain-home", "9245143a-ed8d-494e-bd26-5ccd9debaeb2_rwc_0x213x1959x1531x640.jpg?h=3748b07dd0cc3a17eb6745c4308826ac", "9245143a-ed8d-494e-bd26-5ccd9debaeb2_rwc_0x213x1959x1531x1280.jpg?h=3109a409542ba551ee642360dad49756"]
 ];
 
 /* ---------- language ---------- */
@@ -357,9 +384,9 @@ let vel=0;
 
 /* ---------- index ---------- */
 const rowsEl=$('#rows');
-rowsEl.innerHTML=PROJECTS.map(([n,y,slug],i)=>{
-  const href= slug?`https://davidficko.com/${slug}`:'https://davidficko.com/work';
-  return `<a class="row" href="${href}" data-y="${y}" data-n="${n}" data-i="${i}"><span class="mono muted">${String(i+1).padStart(2,'0')}</span><span class="nm">${n}</span><span class="yr mono muted">${y}</span><span class="ar">↗</span></a>`;
+rowsEl.innerHTML=PROJECTS.map(([n,y,slug,sm],i)=>{
+  const href=`https://davidficko.com/${slug}`;
+  return `<a class="row" href="${href}" data-y="${y}" data-n="${n}" data-i="${i}"><span class="mono muted">${String(i+1).padStart(2,'0')}</span><span class="nm"><img class="th" src="${IMG+sm}" alt="" loading="lazy" decoding="async" onerror="this.remove()">${n}</span><span class="yr mono muted">${y}</span><span class="ar">↗</span></a>`;
 }).join('');
 const years=['all',...new Set(PROJECTS.map(p=>p[1]))];
 $('#filters').innerHTML=years.map((y,i)=>`<button class="${i?'':'on'}" data-y="${y}" data-cursor="link"${i?'':' data-t="all"'}>${i?y:'All'}</button>`).join('');
@@ -377,9 +404,9 @@ $('#lang').addEventListener('click',()=>setLang(LANG==='en'?'sl':'en'));
 
 /* preview card with a rotating wireframe derived from the project name */
 const pv=document.createElement('div'); pv.className='preview';
-pv.innerHTML='<canvas></canvas><div class="pv-l mono muted"><span class="pv-i"></span><span class="pv-y"></span></div><div class="pv-n"></div>';
+pv.innerHTML='<canvas></canvas><div class="pv-img"></div><div class="pv-l mono muted"><span class="pv-i"></span><span class="pv-y"></span></div><div class="pv-n"></div>';
 document.body.appendChild(pv);
-const pc=pv.querySelector('canvas'), px=pc.getContext('2d'); pc.width=480; pc.height=600;
+const pc=pv.querySelector('canvas'), px=pc.getContext('2d'); pc.width=760; pc.height=594;
 let pvScene=[], pvOn=false, pvx=0,pvy=0,tpx=0,tpy=0, pvT0=0;
 function hash(s){ let h=2166136261; for(const c of s) h=Math.imul(h^c.charCodeAt(0),16777619); return h>>>0; }
 function pvBuild(name,i){
@@ -397,19 +424,31 @@ function pvFrame(t){
   pvx+=(tpx-pvx)*.12; pvy+=(tpy-pvy)*.12;
   pv.style.left=pvx+'px'; pv.style.top=pvy+'px';
   if(!pvOn) return;
-  px.clearRect(0,0,480,600);
   const prog=Math.min(1,(t-pvT0)/900);
-  drawScene(px,pvScene,t*.0005,.5,240,340,150,prog,1.6);
+  px.clearRect(0,0,760,594); drawScene(px,pvScene,t*.0005,.5,380,330,170,prog,1.6);
 }
 requestAnimationFrame(pvFrame);
+/* cover images: preloaded once the list comes near, revealed with a wipe over the wireframe */
+const pvImg=pv.querySelector('.pv-img'), imgs=[];
+function loadImgs(){ if(imgs.length) return; PROJECTS.forEach((p,i)=>{ const im=new Image(); im.decoding='async'; im.alt=''; im.onerror=()=>{ im.dataset.bad=1; }; im.src=IMG+p[4]; imgs[i]=im; }); }
+new IntersectionObserver(([e],o)=>{ if(e.isIntersecting){ loadImgs(); o.disconnect(); } },{rootMargin:'600px'}).observe(rowsEl);
+function showImg(i){
+  loadImgs(); const im=imgs[i];
+  pvImg.classList.remove('in'); pvImg.innerHTML='';
+  if(!im || im.dataset.bad) return;
+  pvImg.appendChild(im);
+  const go=()=>requestAnimationFrame(()=>pvImg.classList.add('in'));
+  im.complete&&im.naturalWidth ? go() : im.onload=go;
+}
 rowsEl.addEventListener('pointerover',e=>{
   const r=e.target.closest('.row'); if(!r) return;
   pvScene=pvBuild(r.dataset.n,r.dataset.i); pvT0=performance.now();
+  showImg(+r.dataset.i);
   pv.querySelector('.pv-n').textContent=r.dataset.n; pv.querySelector('.pv-y').textContent=r.dataset.y; pv.querySelector('.pv-i').textContent=T[LANG].no+' '+String(+r.dataset.i+1).padStart(2,'0');
   pvOn=true; pv.classList.add('on'); rowsEl.classList.add('dim');
 });
 rowsEl.addEventListener('pointerleave',()=>{ pvOn=false; pv.classList.remove('on'); rowsEl.classList.remove('dim'); });
-addEventListener('pointermove',e=>{ tpx=e.clientX+ (e.clientX>innerWidth-300? -270:30); tpy=e.clientY-150; });
+addEventListener('pointermove',e=>{ tpx=e.clientX+ (e.clientX>innerWidth-430? -410:30); tpy=e.clientY-148; });
 
 /* ---------- cursor ---------- */
 if(FINE){
