@@ -5,8 +5,8 @@ const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.q
 
 /* ---------- language ---------- */
 const T={
-  en:{work:'Work',contact:'Contact',back:'All work',next:'Next project',year:'Year',no:'No.',images:'Images',close:'Close',prev:'Prev',nxt:'Next'},
-  sl:{work:'Dela',contact:'Kontakt',back:'Vsa dela',next:'Naslednji projekt',year:'Leto',no:'Št.',images:'Slike',close:'Zapri',prev:'Nazaj',nxt:'Naprej'}
+  en:{cookies:'Cookies',work:'Work',contact:'Contact',back:'All work',next:'Next project',year:'Year',no:'No.',images:'Images',close:'Close',prev:'Prev',nxt:'Next'},
+  sl:{cookies:'Piškotki',work:'Dela',contact:'Kontakt',back:'Vsa dela',next:'Naslednji projekt',year:'Leto',no:'Št.',images:'Slike',close:'Zapri',prev:'Nazaj',nxt:'Naprej'}
 };
 let LANG=(()=>{ try{ const s=localStorage.getItem('df-lang'); if(s==='sl'||s==='en') return s; }catch(e){}
   return (navigator.language||'').toLowerCase().startsWith('sl')?'sl':'en'; })();
@@ -29,7 +29,7 @@ const curtain=$('#curtain');
 function enter(){ requestAnimationFrame(()=>requestAnimationFrame(()=>curtain.classList.add('up'))); }
 addEventListener('pageshow',e=>{ if(e.persisted){ curtain.className='curtain up'; } });
 document.addEventListener('click',e=>{
-  const a=e.target.closest('a[href]'); if(!a||e.metaKey||e.ctrlKey||e.shiftKey||a.target==='_blank') return;
+  const a=e.target.closest('a[href]'); if(!a||e.defaultPrevented||a.getAttribute('href').startsWith('#')||e.metaKey||e.ctrlKey||e.shiftKey||a.target==='_blank') return;
   const u=new URL(a.href,location.href); if(u.origin!==location.origin || (u.pathname===location.pathname && u.hash)) return;
   e.preventDefault(); if(RM){ location.href=u.href; return; }
   curtain.className='curtain cover'; void curtain.offsetWidth; curtain.classList.add('go');
