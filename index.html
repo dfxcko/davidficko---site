@@ -390,7 +390,7 @@ $('#rail').innerHTML=PROJECTS.map((p,i)=>`<button data-i="${i}" aria-label="${p[
 layout(); addEventListener('resize',layout);
 
 /* state from scroll */
-let rot=0, tRot=0, active=-1, inIntro=true, drift=0, lastScroll=0, snapped=true, dragging=false;
+let rot=0, rotV=0, tRot=0, active=-1, inIntro=true, drift=0, lastScroll=0, snapped=true, dragging=false;
 const secTop=()=>sec.offsetTop;
 function fFromScroll(){ return (scrollY - secTop() - INTRO())/STEP(); }
 function scrollForIndex(i){ return secTop() + INTRO() + i*STEP(); }
@@ -422,10 +422,19 @@ function frame(t){
   setIntro(intro);
   driftV+=((overPlate||RM?0:.035)-driftV)*.08;
   if(intro){ drift+=driftV; tRot=-drift; tTilt=-22; }
-  else { tRot=-clamp(f,0,N-1)*STEP_DEG; tTilt=-12; setActive(clamp(Math.round(f),0,N-1)); }
+  else {
+    let v=clamp(f,0,N-1);
+    if(!TOUCH){ // the ring doesn't copy the wheel 1:1: small scrolls are resisted, then it eases on naturally
+      const base=settled<0?Math.round(v):settled, d=v-base, a=Math.abs(d);
+      v=clamp(base+Math.sign(d)*(a<1?Math.pow(a,1.6):1+(a-1)),0,N-1);
+    }
+    tRot=-v*STEP_DEG; tTilt=-12; setActive(clamp(Math.round(v),0,N-1)); }
+  if(intro) settled=-1;
   if(!intro && drift){ // carry the drift into the nearest equivalent angle so there is no spin-back
     const k=Math.round((rot - tRot)/360); drift=0; rot-=k*360; }
-  rot+=(tRot-rot)*(RM?1:(intro?.09:.07)); tilt+=(tTilt-tilt)*.05; mx+=(tmx-mx)*.05;
+  if(RM || intro || TOUCH){ rot+=(tRot-rot)*(RM?1:(intro?.09:.07)); rotV=0; }
+  else { rotV+=(tRot-rot)*.035; rotV*=.8; rot+=rotV; }   // soft spring: glides, overshoots a hair, settles
+  tilt+=(tTilt-tilt)*.05; mx+=(tmx-mx)*.05;
   world.style.transform=`translateZ(-${R*.55}px) rotateX(${tilt + 0}deg) rotateY(${rot + mx*8}deg)`;
   // the name, number and year move with the ring itself (same smoothed angle), so text and motion stay in sync
   if(!intro){ const fr=clamp(-rot/STEP_DEG,0,N-1);
