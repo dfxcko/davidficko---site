@@ -104,7 +104,8 @@ header nav a:hover span{transform:translateY(-100%)}
 .floor svg{display:block;overflow:visible}
 .floor svg *{fill:none;stroke:var(--bone)}
 .plate{position:absolute;transform-style:preserve-3d;transition:opacity 1s,filter .6s}
-.plate .lift{position:absolute;inset:0;transform-style:preserve-3d}
+.plate .lift{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .9s var(--out)}
+.plate.on .lift{transform:translateZ(var(--pop)) translateY(calc(var(--h) * -.42)) scale(1.55)}
 .plate .face,.plate .back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .plate .face{background:var(--ink2);overflow:hidden;outline:1px solid var(--line)}
 [data-theme=light] .plate .face{outline:0}
@@ -127,10 +128,11 @@ header nav a:hover span{transform:translateY(-100%)}
 
 .info{position:absolute;left:var(--pad);right:var(--pad);bottom:clamp(24px,5vh,48px);display:flex;justify-content:space-between;align-items:flex-end;gap:24px;pointer-events:none;transition:opacity .6s, transform .8s var(--out)}
 .info.off{opacity:0;transform:translateY(30px)}
-.ptitle{position:relative;height:clamp(64px,9vw,140px);overflow:hidden;font-family:var(--serif);font-size:clamp(56px,8.4vw,132px);line-height:1;letter-spacing:-.03em;min-width:50vw}
-.ptitle span{position:absolute;left:0;top:0;white-space:nowrap;transition:transform .9s var(--out)}
-.ptitle span.below{transform:translateY(105%)}
-.ptitle span.above{transform:translateY(-105%)}
+.ptitle{position:relative;height:1.3em;overflow:hidden;font-family:var(--serif);font-size:clamp(56px,8.4vw,132px);line-height:1;letter-spacing:-.03em;min-width:50vw}
+.ptitle .strip,.roll .strip{display:block;will-change:transform}
+.ptitle .strip span{display:block;height:1.3em;line-height:1.15em;white-space:nowrap}
+.roll{display:inline-block;height:1.5em;overflow:hidden;vertical-align:bottom}
+.roll .strip span{display:block;height:1.5em;line-height:1.5em}
 .pmeta{display:flex;flex-direction:column;align-items:flex-end;gap:8px;text-align:right;pointer-events:auto}
 .pmeta .open{display:inline-flex;align-items:center;gap:10px;margin-top:6px;border:1px solid var(--bone);border-radius:99px;padding:9px 16px;transition:background .4s,color .4s}
 .pmeta .open:hover{background:var(--bone);color:var(--ink)}
@@ -151,7 +153,7 @@ body.touch .hello{top:17%;transform:none}
 body.touch .hello h1{font-size:min(22vw,120px)}
 body.touch .swipe{display:flex;position:absolute;left:0;right:0;top:calc(47% + var(--hint,90px));justify-content:center;gap:10px;opacity:.5;pointer-events:none;transition:opacity .6s}
 body.touch .swipe.gone{opacity:0}
-@media(max-width:720px){.world{top:52%}.rail{display:none}.arrows{top:auto;left:auto;right:var(--pad);bottom:clamp(24px,5vh,48px);transform:none;flex-direction:row}.ptitle{min-width:0;width:100%;font-size:clamp(44px,12vw,72px);height:clamp(52px,14vw,84px)}.info{flex-direction:column;align-items:flex-start}.pmeta{align-items:flex-start;text-align:left}}
+@media(max-width:720px){.world{top:52%}.rail{display:none}.arrows{top:auto;left:auto;right:var(--pad);bottom:clamp(24px,5vh,48px);transform:none;flex-direction:row}.ptitle{min-width:0;width:100%;font-size:clamp(44px,12vw,72px)}.info{flex-direction:column;align-items:flex-start}.pmeta{align-items:flex-start;text-align:left}}
 
 /* ===== index list ===== */
 .index{padding:clamp(80px,9vw,140px) 0 clamp(80px,10vw,140px);border-top:1px solid var(--line)}
@@ -235,8 +237,8 @@ footer{display:flex;justify-content:space-between;padding-top:80px}
       <div class="info off" id="info">
         <div class="ptitle" id="ptitle"></div>
         <div class="pmeta mono">
-          <span class="pno"><span id="pno">01</span> <span class="muted">/ <span id="ptot">22</span></span></span>
-          <span id="pyr" class="muted">2026</span>
+          <span class="pno"><span class="roll" id="pno"></span> <span class="muted">/ <span id="ptot">22</span></span></span>
+          <span class="roll muted" id="pyr"></span>
           <a class="open" id="popen" href="#"><span data-t="open">Open project</span> →</a>
         </div>
       </div>
@@ -378,6 +380,12 @@ PROJECTS.forEach(([n,y,slug,th],i)=>{
   world.appendChild(p); plates.push(p);
 });
 $('#ptot').textContent=String(N).padStart(2,'0');
+$('#ptitle').innerHTML='<span class="strip">'+PROJECTS.map(p=>`<span>${p[0]}</span>`).join('')+'</span>';
+$('#pno').innerHTML='<span class="strip">'+PROJECTS.map((p,i)=>`<span>${String(i+1).padStart(2,'0')}</span>`).join('')+'</span>';
+$('#pyr').innerHTML='<span class="strip">'+PROJECTS.map(p=>`<span>${p[1]}</span>`).join('')+'</span>';
+const tStrip=$('#ptitle .strip'), nStrip=$('#pno .strip'), yStrip=$('#pyr .strip');
+let tLine=0, nLine=0; const measure=()=>{ tLine=tStrip.firstChild.getBoundingClientRect().height; nLine=nStrip.firstChild.getBoundingClientRect().height; };
+measure(); addEventListener('resize',measure); document.fonts&&document.fonts.ready.then(measure);
 $('#rail').innerHTML=PROJECTS.map((p,i)=>`<button data-i="${i}" aria-label="${p[0]}"><i></i></button>`).join('');
 layout(); addEventListener('resize',layout);
 
@@ -393,17 +401,14 @@ function setActive(i){
   plates.forEach((p,j)=>p.classList.toggle('on',j===i));
   $$('#rail button').forEach((b,j)=>b.classList.toggle('on',j===i));
   const [n,y,slug]=PROJECTS[i];
-  $('#pno').textContent=String(i+1).padStart(2,'0'); $('#pyr').textContent=y; $('#popen').href=`/${slug}/`;
-  const box=$('#ptitle'); const old=[...box.children];
-  const s=document.createElement('span'); s.textContent=n; s.className=dir>0?'below':'above'; box.appendChild(s);
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{ s.className=''; old.forEach(o=>{ o.className=dir>0?'above':'below'; setTimeout(()=>o.remove(),900); }); }));
+  $('#popen').href=`/${slug}/`;
 }
 function setIntro(v){
   if(v===inIntro) return; inIntro=v;
   $('#hello').style.opacity=v?1:0; $('#hello').style.transition='opacity .6s';
   $('#cue').style.opacity=v?1:0;
   ['#info','#rail','#arrows'].forEach(s=>$(s).classList.toggle('off',v));
-  if(v){ plates.forEach(p=>p.classList.remove('on')); active=-1; $('#ptitle').innerHTML=''; }
+  if(v){ plates.forEach(p=>p.classList.remove('on')); active=-1; }
   if(TOUCH){ $('#hello').style.opacity=1; }
 }
 let started=false;
@@ -422,17 +427,13 @@ function frame(t){
     const k=Math.round((rot - tRot)/360); drift=0; rot-=k*360; }
   rot+=(tRot-rot)*(RM?1:(intro?.09:.07)); tilt+=(tTilt-tilt)*.05; mx+=(tmx-mx)*.05;
   world.style.transform=`translateZ(-${R*.55}px) rotateX(${tilt + 0}deg) rotateY(${rot + mx*8}deg)`;
-  // how far each plate is from the front, taken from the actual (smoothed) angle
-  popAmt+=((intro?0:1)-popAmt)*.06;
-  const fr=(((-rot/STEP_DEG)%N)+N)%N;
-  for(let i=0;i<N;i++){ let d=Math.abs(i-fr); d=Math.min(d,N-d); const t=Math.max(0,1-d), e=t*t*(3-2*t)*popAmt;
-    const k=Math.round(e*1000); if(k!==lastPop[i]){ lastPop[i]=k;
-      lifts[i].style.transform = k? `translateZ(${W*.9*e}px) translateY(${-.42*H*e}px) scale(${1+.55*e})` : ''; } }
+  // the name, number and year move with the ring itself (same smoothed angle), so text and motion stay in sync
+  if(!intro){ const fr=clamp(-rot/STEP_DEG,0,N-1);
+    tStrip.style.transform=`translate3d(0,${-fr*tLine}px,0)`; nStrip.style.transform=`translate3d(0,${-fr*nLine}px,0)`; yStrip.style.transform=`translate3d(0,${-fr*nLine}px,0)`; }
   // centring: once the wheel pauses, the glide simply ends on the nearest project
-  if(!TOUCH && !intro && !dragging && !centred && performance.now()-lastWheel>(overPlate?60:220)) centre();
+  if(!TOUCH && !intro && !dragging && !centred && performance.now()-lastWheel>(overPlate?120:420) && Math.abs(scrollVel)<(overPlate?3:.8)) centre();
 }
-let scrollVel=0, overPlate=false, driftV=.035, popAmt=0, centred=true, lastWheel=0;
-const lifts=plates.map(p=>p.querySelector('.lift')), lastPop=plates.map(()=>-1);
+let scrollVel=0, overPlate=false, driftV=.035, centred=true, lastWheel=0;
 /* hovering a project: any leftover glide eases out instead of carrying on */
 function centre(){
   centred=true;
@@ -538,7 +539,7 @@ $('#inq').addEventListener('submit',e=>{ e.preventDefault(); $('#inq').classList
 
 /* ---------- smooth scroll ---------- */
 let lenis=null;
-if(!RM && typeof Lenis!=='undefined'){ lenis=new Lenis({lerp:.055, wheelMultiplier:1, smoothWheel:true}); lenis.on('scroll',e=>{ scrollVel=e.velocity||0; }); (function raf(t){ lenis.raf(t); requestAnimationFrame(raf); })(performance.now()); }
+if(!RM && typeof Lenis!=='undefined'){ lenis=new Lenis({lerp:.07, wheelMultiplier:1, smoothWheel:true}); lenis.on('scroll',e=>{ scrollVel=e.velocity||0; }); (function raf(t){ lenis.raf(t); requestAnimationFrame(raf); })(performance.now()); }
 function scrollToSel(s){ const el=$(s); if(!el) return; lenis? lenis.scrollTo(el,{duration:1.6}) : el.scrollIntoView({behavior:'smooth'}); }
 $$('[data-scroll]').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(); scrollToSel(a.dataset.scroll); }));
 
