@@ -225,6 +225,22 @@ form.inq button{grid-column:1/-1;justify-self:start;margin-top:28px;background:v
 footer{display:flex;justify-content:space-between;padding-top:80px}
 @media(max-width:720px){form.inq{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.grain,.cue i::after{animation:none}}
+
+/* ===== spiral teaser ===== */
+.spiral-sec{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(28px,5vw,80px);align-items:center;padding:clamp(80px,9vw,140px) var(--pad);border-top:1px solid var(--line)}
+.spiral-sec .sp-kick{display:flex;gap:14px;margin-bottom:22px}
+.spiral-sec h2{font-family:var(--serif);font-weight:400;font-size:clamp(64px,10vw,150px);line-height:.88;letter-spacing:-.02em}
+.spiral-sec h2 i{font-style:italic}
+.spiral-sec .sp-lead{font-family:var(--serif);font-size:clamp(22px,2.3vw,32px);line-height:1.15;max-width:22ch;margin-top:26px}
+.spiral-sec .sp-sub{margin-top:18px;max-width:36ch;color:var(--mute)}
+.spiral-sec .sp-open{display:inline-flex;gap:10px;align-items:center;margin-top:36px;padding:13px 20px;border:1px solid var(--bone);border-radius:99px;transition:background .4s,color .4s}
+.spiral-sec .sp-open:hover{background:var(--bone);color:var(--ink)}
+.spiral-sec .sp-open .ar{transition:transform .5s var(--ease)}
+.spiral-sec .sp-open:hover .ar{transform:translateX(4px)}
+.sp-stage{position:relative;display:block;aspect-ratio:1/1;width:100%;max-width:620px;justify-self:end}
+.sp-stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.sp-cap{position:absolute;left:0;right:0;bottom:-6px;display:flex;justify-content:space-between;color:var(--mute);pointer-events:none}
+@media(max-width:720px){.spiral-sec{grid-template-columns:1fr}.sp-stage{justify-self:stretch;max-width:none;order:-1}}
 </style>
 </head>
 <body class="loading">
@@ -267,6 +283,20 @@ footer{display:flex;justify-content:space-between;padding-top:80px}
         </div>
       </div>
     </div>
+  </section>
+
+  <section class="spiral-sec" id="spiral">
+    <div>
+      <div class="sp-kick mono"><span class="muted" data-t="spKick">Tool</span><span class="muted">/</span><span class="muted">2026</span></div>
+      <h2><i>Spiral</i></h2>
+      <p class="sp-lead" data-t="spLead">Design a lamp or vase and print it as one continuous line.</p>
+      <p class="sp-sub" data-t="spSub">Sculpt the form, watch the toolpath live, export G-code for Bambu Lab printers.</p>
+      <a class="sp-open mono" href="/spiral/"><span data-t="spOpen">Open Spiral</span><span class="ar">→</span></a>
+    </div>
+    <a class="sp-stage" href="/spiral/" aria-label="Open Spiral">
+      <canvas id="spCanvas"></canvas>
+      <div class="sp-cap mono"><span id="spName">Mesh shade</span><span id="spMeta"></span></div>
+    </a>
   </section>
 
   <section class="index" id="index">
@@ -332,8 +362,8 @@ const N = PROJECTS.length;
 
 /* ---------- language ---------- */
 const T={
-  en:{cookies:'Cookies',hint:'Scroll or drag',swipe:'Swipe',sending:'Sending…',failed:'Could not send. Please write to hello@davidficko.com',work:'Work',contact:'Contact',all:'All',name:'Name',email:'Email',message:'Message',send:'Send',thanks:'Thank you.',open:'Open project',index:'Index',title:'David Ficko — Architecture'},
-  sl:{cookies:'Piškotki',hint:'Drsaj ali povleci',swipe:'Povleci',sending:'Pošiljam…',failed:'Pošiljanje ni uspelo. Piši na hello@davidficko.com',work:'Dela',contact:'Kontakt',all:'Vse',name:'Ime',email:'E-pošta',message:'Sporočilo',send:'Pošlji',thanks:'Hvala.',open:'Odpri projekt',index:'Kazalo',title:'David Ficko — Arhitektura'}
+  en:{cookies:'Cookies',hint:'Scroll or drag',swipe:'Swipe',sending:'Sending…',failed:'Could not send. Please write to hello@davidficko.com',work:'Work',contact:'Contact',all:'All',name:'Name',email:'Email',message:'Message',send:'Send',thanks:'Thank you.',open:'Open project',index:'Index',spKick:'Tool',spLead:'Design a lamp or vase and print it as one continuous line.',spSub:'Sculpt the form, watch the toolpath live, export G-code for Bambu Lab printers.',spOpen:'Open Spiral',title:'David Ficko — Architecture'},
+  sl:{cookies:'Piškotki',hint:'Drsaj ali povleci',swipe:'Povleci',sending:'Pošiljam…',failed:'Pošiljanje ni uspelo. Piši na hello@davidficko.com',work:'Dela',contact:'Kontakt',all:'Vse',name:'Ime',email:'E-pošta',message:'Sporočilo',send:'Pošlji',thanks:'Hvala.',open:'Odpri projekt',index:'Kazalo',spKick:'Orodje',spLead:'Oblikuj svetilko ali vazo in jo natisni kot eno samo neprekinjeno linijo.',spSub:'Oblikuj formo, v živo spremljaj pot šobe in izvozi G-kodo za tiskalnike Bambu Lab.',spOpen:'Odpri Spiral',title:'David Ficko — Arhitektura'}
 };
 let LANG=(()=>{ if(location.hash==='#sl') return 'sl'; if(location.hash==='#en') return 'en';
   try{ const s=localStorage.getItem('df-lang'); if(s==='sl'||s==='en') return s; }catch(e){}
@@ -662,6 +692,66 @@ if(RM || SEEN){ $('#count').parentElement.style.display='none'; reveal(); }
 else { const t0=performance.now(), D=1500; (function c(t){ const p=clamp((t-t0)/D,0,1), e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
   $('#count').textContent=String(Math.round(e*100)).padStart(3,'0'); $('#bar').style.transform=`scaleX(${e})`;
   if(p<1) requestAnimationFrame(c); else setTimeout(reveal,150); })(t0); }
+})();
+</script>
+<script>
+/* Spiral teaser: a printer toolpath drawing itself, layer by layer — plain canvas, no libraries */
+(function(){
+  const cv = document.getElementById('spCanvas'); if (!cv) return;
+  const ctx = cv.getContext('2d'), TAU = Math.PI * 2;
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const nameEl = document.getElementById('spName'), metaEl = document.getElementById('spMeta');
+  // three designs, same maths as the tool (radius r(θ, v) and height offset z(θ, v)), one continuous spiral each
+  const DESIGNS = [
+    { name:{ en:'Mesh shade', sl:'Mrežasti senčnik' }, layers:150, H:.62,
+      r:(th, v, L) => { const base = .23 + .66 * Math.pow(Math.sin((1 - v) * Math.PI / 2 + .12), 1.3);
+        if (v < .06 || v > .94 || L % 3 === 0) return base; const N = 26, ph = (Math.floor(L / 3) & 1) ? Math.PI / N : 0, x = Math.cos(N * (th - ph)); return base + (x > 0 ? .045 * Math.pow(x, 1.2) : 0); },
+      z:() => 0 },
+    { name:{ en:'Tide vase', sl:'Vaza plima' }, layers:170, H:1.05,
+      r:(th, v) => .25 + .07 * Math.sin(v * Math.PI) - .03 * v,
+      z:(th, v) => .055 * Math.sin(2 * th) * Math.sin(Math.PI * v) },
+    { name:{ en:'Woven bowl', sl:'Tkana skleda' }, layers:110, H:.6,
+      r:(th, v) => { const k = v * 14, L = Math.floor(k), bead = Math.sin(Math.PI * (k - L)), w = .5 + .5 * Math.sin(40 * th + (L & 1) * Math.PI); return .34 + .42 * Math.sin(v * Math.PI / 2) + .012 * (bead * (.25 + .75 * w) - .5) * 2; },
+      z:() => 0 }
+  ];
+  const SEG = 128;
+  let di = 0, t0 = performance.now(), running = false, raf = 0, W = 0, Hh = 0, dpr = 1, ink = '#121211';
+  const lang = () => document.documentElement.lang === 'sl' ? 'sl' : 'en';
+  function readInk(){ ink = getComputedStyle(document.documentElement).getPropertyValue('--bone').trim() || '#121211'; }
+  function size(){ const r = cv.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1); W = r.width; Hh = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(Hh * dpr); }
+  function label(){ const d = DESIGNS[di]; nameEl.textContent = '0' + (di + 1) + ' — ' + d.name[lang()]; metaEl.textContent = (lang() === 'sl' ? 'Pot šobe' : 'Toolpath') + ' · ' + (lang() === 'sl' ? 'ena linija' : 'one line'); }
+  function draw(now){
+    const d = DESIGNS[di], el = (now - t0) / 1000;
+    const grow = RM ? 1 : Math.min(1, el / 7);                     // print for 7 s, hold, then next design
+    if (!RM && el > 10.5) { di = (di + 1) % DESIGNS.length; t0 = now; label(); }
+    const rot = RM ? .6 : now / 1000 * .22, tilt = .42, ct = Math.cos(tilt), st = Math.sin(tilt);
+    const scale = Math.min(W, Hh) * .5, cx = W / 2, cy = Hh * .5 + d.H * scale * .46;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, Hh);
+    ctx.lineWidth = .7; ctx.lineJoin = 'round';
+    const shown = Math.max(1, Math.floor(d.layers * grow)), steps = shown * SEG;
+    const back = new Path2D(), front = new Path2D();
+    let prev = null;
+    for (let j = 0; j <= steps; j++) {
+      const t = j / SEG, L = Math.floor(t), th = (j % SEG) / SEG * TAU, v = t / d.layers;
+      const r = d.r(th, v, L), y = v * d.H + d.z(th, v);
+      const a = th + rot, x3 = r * Math.cos(a), z3 = r * Math.sin(a);
+      const px = cx + x3 * scale, py = cy - (y * ct - z3 * st) * scale, isFront = z3 > 0;
+      if (prev) { const p = prev[2] && isFront ? front : back; p.moveTo(prev[0], prev[1]); p.lineTo(px, py); }
+      prev = [px, py, isFront];
+    }
+    ctx.strokeStyle = ink; ctx.globalAlpha = .16; ctx.stroke(back);
+    ctx.globalAlpha = .9; ctx.stroke(front);
+    // nozzle
+    if (prev && grow < 1) { ctx.globalAlpha = 1; ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(prev[0], prev[1], 2.6, 0, TAU); ctx.fill(); }
+    ctx.globalAlpha = 1;
+  }
+  function loop(now){ draw(now); if (running) raf = requestAnimationFrame(loop); }
+  function start(){ if (running || RM) return; running = true; raf = requestAnimationFrame(loop); }
+  function stop(){ running = false; cancelAnimationFrame(raf); }
+  readInk(); size(); label(); draw(performance.now());
+  new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? start() : stop()), { rootMargin:'120px' }).observe(cv);
+  addEventListener('resize', () => { size(); if (!running) draw(performance.now()); });
+  new MutationObserver(() => { readInk(); label(); if (!running) draw(performance.now()); }).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme', 'lang'] });
 })();
 </script>
 </body>
