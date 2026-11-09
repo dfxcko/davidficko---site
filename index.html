@@ -352,7 +352,7 @@ function layout(){
   sec.style.height= TOUCH ? (vh+'px') : (vh + INTRO() + (N-1)*STEP() + vh*.15)+'px';
   stage.style.setProperty('--hint', (H*1.2)+'px');
 }
-const STEP=()=>(TOUCH?innerHeight*.2:Math.max(innerHeight*.2,320)), INTRO=()=>innerHeight*.7;
+const STEP=()=>(TOUCH?innerHeight*.2:Math.max(innerHeight*.2,500)), INTRO=()=>innerHeight*.7;
 function drawFloor(){
   const S=R*2.9, c=S/2, NS='http://www.w3.org/2000/svg';
   const svg=document.createElementNS(NS,'svg'); svg.setAttribute('width',S); svg.setAttribute('height',S); svg.setAttribute('viewBox',`0 0 ${S} ${S}`);
@@ -394,7 +394,7 @@ let rot=0, tRot=0, active=-1, inIntro=true, drift=0, lastScroll=0, snapped=true,
 const secTop=()=>sec.offsetTop;
 function fFromScroll(){ return (scrollY - secTop() - INTRO())/STEP(); }
 function scrollForIndex(i){ return secTop() + INTRO() + i*STEP(); }
-function goTo(i, dur=1.1){ i=clamp(i,0,N-1); if(TOUCH){ mTarget=i; $('#swipe').classList.add('gone'); return; } const y=scrollForIndex(i); lenis? lenis.scrollTo(y,{duration:dur}) : scrollTo({top:y,behavior:'smooth'}); }
+function goTo(i, dur=1.1){ i=clamp(i,0,N-1); settled=i; if(TOUCH){ mTarget=i; $('#swipe').classList.add('gone'); return; } const y=scrollForIndex(i); lenis? lenis.scrollTo(y,{duration:dur}) : scrollTo({top:y,behavior:'smooth'}); }
 
 function setActive(i){
   if(i===active) return; const dir=i>active?1:-1; active=i;
@@ -433,13 +433,16 @@ function frame(t){
   // centring: once the wheel pauses, the glide simply ends on the nearest project
   if(!TOUCH && !intro && !dragging && !centred && performance.now()-lastWheel>(overPlate?120:420) && Math.abs(scrollVel)<(overPlate?3:.8)) centre();
 }
-let scrollVel=0, overPlate=false, driftV=.035, centred=true, lastWheel=0;
+let scrollVel=0, overPlate=false, driftV=.035, centred=true, lastWheel=0, settled=-1;
 /* hovering a project: any leftover glide eases out instead of carrying on */
 function centre(){
   centred=true;
   const dest = lenis ? lenis.targetScroll : scrollY;           // where the current glide would end
   const fi=(dest-secTop()-INTRO())/STEP(); if(fi<-.5 || fi>N-.5) return;
-  const y=scrollForIndex(clamp(Math.round(fi),0,N-1)); if(Math.abs(y-dest)<2) return;
+  // only move on once you've scrolled ~85% of the way (about 5 wheel notches); otherwise settle back
+  const base=settled<0?Math.round(fi):settled, d=fi-base;
+  const target=clamp(base+Math.sign(d)*Math.floor(Math.abs(d)+.15),0,N-1); settled=target;
+  const y=scrollForIndex(target); if(Math.abs(y-dest)<2) return;
   lenis ? lenis.scrollTo(y,{lerp:.05}) : scrollTo({top:y,behavior:'smooth'});
 }
 /* hovering a project ends the glide on the nearest project, gently */
