@@ -99,21 +99,21 @@ header nav a:hover span{transform:translateY(-100%)}
 .ring-sec{position:relative}
 .stage{position:sticky;top:0;height:100svh;overflow:hidden;touch-action:pan-y;background:var(--ink);transition:background .6s}
 .scene{position:absolute;inset:0;perspective:2400px;perspective-origin:50% 30%}
-.world{position:absolute;left:50%;top:53%;width:0;height:0;transform-style:preserve-3d;will-change:transform}
+.world{position:absolute;left:50%;top:53%;width:0;height:0;transform-style:preserve-3d}
 .floor{position:absolute;transform-style:preserve-3d}
 .floor svg{display:block;overflow:visible}
 .floor svg *{fill:none;stroke:var(--bone)}
 .plate{position:absolute;transform-style:preserve-3d;transition:opacity 1s,filter .6s}
-.plate .lift{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .9s var(--out)}
+.plate .lift{position:absolute;inset:0;transform-style:preserve-3d;transform-origin:50% 100%;transform:scale(var(--k));transition:transform .9s var(--out)}
 .plate .face,.plate .back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .plate .face{background:var(--ink2);overflow:hidden;outline:1px solid var(--line)}
 [data-theme=light] .plate .face{outline:0}
-.plate .face img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(1) contrast(1.05);transition:filter .8s}
+.plate .face img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(1) contrast(1.05);transition:filter .5s}
 .plate .back{transform:rotateY(180deg);background:var(--ink);outline:1px solid var(--line);display:flex;align-items:flex-end;padding:8px}
 .plate .post{position:absolute;left:50%;top:100%;width:1px;background:var(--bone);opacity:.35;transform-origin:top}
 .plate.on .face img,.plate:hover .face img{filter:none}
-.plate.on .lift{transform:translateZ(var(--pop)) translateY(calc(var(--h) * -.42)) scale(1.55)}
-.plate .face::after{content:attr(data-n);position:absolute;left:6px;top:5px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:#fff;mix-blend-mode:difference}
+.plate.on .lift{transform:translateZ(var(--pop)) translateY(calc(var(--h) * -.15)) scale(1)}
+.plate .face::after{content:attr(data-n);position:absolute;left:9px;top:8px;font-family:var(--mono);font-size:14px;letter-spacing:.08em;color:#fff;mix-blend-mode:difference}
 .world.pre .plate{opacity:0}
 .hello{position:absolute;left:0;right:0;top:50%;transform:translateY(-62%);text-align:center;pointer-events:none;z-index:3;color:#F5C400}
 .hello h1{font-family:var(--serif);font-weight:400;font-size:clamp(80px,16vw,250px);line-height:.84;letter-spacing:-.035em}
@@ -339,12 +339,14 @@ if(TOUCH) document.body.classList.add('touch');
 let mPos=0, mTarget=0;
 const STEP_DEG=360/N;
 let W=160,H=120,R=600, plates=[];
+const BIG=1.55; // plates are drawn at the size of the front project and shrunk in the ring, so the front one is always sharp
 function layout(){
   const vw=innerWidth, vh=innerHeight, mob=vw<720;
   W=mob? vw*.24 : clamp(vw*.105,110,200); H=W*.78;
   R=N*W*1.32/(2*Math.PI);
   world.style.setProperty('--pop', (W*.9)+'px'); world.style.setProperty('--h', H+'px');
-  plates.forEach((p,i)=>{ p.style.width=W+'px'; p.style.height=H+'px'; p.style.left=(-W/2)+'px'; p.style.top=(-H)+'px';
+  world.style.setProperty('--k', (1/BIG).toFixed(4));
+  plates.forEach((p,i)=>{ p.style.width=(W*BIG)+'px'; p.style.height=(H*BIG)+'px'; p.style.left=(-W*BIG/2)+'px'; p.style.top=(-H*BIG)+'px';
     p.style.transform=`rotateY(${i*STEP_DEG}deg) translateZ(${R}px)`;
     p.querySelector('.post').style.height=(H*.0)+'px'; });
   drawFloor();
@@ -389,10 +391,18 @@ function fFromScroll(){ return (scrollY - secTop() - INTRO())/STEP(); }
 function scrollForIndex(i){ return secTop() + INTRO() + i*STEP(); }
 function goTo(i, dur=1.1){ i=clamp(i,0,N-1); if(TOUCH){ mTarget=i; $('#swipe').classList.add('gone'); return; } const y=scrollForIndex(i); lenis? lenis.scrollTo(y,{duration:dur}) : scrollTo({top:y,behavior:'smooth'}); }
 
+const sharp=new Set();
+function sharpen(i){
+  if(sharp.has(i)) return; sharp.add(i);
+  const big=IMG+PROJECTS[i][4], img=plates[i].querySelector('img'); if(!big || img.src.endsWith(big)) return;
+  const pre=new Image(); pre.src=big;
+  (pre.decode?pre.decode():new Promise(r=>pre.onload=r)).then(()=>{ img.src=big; }).catch(()=>{});
+}
 function setActive(i){
   if(i===active) return; const dir=i>active?1:-1; active=i;
   plates.forEach((p,j)=>p.classList.toggle('on',j===i));
   $$('#rail button').forEach((b,j)=>b.classList.toggle('on',j===i));
+  sharpen(i); sharpen((i+1)%N); sharpen((i-1+N)%N); sharpen((i+2)%N); sharpen((i-2+N)%N);
   const [n,y,slug]=PROJECTS[i];
   $('#pno').textContent=String(i+1).padStart(2,'0'); $('#pyr').textContent=y; $('#popen').href=`/${slug}/`;
   const box=$('#ptitle'); const old=[...box.children];
@@ -535,6 +545,7 @@ function reveal(){
   setTimeout(()=>world.classList.remove('pre'),200);
   setTimeout(()=>{ $('#loader').style.display='none'; plates.forEach(p=>p.style.transitionDelay=''); },2400);
   if(TOUCH) setTimeout(()=>{ started=true; },1800);
+  setTimeout(()=>{ sharpen(0); sharpen(1); sharpen(N-1); },2000);
   if(location.hash && $(location.hash) && location.hash.length>3) setTimeout(()=>scrollToSel(location.hash),300);
 }
 if(RM || SEEN){ $('#count').parentElement.style.display='none'; reveal(); }
