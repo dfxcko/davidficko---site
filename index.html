@@ -425,11 +425,23 @@ addEventListener('scroll',()=>{ lastScroll=performance.now(); snapped=false; },{
 
 /* touch: horizontal swipe turns the ring; vertical movement keeps scrolling the page */
 let tx0=0, ty0=0, t0=0, tracking=false, horiz=null;
-stage.addEventListener('touchstart',e=>{ if(!TOUCH) return; const t=e.touches[0]; tx0=t.clientX; ty0=t.clientY; t0=mTarget; tracking=true; horiz=null; },{passive:true});
+let tapX=0, tapY=0, moved2=0;
+stage.addEventListener('touchstart',e=>{ if(!TOUCH) return; const t=e.touches[0]; tx0=tapX=t.clientX; ty0=tapY=t.clientY; t0=mTarget; tracking=true; horiz=null; moved2=0; },{passive:true});
 stage.addEventListener('touchmove',e=>{ if(!tracking) return; const t=e.touches[0], dx=t.clientX-tx0, dy=t.clientY-ty0;
+  moved2=Math.max(moved2,Math.abs(dx),Math.abs(dy));
   if(horiz===null && (Math.abs(dx)>8||Math.abs(dy)>8)) horiz=Math.abs(dx)>Math.abs(dy);
   if(horiz){ if(e.cancelable) e.preventDefault(); started=true; mTarget=clamp(t0 - dx/(W*.9),-.4,N-1+.4); $('#swipe').classList.add('gone'); } },{passive:false});
-stage.addEventListener('touchend',()=>{ if(!tracking) return; tracking=false; if(horiz) mTarget=clamp(Math.round(mTarget),0,N-1); });
+stage.addEventListener('touchend',e=>{ if(!tracking) return; tracking=false;
+  if(horiz){ mTarget=clamp(Math.round(mTarget),0,N-1); return; }
+  if(moved2<10 && !e.target.closest('a,button')){ const i=plateAt(tapX,tapY); if(i>=0){ if(e.cancelable) e.preventDefault(); started=true; openProject(i); } } });
+/* which project was tapped: 3D hit-testing first, then the on-screen box of each visible plate (front ones win) */
+function plateAt(x,y){
+  const hit=document.elementFromPoint(x,y)?.closest('.plate'); if(hit) return +hit.dataset.i;
+  let best=-1, bz=-1e9;
+  plates.forEach((p,i)=>{ const r=p.querySelector('.face').getBoundingClientRect();
+    if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom){ const z=i===active?1e6:r.width*r.height; if(z>bz){ bz=z; best=i; } } });
+  return best;
+}
 
 /* drag to rotate (moves the scroll position, so everything stays in one place) */
 let dx0=0, sy0=0, moved=0;
@@ -438,7 +450,7 @@ stage.addEventListener('pointermove',e=>{ if(!dragging) return; const d=e.client
   const y=sy0 - d*(STEP()/ (W*1.1)); lenis? lenis.scrollTo(clamp(y,0,1e9),{immediate:true}) : scrollTo(0,y); });
 stage.addEventListener('pointerup',e=>{ if(!dragging) return; dragging=false; $('#ring').classList.remove('drag'); snapped=false; lastScroll=performance.now();
   if(moved<6){ const p=document.elementFromPoint(e.clientX,e.clientY)?.closest('.plate'); if(p) plateClick(+p.dataset.i); } });
-plates.forEach(p=>p.addEventListener('click',e=>{ if(e.pointerType==='mouse'||e.detail===0) return; plateClick(+p.dataset.i); }));
+plates.forEach(p=>p.addEventListener('click',e=>{ if(TOUCH||e.pointerType==='mouse'||e.detail===0) return; plateClick(+p.dataset.i); }));
 function plateClick(i){ if(TOUCH) started=true; if(inIntro){ goTo(i); return; } if(i===active) openProject(i); else goTo(i); }
 $('#rail').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) goTo(+b.dataset.i); });
 $('#prevP').addEventListener('click',()=>{ started=true; goTo((active<0?0:active)-1); });
