@@ -423,10 +423,12 @@ function frame(t){
   rot+=(tRot-rot)*(RM?1:.09); tilt+=(tTilt-tilt)*.05; mx+=(tmx-mx)*.05;
   world.style.transform=`translateZ(-${R*.55}px) rotateX(${tilt + 0}deg) rotateY(${rot + mx*8}deg)`;
   // snap after scrolling stops
-  if(!TOUCH && !intro && !dragging && !snapped && performance.now()-lastScroll>160 && f<=N-1+.3){
-    snapped=true; const i=clamp(Math.round(f),0,N-1); if(Math.abs(f-i)>.02) goTo(i,.7); }
+  if(!TOUCH && !intro && !dragging && !snapped && performance.now()-lastScroll>450 && Math.abs(scrollVel)<.15 && f<=N-1+.3){
+    snapped=true; const i=clamp(Math.round(f),0,N-1); if(Math.abs(f-i)>.04) goTo(i,1.1); }
 }
-addEventListener('scroll',()=>{ lastScroll=performance.now(); snapped=false; },{passive:true});
+let scrollVel=0;
+addEventListener('wheel',()=>{ lastScroll=performance.now(); snapped=false; },{passive:true});
+addEventListener('scroll',()=>{ if(!lenis){ lastScroll=performance.now(); snapped=false; } },{passive:true});
 
 /* touch: horizontal swipe turns the ring; vertical movement keeps scrolling the page */
 let tx0=0, ty0=0, t0=0, tracking=false, horiz=null;
@@ -519,7 +521,7 @@ $('#inq').addEventListener('submit',e=>{ e.preventDefault(); $('#inq').classList
 
 /* ---------- smooth scroll ---------- */
 let lenis=null;
-if(!RM && typeof Lenis!=='undefined'){ lenis=new Lenis({lerp:.085}); (function raf(t){ lenis.raf(t); requestAnimationFrame(raf); })(performance.now()); }
+if(!RM && typeof Lenis!=='undefined'){ lenis=new Lenis({lerp:.075, wheelMultiplier:.9, smoothWheel:true}); lenis.on('scroll',e=>{ scrollVel=e.velocity||0; }); (function raf(t){ lenis.raf(t); requestAnimationFrame(raf); })(performance.now()); }
 function scrollToSel(s){ const el=$(s); if(!el) return; lenis? lenis.scrollTo(el,{duration:1.6}) : el.scrollIntoView({behavior:'smooth'}); }
 $$('[data-scroll]').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(); scrollToSel(a.dataset.scroll); }));
 
