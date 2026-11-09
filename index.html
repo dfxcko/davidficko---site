@@ -504,6 +504,7 @@ function setIntro(v){
   ['#info','#rail','#arrows','#down'].forEach(s=>$(s).classList.toggle('off',v));
   if(v){ plates.forEach(p=>p.classList.remove('on')); active=-1; }
   if(TOUCH){ $('#hello').style.opacity=1; }
+  document.dispatchEvent(new CustomEvent('df:intro',{detail:v}));
 }
 let started=false;
 let tilt=-12, tTilt=-12, mx=0, tmx=0;
@@ -790,8 +791,9 @@ else { const t0=performance.now(), D=1500; (function c(t){ const p=clamp((t-t0)/
     let closed = false; try { closed = sessionStorage.getItem('df-spiral-pop') === '0'; } catch (e) {}
     if (!closed) {
       const anim = spiral(document.getElementById('spPopCanvas'), { seg:72, stride:6, lw:.55, dot:1.8, start:0 });
-      setTimeout(() => { pop.classList.add('in'); anim.refresh(); }, RM ? 600 : 2600);
-      document.getElementById('spPopX').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); pop.classList.remove('in'); anim.stop(); try { sessionStorage.setItem('df-spiral-pop', '0'); } catch (err) {} });
+      // appears once you scroll the wheel and the name moves away; tucks away again if you go back to the intro
+      document.addEventListener('df:intro', e => { if (pop.dataset.x) return; const show = !e.detail; pop.classList.toggle('in', show); if (show) { anim.refresh(); anim.start(); } else anim.stop(); });
+      document.getElementById('spPopX').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); pop.classList.remove('in'); pop.dataset.x = '1'; anim.stop(); try { sessionStorage.setItem('df-spiral-pop', '0'); } catch (err) {} });
       ['pointerdown', 'touchstart', 'mousedown', 'wheel'].forEach(ev => pop.addEventListener(ev, e => e.stopPropagation(), { passive:true }));  // don't drag the ring when using the card
     } else pop.remove();
   }
