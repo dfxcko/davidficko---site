@@ -70,7 +70,7 @@ def render_gallery(imgs, title):
     def fig(u, sizes='(max-width:720px) 100vw, 96vw'):
         nonlocal n; n += 1
         return (f'<figure class="p-fig"><img {img_attrs(CDN + u, sizes)} alt="{esc(title)} — {n:02d}" '
-                f'loading="{"eager" if n < 3 else "lazy"}" decoding="async"><span class="n mono">{n:02d}</span></figure>')
+                f'loading="{"eager" if n < 3 else "lazy"}" decoding="async"></figure>')
     while i < len(imgs):
         kind, u = imgs[i].split(' ', 1)
         if kind == 'G' and i + 1 < len(imgs) and imgs[i + 1].startswith('G '):

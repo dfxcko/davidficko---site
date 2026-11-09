@@ -26,7 +26,7 @@ $('#theme').addEventListener('click',()=>{ const t=document.documentElement.data
 /* ---------- page transitions ---------- */
 const curtain=$('#curtain');
 try{ if(sessionStorage.getItem('df-zoom')===location.pathname.replace(/\//g,'')){ sessionStorage.removeItem('df-zoom');
-  const c=$('.p-cover img'); if(c){ curtain.style.background=`var(--ink2) center/cover no-repeat url("${c.currentSrc||c.src}")`; } } }catch(e){}
+  const c=document.body.dataset.cover; if(c){ curtain.style.background=`var(--ink2) center/cover no-repeat url("${c}")`; } } }catch(e){}
 function enter(){ requestAnimationFrame(()=>requestAnimationFrame(()=>curtain.classList.add('up'))); }
 addEventListener('pageshow',e=>{ if(e.persisted){ curtain.className='curtain up'; } });
 document.addEventListener('click',e=>{
