@@ -106,6 +106,23 @@
   .dims input{width:100%;font:400 13px var(--sans);color:var(--ink);background:transparent;border:none;border-bottom:1px solid var(--line);padding:4px 2px;text-align:right}
   .dims input:focus{outline:none;border-bottom-color:var(--ink)}
   @media (max-width:760px){#drawing{right:0;padding:96px 10px 40px}}
+  .sec.fold > h3{cursor:pointer;display:flex;align-items:baseline;gap:8px;margin:0;user-select:none}
+  .sec.fold > h3::after{content:'–';margin-left:auto;font:400 15px var(--mono);color:var(--muted)}
+  .sec.fold.folded > h3::after{content:'+'}
+  .sec.fold.folded > :not(h3){display:none}
+  .sec.fold:not(.folded) > h3{margin-bottom:8px}
+  .sec h3 small.st-on{color:var(--ink)}
+  #status{pointer-events:auto;display:inline-flex;align-items:center;gap:7px;padding:5px 11px 5px 9px;font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.9)}
+  #status .dot{margin:0}
+  #help{position:fixed;inset:0;background:rgba(255,255,255,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:40;display:none;align-items:center;justify-content:center;padding:20px}
+  #help.show{display:flex}
+  #help .box{max-width:440px;width:100%;background:#fff;border:1px solid var(--line);border-radius:4px;padding:26px 26px 22px}
+  #help h2{margin:0 0 4px;font:400 34px/1 var(--serif);font-style:italic}
+  #help p.lead{margin:0 0 16px;color:var(--muted)}
+  #help ol{margin:0 0 18px;padding:0;list-style:none;counter-reset:n}
+  #help li{counter-increment:n;display:grid;grid-template-columns:26px 1fr;gap:4px;padding:9px 0;border-top:1px solid var(--hair);font-size:13.5px}
+  #help li::before{content:counter(n,decimal-leading-zero);font:400 10.5px var(--mono);color:var(--muted);padding-top:3px}
+  #help li b{font-weight:500}
   #toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--ink);color:#fff;padding:7px 13px;border-radius:999px;font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;opacity:0;transition:.25s;pointer-events:none;z-index:20;white-space:nowrap}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   #busy{position:fixed;inset:0;background:rgba(255,255,255,.6);display:none;align-items:center;justify-content:center;z-index:30;font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase}
@@ -114,7 +131,8 @@
     #panel{top:auto;left:0;right:0;bottom:0;width:auto;border-radius:10px 10px 0 0;max-height:56vh;transform:translateY(100%);transition:transform .3s ease;padding-bottom:env(safe-area-inset-bottom)}
     #panel.open{transform:translateY(0)}
     #grab{display:block;width:36px;height:3px;border-radius:3px;background:var(--line);margin:8px auto 0;cursor:pointer}
-    #tools{bottom:calc(14px + env(safe-area-inset-bottom));left:50%} #hint{left:50%}
+    #tools{bottom:calc(14px + env(safe-area-inset-bottom));left:50%} #hint{left:50%;white-space:normal;text-align:center;width:86vw;line-height:1.5}
+    #badge .wide{display:none}
     #tools .lbl{display:none}
     #tools button{padding:9px 8px}
     body.panel-open #tools,body.panel-open #hint{opacity:0;pointer-events:none}
@@ -138,9 +156,11 @@
   <div class="seg" id="modeSeg"><button data-mode="lamp">Lamp</button><button data-mode="vessel">Vessel</button></div>
   <div class="sp"></div>
   <button id="undoBtn" title="Undo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+  <button id="fitBtn" title="Fit to view"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
   <button id="redoBtn" title="Redo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+  <button id="helpBtn" title="How it works" style="font:400 13px var(--mono);width:34px">?</button>
 </header>
-<div id="viewbar"><div class="seg" id="viewSeg"><button data-view="path">Path</button><button data-view="printed">Beads</button><button data-view="surface">Surface</button><button data-view="drawing">Drawing</button></div><div id="badge"></div></div>
+<div id="viewbar"><div class="seg" id="viewSeg"><button data-view="path">Path</button><button data-view="printed">Beads</button><button data-view="surface">Surface</button><button data-view="drawing">Drawing</button></div><div id="badge"></div><button id="status" title="Printability — tap for details"><span class="dot ok"></span><span id="statusTxt">Checking…</span></button></div>
 <div id="hint">Drag on the lamp to sculpt · drag empty space to orbit</div>
 <div id="tools">
   <button data-tool="orbit" title="Orbit (O)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M3 12a9 4 0 0 0 18 0M12 3a4 9 0 0 1 0 18"/></svg><span class="lbl">Orbit</span></button>
@@ -152,12 +172,23 @@
   <span class="div"></span>
   <button data-tool="paint" title="Paint pattern B (B)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18.4 2.6a2 2 0 0 1 3 3L12 15l-4-4z"/><path d="M8 11c-3 0-4 2-4 4 0 1.5-1 3-2 3 2 2 7 2 8-1 .6-1.6.2-3.2-2-6z"/></svg><span class="lbl">Paint B</span></button>
   <button data-tool="erase" title="Paint back pattern A (E)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m7 21-4-4 11-11 7 7-8 8z"/><path d="M7 21h14M10 10l7 7"/></svg><span class="lbl">Paint A</span></button>
-  <button data-tool="attract" title="Place / remove attractor points (A)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/></svg><span class="lbl">Attract</span></button>
   <button id="editBtn" title="Edit"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
 </div>
 <div id="drawing"></div>
 <aside id="panel"><div id="grab"></div><div id="tabs"></div><div id="body"></div></aside>
 <div id="toast"></div>
+<div id="help"><div class="box">
+  <h2>Spiral</h2>
+  <p class="lead">Design a lamp or vessel that prints as one continuous line.</p>
+  <ol>
+    <li><span><b>Pick a piece.</b> Start from a ready-to-print design or a simple form (Shape tab). Switch Lamp / Vessel at the top.</span></li>
+    <li><span><b>Shape it.</b> Drag on the object to sculpt; drag empty space to turn it, pinch or scroll to zoom. Type exact sizes under Dimensions.</span></li>
+    <li><span><b>Give it a surface.</b> Choose patterns, fade one into another, paint them on, or open the wall with holes (Surface tab).</span></li>
+    <li><span><b>Check it.</b> The pill at the top left shows if it will print. Path shows the nozzle line, Beads the printed layers, Drawing a dimensioned section.</span></li>
+    <li><span><b>Print it.</b> Choose printer, nozzle and filament, then download G-code or STL (Print tab).</span></li>
+  </ol>
+  <button id="helpClose" class="on" style="padding:9px 18px">Start designing</button>
+</div></div>
 <div id="busy">Working…</div>
 <input type="file" id="fileIn" accept=".json,application/json" hidden>
 <input type="file" id="imgIn" accept="image/*" hidden>
@@ -176,9 +207,20 @@ const pat = (tex, amp, freq, layers, twist = 0) => ({ tex, amp, freq, layers, tw
 const NP0 = () => ({ mid:0, rim:0, waves:4, tilt:0 });
 const MESH0 = () => ({ on:false, mode:'radial', amp:2, lobes:32, rings:1, bumps:2, width:1, stagger:true, rim:6, holeW:5, holeH:5, holeH2:8, grad:'even', follow:true });
 const MOD0 = () => ({ src:'none', target:'depth', lift:2, strength:.8, invert:false, radius:30, attrs:[], img:'', repeat:1, noise:3, seed:7 });
-const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}, mesh = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod }, mesh:{ ...MESH0(), ...mesh } });
+const TR0 = () => ({ on:false, dir:'around', pos:.5, soft:.08, span:.5, slant:.1, flip:false });
+const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}, mesh = {}, tr = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod }, mesh:{ ...MESH0(), ...mesh }, tr:{ ...TR0(), ...tr } });
 
 const LAMP_PRESETS = {
+  // ── finished pieces ──
+  lantern:{ studio:true, name:'Lantern', note:'Net that swells open · knurled foot', lamp:{ layout:'bell', fitting:'e27', bulb:'a60', watts:6 },
+    shade:part(1.7, prof(v => (22.2 + 58 * Math.sin(Math.PI * .85 * Math.pow(v, .7))) / MM), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#f3ead8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:5.4, holeH:2.4, holeH2:5.6, grad:'swell', rim:8 }),
+    base: part(.6, prof(v => .48 - .2 * Math.pow(v, 1.4)), pat('knurl', .0035, 44, 16, .22), pat('smooth', 0, 40, 20), '#2f4fb5') },
+  ember:{ studio:true, name:'Ember', note:'Bedside · bumps melt into smooth', lamp:{ layout:'bell', fitting:'e14', bulb:'p45', watts:4 },
+    shade:part(1.1, prof(v => (15.8 + 50 * Math.sin(Math.PI * .8 * Math.pow(v, .6))) / MM), pat('knurl', .0035, 60, 30, .18), pat('smooth', 0, 40, 20), '#ef7d5a', 0, 0, {}, {}, {}, { on:true, dir:'height', pos:.68, soft:.16 }),
+    base: part(.7, prof(v => .36 - .12 * v), pat('rings', .004, 40, 16), pat('smooth', 0, 40, 20), '#a9d6b8') },
+  sash:{ studio:true, name:'Sash', note:'Pendant · a knurled ribbon winds through ribs', lamp:{ layout:'pendant', fitting:'e27', bulb:'g95', watts:7 },
+    shade:part(1.9, prof(v => (22.2 + 94 * Math.pow(1 - v, .74)) / MM), pat('ribs', .005, 72, 20, .2), pat('knurl', .0035, 72, 44, .2), '#c96a3b', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.3, span:.3, slant:.5, soft:.035 }),
+    base: part(.6, prof(v => .2), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#c96a3b') },
   globe:{ name:'Globe', note:'E27 bulb, shade on socket ring', lamp:{ layout:'bell', fitting:'e27', bulb:'a60' },
     shade:part(1.6, prof(v => { const z = v * 160; return Math.min(22.2 + z * .95, 75, 35 + (160 - z) * .95) / MM; }), pat('rings', .004, 40, 24), pat('woven', .004, 40, 24), '#f2efe8'),
     base: part(.55, prof(v => .42 - .14 * v), pat('ribs', .01, 48, 20), pat('rings', .005, 40, 14), '#1e1d1b') },
@@ -205,15 +247,24 @@ const LAMP_PRESETS = {
     base: part(.86, prof(v => .2 + .14 * Math.cos(v * Math.PI) ** 2), pat('diamond', .005, 20, 12), pat('ribs', .01, 40, 12), '#5a3b2c', 6, .06) },
 };
 const VESSEL_PRESETS = {
+  // ── finished pieces ──
+  helix:{ studio:true, name:'Helix vase', note:'Knurled ribbon spiralling up a coiled wall',
+    vessel:part(1.8, prof(v => .3 + .1 * Math.sin(v * Math.PI * 1.1 - .3) - .04 * v), pat('rings', .004, 40, 60), pat('knurl', .0035, 56, 60, .3), '#a9a4e0', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.3, span:.3, slant:.5, soft:.035 }) },
+  tide:{ studio:true, name:'Tide bowl', note:'Three soft corners · wavy rim · knurl',
+    vessel:part(.7, prof(v => .42 + .4 * Math.pow(Math.sin(v * Math.PI / 2), 1.2)), pat('knurl', .0035, 96, 22, .15), pat('smooth', 0, 40, 20), '#f1d98a', 3, .03, { rim:4, waves:6 }) },
+  sieve:{ studio:true, name:'Sieve basket', note:'Solid foot · holes open toward the rim',
+    vessel:part(.8, prof(v => .5 + .3 * Math.sin(v * Math.PI / 2)), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#8fb8e8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:5.2, holeH:2.4, holeH2:5.4, grad:'linear', rim:6 }) },
   bud:{ name:'Bud vase', note:'Round belly, narrow neck',
     vessel:part(.95, prof(v => .12 + .25 * Math.exp(-(((v - .3) / .28) ** 2)) + .05 * smooth(.8, 1, v)), pat('woven', .005, 28, 16), pat('ribs', .008, 32, 16), '#e7d9c4') },
   tall:{ name:'Tall vase', note:'For dried stems',
     vessel:part(1.7, prof(v => .2 + .17 * Math.exp(-(((v - .35) / .32) ** 2)) - .03 * v + .05 * smooth(.85, 1, v)), pat('ribs', .01, 48, 30, .25), pat('woven', .006, 36, 30), '#d8c7b0') },
   bowl:{ name:'Bowl', note:'Open, gently flared',
     vessel:part(.66, prof(v => .38 + .4 * Math.sin(v * Math.PI / 2)), pat('woven', .005, 56, 14), pat('rings', .006, 40, 12), '#efe6d8') },
+  knurl:{ name:'Knurl cup', note:'Bumps fading into smooth',
+    vessel:part(.9, prof(v => .3 + .05 * Math.sin(v * Math.PI * .9) - .02 * v), pat('smooth', 0, 60, 40), pat('knurl', .0035, 64, 30), '#c9372f', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.42, span:.55, soft:.04, slant:.1 }) },
   netvase:{ name:'Net vase', note:'Perforated, up/down holes',
     vessel:part(1.1, prof(v => .26 + .08 * Math.sin(v * Math.PI) - .02 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#e9e3d8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:4.8, holeH:4.8, holeH2:8, rim:10 }) },
-  tide:{ name:'Tide vase', note:'Non-planar wavy layers',
+  tidevase:{ name:'Tide vase', note:'Non-planar wavy layers',
     vessel:part(1.2, prof(v => .27 + .06 * Math.sin(v * Math.PI) - .03 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#d9cbb6', 0, 0, { mid:5, waves:2 }) },
   crown:{ name:'Crown bowl', note:'Wavy rim, noise texture',
     vessel:part(.7, prof(v => .36 + .36 * Math.sin(v * Math.PI / 2)), pat('ribs', .006, 48, 20), pat('woven', .005, 40, 14), '#efe2cf', 0, 0, { rim:4, waves:5 }, { src:'noise', target:'depth', strength:.7, noise:3 }) },
@@ -264,9 +315,9 @@ const lineW = n => +(n * 1.12).toFixed(2);
 
 const clone = o => JSON.parse(JSON.stringify(o));
 function defaultState() {
-  const L = LAMP_PRESETS.mushroom, V = VESSEL_PRESETS.bud;
-  return { v:4, view:'path', risks:true, mode:'lamp', preset:'mushroom', vpreset:'bud', shade:clone(L.shade), base:clone(L.base), vessel:clone(V.vessel),
-    collar:'#b8b5ae', light:{ on:false, power:1, warmth:.35 }, lamp:LAMP0(),
+  const L = LAMP_PRESETS.ember, V = VESSEL_PRESETS.helix;
+  return { v:4, view:'path', risks:true, mode:'lamp', preset:'ember', vpreset:'helix', shade:clone(L.shade), base:clone(L.base), vessel:clone(V.vessel),
+    collar:'#b8b5ae', light:{ on:false, power:1, warmth:.35 }, lamp:{ ...LAMP0(), ...L.lamp },
     print:{ printer:'x1c', nozzle:.4, filament:'pla', layerH:.2, speed:90, orient:'rim', bottom:4, abl:true, part:'shade', layerLines:true, customStart:'' } };
 }
 function upgrade(s) {
@@ -275,7 +326,7 @@ function upgrade(s) {
   const o = { ...d, ...s, print:{ ...d.print, ...(s.print || {}) }, light:{ ...d.light, ...(s.light || {}) }, lamp:{ ...LAMP0(), ...(s.lamp || {}) } };
   for (const k of ['shade', 'base', 'vessel']) {
     const P = s[k]; if (!P || !Array.isArray(P.prof)) { o[k] = d[k]; continue; }
-    o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) }, np:{ ...NP0(), ...(P.np || {}) }, mod:{ ...MOD0(), ...(P.mod || {}) }, mesh:{ ...MESH0(), ...(P.mesh || {}) } };
+    o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) }, np:{ ...NP0(), ...(P.np || {}) }, mod:{ ...MOD0(), ...(P.mod || {}) }, mesh:{ ...MESH0(), ...(P.mesh || {}) }, tr:{ ...TR0(), ...(P.tr || {}) } };
     if (o[k].prof.length !== N) o[k].prof = d[k].prof;
   }
   if (!s.v || s.v < 4) { o.view = 'path'; o.v = 4; }
@@ -286,7 +337,7 @@ function upgrade(s) {
 let state;
 try { state = upgrade(JSON.parse(localStorage.getItem('spiral.v1') || localStorage.getItem('lampstudio.v2') || localStorage.getItem('lampstudio.v1'))); } catch (e) { state = defaultState(); }
 
-const ui = { tool:'grab', brush:.16, strength:.6, paintSize:22, tab:'shape', surf:state.mode === 'vessel' ? 'vessel' : 'shade' };
+const ui = { fold:{}, tool:'grab', brush:.16, strength:.6, paintSize:22, tab:'shape', surf:state.mode === 'vessel' ? 'vessel' : 'shade' };
 const parts = () => state.mode === 'lamp' ? (state.lamp.layout === 'pendant' ? ['shade'] : ['shade', 'base']) : ['vessel'];
 
 /* ═════════════════════ undo / persistence ═════════════════════ */
@@ -322,6 +373,18 @@ function maskAt(m, th, v) { // bilinear, wraps in θ (seamless around the circum
   return (a * (1 - fx) + b * fx) * (1 - fy) + (c * (1 - fx) + d * fx) * fy;
 }
 
+// Transition between pattern A and B, written into the paint mask (wraps around, so no seam).
+function applyTransition(k) {
+  const P = state[k], T = P.tr, m = getMask(k); maskCache[k].live = true;
+  const soft = Math.max(.008, T.soft);
+  for (let j = 0; j < MH; j++) { const v = j / (MH - 1);
+    for (let i = 0; i < MW; i++) { let f;
+      if (T.dir === 'height') f = smooth(T.pos - soft, T.pos + soft, v);
+      else { const c = T.pos + T.slant * (v - .5); let d = Math.abs((((i / MW - c) % 1) + 1.5) % 1 - .5); f = T.span >= .999 ? 1 : 1 - smooth(T.span / 2 - soft, T.span / 2 + soft, d); }
+      m[j * MW + i] = T.flip ? 1 - f : f; } }
+  flushMasks();
+}
+
 /* ═════════════════════ surface definition ═════════════════════ */
 function sampleProf(p, v) {
   const n = p.length - 1, x = Math.min(Math.max(v, 0), 1) * n;
@@ -342,6 +405,9 @@ function pattern(T, th, v, h) {
     case 'woven': { const L = Math.floor(k), bead = Math.sin(Math.PI * (k - L)); const weave = .5 + .5 * Math.sin(F * th + tw + (L & 1) * Math.PI); val = bead * (.25 + .75 * weave); break; }
     case 'diamond': { const s = .5 * F * th, q = Math.PI * k * .5; val = Math.abs(Math.sin(s + q + tw) * Math.sin(s - q + tw)); break; }
     case 'wave': { val = .5 + .5 * Math.sin(F * th + Math.sin(TAU * k * .5) * 2.2 + tw); break; }
+    case 'knurl': { // staggered round bumps standing on a flat ground (ground stays level with a smooth neighbour)
+      const L = Math.floor(k), bead = Math.sin(Math.PI * (k - L)), c = Math.max(0, Math.sin(F * th + tw + (L & 1) * Math.PI));
+      val = bead * c; GLOW = 1 - val; return a * 2 * val; }
     default: val = 0;
   }
   GLOW = 1 - val;
@@ -454,7 +520,7 @@ function surfR(P, th, v, m) { const d = disp(P, th, v, m); return Math.max(.02, 
 
 function resFor(P) {
   const tex = [P.tex, P.b.tex], amp = Math.max(P.amp, P.b.amp);
-  const layered = tex.some(t => t === 'rings' || t === 'woven' || t === 'diamond' || t === 'wave');
+  const layered = tex.some(t => t === 'rings' || t === 'woven' || t === 'diamond' || t === 'wave' || t === 'knurl');
   const rings = layered && amp ? Math.min(Math.max(Math.round(Math.max(P.layers, P.b.layers) * 6), 120), 420) : 150;
   const segs = amp ? Math.min(Math.max(Math.round(Math.max(P.freq, P.b.freq) * 10), 180), 560) : Math.max(160, P.lobes * 24);
   return { rings, segs };
@@ -519,7 +585,8 @@ function buildPrinted(k, geom) {
   const layers = zw ? Math.max(2, tb.T) : Math.max(2, Math.floor(H / lh));
   const rMax = Math.max(...P.prof) * (1 + P.lobeAmt);
   let segs = Math.round(Math.min(480, Math.max(96, Math.max(P.freq, P.b.freq) * 8, TAU * rMax * MM / .8, NW * 16)));
-  while (layers * segs > 140000 && segs > 64) segs = Math.floor(segs * .9);
+  const budget = (globalThis.innerWidth || 1200) <= 760 ? 70000 : 140000;   // lighter on phones
+  while (layers * segs > budget && segs > 64) segs = Math.floor(segs * .9);
   const steps = layers * segs, cap = k !== 'shade';
   const nV = (steps + 1) * 3 + (cap ? segs + 1 : 0);
   const nT = steps * 4 + Math.max(0, steps - segs) * 2 + (cap ? segs : 0);
@@ -580,6 +647,7 @@ function buildPrinted(k, geom) {
   geom.setAttribute('pmask', new THREE.BufferAttribute(pm, 1));
   geom.setAttribute('risk', new THREE.BufferAttribute(risk, 1));
   geom.setIndex(new THREE.BufferAttribute(idx.subarray(0, t), 1));
+  geom.computeVertexNormals();   // true surface normals, so bumps and waves catch the light
   geom.computeBoundingSphere();
   geom.userData = { layers, segs };
   return geom;
@@ -648,7 +716,7 @@ const paintCursor = new THREE.Mesh(new THREE.RingGeometry(.9, 1, 48), new THREE.
 paintCursor.renderOrder = 11; paintCursor.visible = false; scene.add(paintCursor);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, .85, 0); controls.minDistance = .8; controls.maxDistance = 9; controls.maxPolarAngle = Math.PI * .52;
+controls.target.set(0, .85, 0); controls.minDistance = .8; controls.maxDistance = 14; controls.maxPolarAngle = Math.PI * .52;
 
 function resize() {
   const w = stage.clientWidth, h = stage.clientHeight;
@@ -745,7 +813,7 @@ function rebuild(which = 'all', keepPath = false) {
   for (const k of parts()) if (state.view === 'path' && isZW(state[k])) meshes[k].visible = false; // a net is mostly air: show just the line
   drawHardware();
   if (state.view === 'drawing') scheduleDrawing();
-  drawAttractors(); rebuildPaths(list); if (ui.tab === 'lamp') renderChecksOnly();
+  drawAttractors(); rebuildPaths(list); if (ui.tab === 'lamp') renderChecksOnly(); scheduleStatus();
   updateBadge(); persist(); requestRender();
 }
 const attrGroup = new THREE.Group(); scene.add(attrGroup);
@@ -787,8 +855,10 @@ function frameCamera() {
   let y0 = Infinity, y1 = 0, r = 0;
   for (const k of parts()) { const P = state[k], a = partY0(k); y0 = Math.min(y0, a); y1 = Math.max(y1, a + P.h); r = Math.max(r, Math.max(...P.prof) * (1 + P.lobeAmt)); }
   if (state.mode === 'lamp') { y0 = Math.min(y0, state.lamp.layout === 'pendant' ? PEND_Y : 0); y1 = Math.max(y1, lampTop()); }
-  const cy = (y0 + y1) / 2, span = Math.max(y1 - y0, r * 2 * .95), fov = camera.fov * Math.PI / 180;
-  const d = Math.min(9, Math.max(1, span / 2 / Math.tan(fov / 2) * 1.95));
+  const cy = (y0 + y1) / 2, fov = camera.fov * Math.PI / 180, W = stage.clientWidth, Hh = stage.clientHeight;
+  const asp = innerWidth > 760 ? Math.max(.4, (W - 380) / Hh) : W / (Hh * .78);
+  const span = Math.max(y1 - y0 + r * .7, r * 2.15 / asp);
+  const d = Math.min(12, Math.max(1, span / 2 / Math.tan(fov / 2) * (innerWidth > 760 ? 1.32 : 1.75)));
   const dir = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
   controls.target.set(0, cy, 0); camera.position.copy(controls.target).addScaledVector(dir, d); controls.update(); requestRender();
 }
@@ -1082,7 +1152,7 @@ function checks(k) {
   if (k === 'base') add('ok', 'Base prints closed at the bottom — drill a cable hole or add a slot afterwards.');
   return out;
 }
-const texName = t => ({ smooth:'Smooth', woven:'Woven', ribs:'Ribs', rings:'Coil', diamond:'Lattice', wave:'Wave' })[t] || t;
+const texName = t => ({ smooth:'Smooth', woven:'Woven', ribs:'Ribs', rings:'Coil', diamond:'Lattice', wave:'Wave', knurl:'Knurl' })[t] || t;
 function makePrintable(k) { easeSlope(state[k], 45 + (state.print.nozzle - .4) * 15); }
 function textureStep(k) { // biggest layer-to-layer jump caused by the textures alone (mm)
   const pr = state.print, P = state[k], m = getMask(k), lh = pr.layerH, H = P.h * MM;
@@ -1093,6 +1163,17 @@ function textureStep(k) { // biggest layer-to-layer jump caused by the textures 
     for (let i = 0; i < 180; i++) { const th = i / 180 * TAU; const d = Math.abs(tex(th, vb) - tex(th, va)) * MM; if (d > step) step = d; }
   }
   return step;
+}
+// Coarsen patterns that are too fine for the chosen nozzle (repeat ≥ 3 line widths, bands ≥ 2.4 layers, depth that still bonds).
+function adaptToNozzle(k) {
+  const pr = state.print, P = state[k], m = getMask(k), w = lineW(pr.nozzle), H = P.h * MM; let rMin = Infinity, changed = false;
+  for (let j = 0; j <= 40; j++) for (let i = 0; i < 48; i++) rMin = Math.min(rMin, surfR(P, i / 48 * TAU, j / 40, m) * MM);
+  const usesB = m.some(x => x > .01), usesA = m.some(x => x < .99);
+  for (const T of [usesA ? P : null, usesB ? P.b : null]) { if (!T || !T.amp || T.tex === 'smooth') continue;
+    if (T.tex !== 'rings') { const maxF = Math.max(4, Math.floor(TAU * Math.max(rMin, 5) / (w * 3.05))); if (T.freq > maxF) { T.freq = maxF; changed = true; } }
+    if (T.tex !== 'ribs') { const maxL = Math.max(4, Math.floor(H / (pr.layerH * 2.4))); if (T.layers > maxL) { T.layers = maxL; changed = true; } } }
+  const a0 = P.amp + P.b.amp; fitTexture(k); if (P.amp + P.b.amp !== a0) changed = true;
+  return changed;
 }
 function fitTexture(k) {
   const P = state[k], target = lineW(state.print.nozzle) * .4;
@@ -1307,6 +1388,20 @@ function estimateAll() {
   return { g:Math.round(g), h:m >= 60 ? `${Math.floor(m / 60)} H ${m % 60} MIN` : m + ' MIN' };
 }
 
+/* ───── live printability status ───── */
+let statusT, statusTab = 'print';
+function scheduleStatus() { clearTimeout(statusT); statusT = setTimeout(() => { if (typeof interacting === 'function' && interacting()) return scheduleStatus(); updateStatus(); }, 450); }
+function updateStatus() {
+  const elS = document.getElementById('status'); if (!elS) return;
+  let bad = 0, warn = 0, lampIssue = false, printIssue = false;
+  for (const k of parts()) for (const c of checks(k)) { if (c.lvl === 'bad') { bad++; printIssue = true; } else if (c.lvl === 'warn') { warn++; printIssue = true; } }
+  if (state.mode === 'lamp') for (const c of lampChecks()) { if (c.lvl === 'bad') { bad++; lampIssue = true; } else if (c.lvl === 'warn') { warn++; lampIssue = true; } }
+  statusTab = lampIssue && !printIssue ? 'lamp' : 'print';
+  const e = estimateAll(), lvl = bad ? 'bad' : warn ? 'warn' : 'ok';
+  elS.querySelector('.dot').className = 'dot ' + lvl;
+  document.getElementById('statusTxt').textContent = bad ? `${bad} problem${bad > 1 ? 's' : ''}${warn ? ` · ${warn} warning${warn > 1 ? 's' : ''}` : ''} — see why` : warn ? `${warn} warning${warn > 1 ? 's' : ''} — see why` : `Ready to print · ${e.h.toLowerCase()} · ${e.g} g`;
+}
+
 /* ═════════════════════ UI ═════════════════════ */
 const $ = s => document.querySelector(s);
 const undoBtn = $('#undoBtn'), redoBtn = $('#redoBtn');
@@ -1324,9 +1419,9 @@ function updateBadge() {
   const pr = state.print; const k = printPart();
   const v = state.view, k0 = parts()[0];
   let line1 = '';
-  if (v === 'path') { const u = pathObjs[k0]?.userData; line1 = `<b>Toolpath</b> · ${u ? (pathStride > 1 ? `every ${pathStride}th of ${u.layers} layers — zoom in for all` : `all ${u.layers} layers`) : '…'}${state.risks ? ' · <span class="r">red = risky</span>' : ''}<br>`; }
-  else if (v === 'printed') { const g = geoms[k0]?.printed && meshes[k0].geometry === geoms[k0].printed ? geoms[k0].printed.userData : null; line1 = `<b>Printed beads</b>${g ? ' · ' + g.layers + ' layers' : ' · building…'}${state.risks ? ' · <span class="r">red = risky</span>' : ''}<br>`; }
-  $('#badge').innerHTML = line1 + `Nozzle <b>${pr.nozzle}</b> · layer <b>${pr.layerH.toFixed(2)}</b> · line <b>${lineW(pr.nozzle)} mm</b><br>${PRINTERS[pr.printer].name} · ${FILAMENTS[pr.filament].name}`;
+  if (v === 'path') { const u = pathObjs[k0]?.userData; line1 = `<b>Toolpath</b> · ${u ? u.layers + ' layers' + (pathStride > 1 ? `<span class="wide"> · showing every ${pathStride}th, zoom in for all</span>` : '') : '…'}<br>`; }
+  else if (v === 'printed') { const g = geoms[k0]?.printed && meshes[k0].geometry === geoms[k0].printed ? geoms[k0].printed.userData : null; line1 = `<b>Printed beads</b>${g ? ' · ' + g.layers + ' layers' : ' · building…'}<br>`; }
+  $('#badge').innerHTML = line1 + `<span class="wide">Nozzle <b>${pr.nozzle}</b> · layer <b>${pr.layerH.toFixed(2)}</b> · line <b>${lineW(pr.nozzle)} mm</b><br></span>${PRINTERS[pr.printer].name} · <b>${pr.nozzle} mm</b> · ${FILAMENTS[pr.filament].name}`;
 }
 function setTool(t) {
   ui.tool = t; document.querySelectorAll('#tools [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
@@ -1365,7 +1460,17 @@ function renderTabs() {
 }
 function renderAll() { renderTabs(); renderPanel(); updateBadge(); }
 const el = (tag, attrs = {}, kids = []) => { const e = document.createElement(tag); Object.assign(e, attrs); kids.forEach(k => e.append(k)); return e; };
-function section(title, sub, tag) { const s = el('div', { className:'sec' }); const h = el('h3', { textContent:title }); if (tag) h.append(el('small', { textContent:tag })); s.append(h); if (sub) s.append(el('div', { className:'sub', textContent:sub })); body.append(s); return s; }
+function section(title, sub, tag, fold) {
+  const s = el('div', { className:'sec' }), h = el('h3', { textContent:title }); if (tag) h.append(el('small', { textContent:tag }));
+  s.append(h); if (sub) s.append(el('div', { className:'sub', textContent:sub }));
+  if (fold) { // collapsible: remembers its state, shows on/off in the header
+    const key = ui.tab + ':' + title, open = ui.fold[key] ?? !!fold.open;
+    s.classList.add('fold'); s.classList.toggle('folded', !open);
+    if (fold.status) h.append(el('small', { textContent:fold.status, className:fold.on ? 'st-on' : '' }));
+    h.onclick = () => { ui.fold[key] = s.classList.contains('folded'); s.classList.toggle('folded'); };
+  }
+  body.append(s); return s;
+}
 function slider(parent, label, get, set, min, max, step, fmt = v => v, onSet) {
   const row = el('div', { className:'row' }), val = el('b', { textContent:fmt(get()) });
   const inp = el('input', { type:'range', min, max, step, value:get() });
@@ -1391,7 +1496,7 @@ function swatches(parent, list, cur, pick) {
   w.append(ci); parent.append(w);
 }
 const mmF = v => (v * MM).toFixed(1) + ' mm', pct = v => Math.round(v * 100) + '%', cmF = v => (v * 10).toFixed(1) + ' cm';
-const TEX_OPTS = [['smooth', 'Smooth'], ['woven', 'Woven'], ['ribs', 'Ribs'], ['rings', 'Coil'], ['diamond', 'Lattice'], ['wave', 'Wave']];
+const TEX_OPTS = [['smooth', 'Smooth'], ['woven', 'Woven'], ['ribs', 'Ribs'], ['rings', 'Coil'], ['diamond', 'Lattice'], ['wave', 'Wave'], ['knurl', 'Knurl']];
 
 function patternControls(s, k, T) {
   const rb = () => rebuild(k);
@@ -1400,22 +1505,23 @@ function patternControls(s, k, T) {
   const w = lineW(state.print.nozzle);
   slider(s, 'Depth', () => T.amp, v => T.amp = v, 0, .04, .001, v => `${(v * 2 * MM).toFixed(1)} mm · ${(v * 2 * MM / w).toFixed(1)}× line`, rb);
   if (T.tex !== 'rings') slider(s, T.tex === 'ribs' ? 'Rib count' : 'Repeats around', () => T.freq, v => T.freq = v, 4, 96, 1, v => v, rb);
-  if (T.tex !== 'ribs') slider(s, 'Bands up the height', () => T.layers, v => T.layers = v, 4, 80, 1, v => `${v} · ${(state[k].h * MM / v).toFixed(1)} mm each`, rb);
+  if (T.tex !== 'ribs') slider(s, 'Bands up the height', () => T.layers, v => T.layers = v, 4, 140, 1, v => `${v} · ${(state[k].h * MM / v).toFixed(1)} mm each`, rb);
   if (T.tex !== 'rings') slider(s, 'Twist', () => T.twist, v => T.twist = v, -1, 1, .01, v => Math.round(v * 360) + '°', rb);
 }
 function renderPanel() {
   body.innerHTML = ''; onCommit = null;
   const lamp = state.mode === 'lamp';
   if (ui.tab === 'shape') {
-    const s = section('Start from', lamp ? 'Pick a lamp, then sculpt it.' : 'Vases and bowls for dried flowers, pens, anything.');
-    const g = el('div', { className:'presets' }), P = lamp ? LAMP_PRESETS : VESSEL_PRESETS;
+    const sA = section('Ready to print', 'Finished pieces — pick one, choose your printer and nozzle, export.');
+    const s = section('Start from', lamp ? 'Simple forms to sculpt into your own.' : 'Simple forms for vases and bowls.');
+    const gA = el('div', { className:'presets' }), g = el('div', { className:'presets' }), P = lamp ? LAMP_PRESETS : VESSEL_PRESETS;
     for (const [k, p] of Object.entries(P)) {
       const b = el('button', {}, [el('span', { textContent:p.name }), el('small', { textContent:p.note })]);
       b.classList.toggle('on', (lamp ? state.preset : state.vpreset) === k);
-      b.onclick = () => { pushUndo(); if (lamp) { state.preset = k; if (p.lamp) state.lamp = { ...state.lamp, ...p.lamp }; state.shade = clone(p.shade); state.base = clone(p.base); delete maskCache.shade; delete maskCache.base; } else { state.vpreset = k; state.vessel = clone(p.vessel); delete maskCache.vessel; } rebuild(); applyLook(); frameCamera(); renderPanel(); };
-      g.append(b);
+      b.onclick = () => { pushUndo(); if (lamp) { state.preset = k; if (p.lamp) state.lamp = { ...state.lamp, ...p.lamp }; state.shade = clone(p.shade); state.base = clone(p.base); delete maskCache.shade; delete maskCache.base; } else { state.vpreset = k; state.vessel = clone(p.vessel); delete maskCache.vessel; } parts().forEach(kk => { if (state[kk].tr.on) applyTransition(kk); adaptToNozzle(kk); }); rebuild(); applyLook(); frameCamera(); renderPanel(); };
+      (p.studio ? gA : g).append(b);
     }
-    s.append(g);
+    sA.append(gA); s.append(g);
     const s2 = section('Proportions');
     if (lamp) {
       slider(s2, 'Shade height', () => state.shade.h, v => state.shade.h = v, .2, 1.4, .01, cmF, () => rebuild());
@@ -1428,7 +1534,7 @@ function renderPanel() {
       this.previousElementSibling.querySelector('b').textContent = pct(f); rebuild();
     };
     wi.onchange = function () { sliderDirty = false; this.value = 1; this.previousElementSibling.querySelector('b').textContent = '100%'; };
-    const sd = section('Dimensions', 'Type exact diameters (mm) at heights along the part.');
+    const sd = section('Dimensions', 'Type exact diameters (mm) at heights along the part.', '', { open:false });
     const dk = lamp ? (parts().includes(ui.surf) ? ui.surf : 'shade') : 'vessel';
     if (lamp && parts().length > 1) chips(sd, [['shade', 'Shade'], ['base', 'Base']], dk, k => { ui.surf = k; renderPanel(); });
     const DP = state[dk], grid = el('div', { className:'dims', style:'margin-top:8px' });
@@ -1443,7 +1549,7 @@ function renderPanel() {
       grid.append(el('span', { textContent:`Ø AT ${Math.round(v * DP.h * MM)}` }), inp, el('span', { textContent:'mm' }));
     }
     sd.append(grid);
-    const s3 = section('Sculpt brush', 'Grab pulls the outline · Inflate / Pinch push while held · Smooth evens it out.');
+    const s3 = section('Sculpt brush', 'Grab pulls the outline · Inflate / Pinch push while held · Smooth evens it out.', '', { open:false });
     slider(s3, 'Size', () => ui.brush, v => ui.brush = v, .04, .5, .01, pct);
     slider(s3, 'Strength', () => ui.strength, v => ui.strength = v, .1, 1, .01, pct);
     if (lamp) { const s4 = section('Collar'); swatches(s4, ['#b8b5ae', '#d4b07a', '#2b2b2b', '#8c6b52'], state.collar, c => { state.collar = c; applyLook(); }); }
@@ -1454,7 +1560,21 @@ function renderPanel() {
     const k = lamp ? ui.surf : 'vessel', P = state[k];
     patternControls(section('Pattern A', 'The base texture everywhere.', 'everywhere'), k, P);
     patternControls(section('Pattern B', 'Shows wherever you paint.', 'painted'), k, P.b);
-    const sp = section('Paint the mix', 'Use Paint B / Paint A in the toolbar. Edges blend gradually, so the line stays one smooth continuous path.');
+    const st2 = section('Transition', 'Fade from pattern A into pattern B — up the height, or as a panel around the form. The blend is gradual, so the line stays continuous.', '', { open:P.tr.on, status:P.tr.on ? 'on' : 'off', on:P.tr.on });
+    const TR = P.tr, rtr = () => { TR.on = true; applyTransition(k); rebuild(k); };
+    chips(st2, [['around', 'Around (panel)'], ['height', 'Up the height']], TR.on ? TR.dir : '', v => { pushUndo(); TR.dir = v; rtr(); renderPanel(); });
+    if (TR.on) {
+      if (TR.dir === 'height') slider(st2, 'B starts at', () => TR.pos, v => TR.pos = v, 0, 1, .01, v => `${Math.round(v * P.h * MM)} mm`, rtr);
+      else {
+        slider(st2, 'Panel position', () => TR.pos, v => TR.pos = v, 0, 1, .005, v => Math.round(v * 360) + '°', rtr);
+        slider(st2, 'Panel width', () => TR.span, v => TR.span = v, .05, 1, .01, v => v >= .999 ? 'all around' : Math.round(v * 360) + '°', rtr);
+        slider(st2, 'Slant', () => TR.slant, v => TR.slant = v, -.5, .5, .01, v => Math.round(v * 360) + '°', rtr);
+      }
+      slider(st2, 'Softness', () => TR.soft, v => TR.soft = v, .01, .4, .005, v => TR.dir === 'height' ? `${Math.round(v * 2 * P.h * MM)} mm fade` : `${Math.round(v * 2 * 360)}° fade`, rtr);
+      toggle(st2, 'Swap A and B', TR.flip, v => { TR.flip = v; rtr(); });
+      st2.append(el('div', { className:'note', textContent:'Moving these redraws the mix. Use the paint brushes afterwards to refine it by hand.' }));
+    }
+    const sp = section('Paint the mix', 'Use Paint B / Paint A in the toolbar. Edges blend gradually, so the line stays one smooth continuous path.', '', { open:false });
     const tb = el('div', { className:'chips' });
     [['Paint B', 'paint'], ['Paint A', 'erase']].forEach(([n, t]) => { const b = el('button', { textContent:n }); b.classList.toggle('on', ui.tool === t); b.onclick = () => { setTool(t); renderPanel(); }; tb.append(b); });
     sp.append(tb);
@@ -1469,7 +1589,7 @@ function renderPanel() {
     maskOp('Top half', m => { for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) m[j * MW + i] = smooth(.4, .6, j / (MH - 1)); });
     maskOp('Stripes', m => { for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) m[j * MW + i] = smooth(-.3, .3, Math.sin(i / MW * TAU * 6)); });
     sp.append(ops);
-    const sm = section('Modulate', 'Attractor / Image Sampler technique: a field moves the line in and out, or lifts layers up and down. The line width never changes.');
+    const sm = section('Modulate', 'Attractor / Image Sampler technique: a field moves the line in and out, or lifts layers up and down. The line width never changes.', '', { open:P.mod.src !== 'none', status:P.mod.src !== 'none' ? 'on' : 'off', on:P.mod.src !== 'none' });
     const M = P.mod, rbm = () => rebuild(k);
     chips(sm, [['none', 'Off'], ['attract', 'Attractors'], ['image', 'Image'], ['noise', 'Noise']], M.src, v => { pushUndo(); M.src = v; if (v === 'attract') setTool('attract'); rbm(); renderPanel(); });
     if (M.src !== 'none') {
@@ -1497,7 +1617,7 @@ function renderPanel() {
         const b = el('button', { textContent:'Shuffle', style:'margin-top:4px' }); b.onclick = () => { pushUndo(); M.seed = Math.floor(Math.random() * 9999); rbm(); }; sm.append(b);
       }
     }
-    const mz = section('Holes', 'Perforate the wall with layers that move out or up, so they only touch at points. Same line width throughout, still one continuous line.');
+    const mz = section('Holes', 'Perforate the wall with layers that move out or up, so they only touch at points. Same line width throughout, still one continuous line.', '', { open:P.mesh.on, status:P.mesh.on ? 'on' : 'off', on:P.mesh.on });
     const MS = P.mesh, rbz = () => rebuild(k);
     toggle(mz, 'Holes', MS.on, v => { MS.on = v; if (v && state.view === 'surface') state.view = 'path'; rbz(); applyLook(); });
     if (MS.on) {
@@ -1524,7 +1644,7 @@ function renderPanel() {
         ? 'Each lap waves up and down and sits on the crests of the lap below, shifted half a wave — the gaps between are real holes. See it in Path or Beads view.'
         : 'Bulging layers bridge over air and sag a little, opening the gaps (like Studio Wooj’s mesh). See it in Path or Beads view.' }));
     }
-    const sn = section('Non-planar layers', 'Isocurve printing: layers bend up and down instead of staying flat. Layer height varies, so extrusion is scaled to keep the wall even.');
+    const sn = section('Non-planar layers', 'Isocurve printing: layers bend up and down instead of staying flat. Layer height varies, so extrusion is scaled to keep the wall even.', '', { open:!!(P.np.mid || P.np.rim), status:(P.np.mid || P.np.rim) ? 'on' : 'off', on:!!(P.np.mid || P.np.rim) });
     slider(sn, 'Layer waves', () => P.np.mid, v => P.np.mid = v, 0, 20, .5, v => v ? v + ' mm' : 'flat', () => rebuild(k));
     slider(sn, 'Waves around', () => P.np.waves, v => P.np.waves = v, 1, 12, 1, v => v, () => rebuild(k));
     if (k === 'vessel') {
@@ -1532,7 +1652,7 @@ function renderPanel() {
       slider(sn, 'Rim tilt', () => P.np.tilt, v => P.np.tilt = v, 0, 1, .01, pct, () => rebuild(k));
     }
     sn.append(el('div', { className:'note', textContent:'Bottom and the bed stay flat. Check the Print tab: steep climbs can make the nozzle scrape.' }));
-    const s2 = section('Petals', 'Break the round symmetry. Whole numbers only, so the loop always closes.');
+    const s2 = section('Petals', 'Break the round symmetry. Whole numbers only, so the loop always closes.', '', { open:P.lobes > 0 && P.lobeAmt > 0, status:P.lobes > 0 && P.lobeAmt > 0 ? 'on' : 'off', on:P.lobes > 0 && P.lobeAmt > 0 });
     slider(s2, 'Petals', () => P.lobes, v => P.lobes = v, 0, 12, 1, v => v || 'off', () => rebuild(k));
     slider(s2, 'Petal depth', () => P.lobeAmt, v => P.lobeAmt = v, 0, .25, .005, pct, () => rebuild(k));
     const s3 = section('Colour');
@@ -1580,7 +1700,7 @@ function renderPrint() {
   const s1 = section('Printer', 'Bambu Lab. G-code is made for the printer you choose here.');
   chips(s1, Object.entries(PRINTERS).map(([k, p]) => [k, p.name]), pr.printer, k => { pushUndo(); pr.printer = k; rr(); });
   const s2 = section('Nozzle', 'Bigger nozzle → thicker, faster, bolder layers. Match the nozzle that’s installed.');
-  chips(s2, NOZZLES.map(n => [n, n + ' mm']), pr.nozzle, n => { pushUndo(); pr.nozzle = n; pr.layerH = +(n * .5).toFixed(2); pr.speed = n === .4 ? 90 : n === .6 ? 70 : 50; pr.bottom = Math.max(2, Math.ceil(.9 / pr.layerH)); busy(() => { rebuild(); rr(); }); });
+  chips(s2, NOZZLES.map(n => [n, n + ' mm']), pr.nozzle, n => { pushUndo(); pr.nozzle = n; pr.layerH = +(n * .5).toFixed(2); pr.speed = n === .4 ? 90 : n === .6 ? 70 : 50; pr.bottom = Math.max(2, Math.ceil(.9 / pr.layerH)); busy(() => { const ch = parts().map(adaptToNozzle).some(Boolean); rebuild(); rr(); if (ch) toast(`Patterns coarsened to suit the ${n} mm nozzle`); }); });
   slider(s2, 'Layer height', () => pr.layerH, v => pr.layerH = v, +(pr.nozzle * .25).toFixed(2), +(pr.nozzle * .75).toFixed(2), .01, v => v.toFixed(2) + ' mm', () => { updateBadge(); applyLook(); if (state.view === 'printed') parts().forEach(schedulePrinted); if (state.view === 'path') rebuildPaths(); });
   onCommit = () => renderPanel();
   slider(s2, 'Wall speed', () => pr.speed, v => pr.speed = v, 15, 200, 1, v => { const cap = FILAMENTS[pr.filament].flow / (lineW(pr.nozzle) * pr.layerH); return v > cap ? `${v} → ${Math.round(cap)} mm/s (flow limit)` : v + ' mm/s'; });
@@ -1644,7 +1764,7 @@ function renderPrint() {
   se.append(el('div', { className:'note', innerHTML:
     `<b>Printing the G-code:</b> copy the file to the printer's microSD card (or send it over LAN/FTP), load ${FILAMENTS[pr.filament].name} and check a <b>${pr.nozzle} mm</b> nozzle is fitted, then start it from the printer screen. It uses a simplified start sequence, so open it in a G-code viewer first.<br><br>` +
     `<b>Most reliable route:</b> open the STL in Bambu Studio, turn on <i>Spiral vase</i>, choose the same nozzle and print as usual.` }));
-  const adv = section('Advanced', 'Paste your own start G-code (e.g. from Bambu Studio’s printer settings) to replace the built-in one.');
+  const adv = section('Advanced', 'Paste your own start G-code (e.g. from Bambu Studio’s printer settings) to replace the built-in one.', '', { open:false });
   const ta = el('textarea', { value:pr.customStart, placeholder:'Leave empty to use the built-in start sequence' });
   ta.onchange = () => { pr.customStart = ta.value; persist(); };
   adv.append(ta);
@@ -1737,6 +1857,14 @@ async function saveFile(name, blob, wrapIfNeeded = false) {
 }
 
 /* ═════════════════════ go ═════════════════════ */
+for (const k of ['shade', 'base', 'vessel']) if (state[k].tr.on && !state[k].mask) applyTransition(k);   // presets carry their transition as settings
+$('#status').onclick = () => { ui.tab = TABS_FOR().includes(statusTab) ? statusTab : 'print'; ui.fold = { ...ui.fold }; renderTabs(); renderPanel(); openPanel(true); const c = [...document.querySelectorAll('#body .sec h3')].find(h => /Printability|Engineering/.test(h.textContent)); c?.scrollIntoView({ block:'start' }); };
+$('#fitBtn').onclick = () => frameCamera();
+const help = $('#help'), showHelp = v => help.classList.toggle('show', v);
+$('#helpBtn').onclick = () => showHelp(true);
+$('#helpClose').onclick = () => { showHelp(false); try { localStorage.setItem('spiral.help', '1'); } catch (e) {} };
+help.addEventListener('click', e => { if (e.target === help) $('#helpClose').onclick(); });
+try { if (!localStorage.getItem('spiral.help')) showHelp(true); } catch (e) {}
 renderAll(); setTool('grab'); syncUndo(); document.body.classList.toggle('drawing', state.view === 'drawing'); if (state.view === 'drawing') setTimeout(renderDrawing, 50);
 rebuild(); applyLook(); resize(); frameCamera();
 </script>
