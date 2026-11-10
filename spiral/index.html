@@ -98,6 +98,14 @@
   .stats b{display:block;color:var(--ink);font:400 15px var(--sans);letter-spacing:0;text-transform:none}
   textarea{width:100%;min-height:90px;background:#fafaf8;color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:8px;font:11px/1.4 var(--mono)}
   #grab{display:none}
+  #drawing{position:fixed;inset:0;right:368px;top:0;bottom:0;background:#fff;display:none;z-index:4;padding:100px 28px 90px;overflow:auto}
+  #drawing svg{width:100%;height:100%;display:block}
+  body.drawing #drawing{display:block}
+  body.drawing #tools,body.drawing #hint{display:none}
+  .dims{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font:400 10.5px var(--mono);letter-spacing:.04em;color:var(--muted)}
+  .dims input{width:100%;font:400 13px var(--sans);color:var(--ink);background:transparent;border:none;border-bottom:1px solid var(--line);padding:4px 2px;text-align:right}
+  .dims input:focus{outline:none;border-bottom-color:var(--ink)}
+  @media (max-width:760px){#drawing{right:0;padding:96px 10px 40px}}
   #toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--ink);color:#fff;padding:7px 13px;border-radius:999px;font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;opacity:0;transition:.25s;pointer-events:none;z-index:20;white-space:nowrap}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   #busy{position:fixed;inset:0;background:rgba(255,255,255,.6);display:none;align-items:center;justify-content:center;z-index:30;font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase}
@@ -132,7 +140,7 @@
   <button id="undoBtn" title="Undo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
   <button id="redoBtn" title="Redo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
 </header>
-<div id="viewbar"><div class="seg" id="viewSeg"><button data-view="path">Path</button><button data-view="printed">Beads</button><button data-view="surface">Surface</button></div><div id="badge"></div></div>
+<div id="viewbar"><div class="seg" id="viewSeg"><button data-view="path">Path</button><button data-view="printed">Beads</button><button data-view="surface">Surface</button><button data-view="drawing">Drawing</button></div><div id="badge"></div></div>
 <div id="hint">Drag on the lamp to sculpt · drag empty space to orbit</div>
 <div id="tools">
   <button data-tool="orbit" title="Orbit (O)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M3 12a9 4 0 0 0 18 0M12 3a4 9 0 0 1 0 18"/></svg><span class="lbl">Orbit</span></button>
@@ -147,6 +155,7 @@
   <button data-tool="attract" title="Place / remove attractor points (A)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/></svg><span class="lbl">Attract</span></button>
   <button id="editBtn" title="Edit"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
 </div>
+<div id="drawing"></div>
 <aside id="panel"><div id="grab"></div><div id="tabs"></div><div id="body"></div></aside>
 <div id="toast"></div>
 <div id="busy">Working…</div>
@@ -170,10 +179,16 @@ const MOD0 = () => ({ src:'none', target:'depth', lift:2, strength:.8, invert:fa
 const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}, mesh = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod }, mesh:{ ...MESH0(), ...mesh } });
 
 const LAMP_PRESETS = {
-  mesh:{ name:'Mesh', note:'Open lattice shade',
+  globe:{ name:'Globe', note:'E27 bulb, shade on socket ring', lamp:{ layout:'bell', fitting:'e27', bulb:'a60' },
+    shade:part(1.6, prof(v => { const z = v * 160; return Math.min(22.2 + z * .95, 75, 35 + (160 - z) * .95) / MM; }), pat('rings', .004, 40, 24), pat('woven', .004, 40, 24), '#f2efe8'),
+    base: part(.55, prof(v => .42 - .14 * v), pat('ribs', .01, 48, 20), pat('rings', .005, 40, 14), '#1e1d1b') },
+  pendant:{ name:'Pendant', note:'E27, hangs from the cord', lamp:{ layout:'pendant', fitting:'e27', bulb:'g95' },
+    shade:part(1.7, prof(v => Math.min(22.2 + (1 - v) * 170 * .95, 118) / MM), pat('ribs', .008, 64, 20), pat('woven', .005, 40, 16), '#efe9df'),
+    base: part(.6, prof(v => .2), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#efe9df') },
+  mesh:{ name:'Mesh', note:'Open lattice shade', lamp:{ layout:'dome', fitting:'led', bulb:'led' },
     shade:part(.62, prof(v => .22 + .68 * Math.pow(Math.sin((1 - v) * Math.PI / 2 + .12), 1.3)), pat('smooth', 0, 40, 20), pat('ribs', .006, 48, 20), '#f2efe8', 0, 0, {}, {}, { on:true, amp:1.6, lobes:40, rings:1, bumps:2, rim:5 }),
     base: part(.95, prof(v => .2 + .1 * Math.pow(1 - v, 1.6)), pat('ribs', .008, 40, 20), pat('rings', .005, 40, 14), '#f2efe8') },
-  mushroom:{ name:'Mushroom', note:'Dome shade, fluted foot',
+  mushroom:{ name:'Mushroom', note:'Dome shade, fluted foot', lamp:{ layout:'dome', fitting:'led', bulb:'led' },
     shade:part(.72, prof(v => .26 + .76 * Math.pow(Math.cos(v * Math.PI / 2), .7)), pat('woven', .005, 40, 16), pat('ribs', .008, 60, 16), '#ece3d6'),
     base: part(1.0, prof(v => .2 + .29 * Math.pow(1 - v, 2.3)), pat('ribs', .012, 48, 20), pat('rings', .005, 40, 14), '#3b2622') },
   cone:{ name:'Cone', note:'Tapered shade, ribbed column',
@@ -217,25 +232,42 @@ const PRINTERS = {
   a2l:{ name:'A2L', bed:[330,320], maxZ:325, park:[10,310], purgeY:4 },
 };
 const FILAMENTS = {
-  pla:{ name:'PLA', nozzle:220, bed:55, fan:100, flow:18 },
-  matte:{ name:'PLA Matte', nozzle:220, bed:55, fan:100, flow:16 },
-  silk:{ name:'Silk PLA', nozzle:225, bed:55, fan:100, flow:12 },
-  petg:{ name:'PETG', nozzle:250, bed:70, fan:40, flow:12 },
+  pla:{ name:'PLA', nozzle:220, bed:55, fan:100, flow:18, soft:55, rho:1.24 },
+  matte:{ name:'PLA Matte', nozzle:220, bed:55, fan:100, flow:16, soft:55, rho:1.24 },
+  silk:{ name:'Silk PLA', nozzle:225, bed:55, fan:100, flow:12, soft:55, rho:1.24 },
+  petg:{ name:'PETG', nozzle:250, bed:70, fan:40, flow:12, soft:75, rho:1.27 },
 };
 const NOZZLES = [.4, .6, .8];
+// Lamp hardware (mm). Socket "hole" = the shade opening that sits on the socket's shade ring.
+const FITTINGS = {
+  led:{ name:'LED module', note:'Ø50 disc, under the cap', d:50, h:12, flange:56, hole:0, mass:25 },
+  e27:{ name:'E27 socket', note:'shade ring Ø40 thread', d:40, h:58, flange:56, hole:44, mass:45, neck:13.5 },
+  e14:{ name:'E14 socket', note:'shade ring Ø28 thread', d:29, h:44, flange:40, hole:31, mass:30, neck:7 },
+};
+const BULBS = {
+  led:{ fit:'led', name:'LED disc', d:50, h:6, mass:0 },
+  a60:{ fit:'e27', name:'A60', d:60, h:108, mass:35 },
+  g95:{ fit:'e27', name:'G95 globe', d:95, h:135, mass:70 },
+  g125:{ fit:'e27', name:'G125 globe', d:125, h:170, mass:110 },
+  c35:{ fit:'e14', name:'C35 candle', d:35, h:100, mass:20 },
+  p45:{ fit:'e14', name:'P45 ball', d:45, h:80, mass:25 },
+};
+const LAYOUTS = { dome:'Dome over an LED module', bell:'Shade on a socket ring', pendant:'Pendant' };
+const PEND_Y = .55;
+const LAMP0 = () => ({ layout:'dome', fitting:'led', bulb:'led', watts:6, hw:true });
 const lineW = n => +(n * 1.12).toFixed(2);
 
 const clone = o => JSON.parse(JSON.stringify(o));
 function defaultState() {
   const L = LAMP_PRESETS.mushroom, V = VESSEL_PRESETS.bud;
   return { v:4, view:'path', risks:true, mode:'lamp', preset:'mushroom', vpreset:'bud', shade:clone(L.shade), base:clone(L.base), vessel:clone(V.vessel),
-    collar:'#b8b5ae', light:{ on:false, power:1, warmth:.35 },
+    collar:'#b8b5ae', light:{ on:false, power:1, warmth:.35 }, lamp:LAMP0(),
     print:{ printer:'x1c', nozzle:.4, filament:'pla', layerH:.2, speed:90, orient:'rim', bottom:4, abl:true, part:'shade', layerLines:true, customStart:'' } };
 }
 function upgrade(s) {
   const d = defaultState();
   if (!s || typeof s !== 'object') return d;
-  const o = { ...d, ...s, print:{ ...d.print, ...(s.print || {}) }, light:{ ...d.light, ...(s.light || {}) } };
+  const o = { ...d, ...s, print:{ ...d.print, ...(s.print || {}) }, light:{ ...d.light, ...(s.light || {}) }, lamp:{ ...LAMP0(), ...(s.lamp || {}) } };
   for (const k of ['shade', 'base', 'vessel']) {
     const P = s[k]; if (!P || !Array.isArray(P.prof)) { o[k] = d[k]; continue; }
     o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) }, np:{ ...NP0(), ...(P.np || {}) }, mod:{ ...MOD0(), ...(P.mod || {}) }, mesh:{ ...MESH0(), ...(P.mesh || {}) } };
@@ -249,7 +281,7 @@ let state;
 try { state = upgrade(JSON.parse(localStorage.getItem('spiral.v1') || localStorage.getItem('lampstudio.v2') || localStorage.getItem('lampstudio.v1'))); } catch (e) { state = defaultState(); }
 
 const ui = { tool:'grab', brush:.16, strength:.6, paintSize:22, tab:'shape', surf:state.mode === 'vessel' ? 'vessel' : 'shade' };
-const parts = () => state.mode === 'lamp' ? ['shade', 'base'] : ['vessel'];
+const parts = () => state.mode === 'lamp' ? (state.lamp.layout === 'pendant' ? ['shade'] : ['shade', 'base']) : ['vessel'];
 
 /* ═════════════════════ undo / persistence ═════════════════════ */
 const undoStack = [], redoStack = [];
@@ -386,7 +418,8 @@ function resFor(P) {
   const segs = amp ? Math.min(Math.max(Math.round(Math.max(P.freq, P.b.freq) * 10), 180), 560) : Math.max(160, P.lobes * 24);
   return { rings, segs };
 }
-const partY0 = k => k === 'shade' ? state.base.h + COLLAR_H - state.shade.h : 0;
+const partY0 = k => k !== 'shade' ? 0 : state.lamp.layout === 'pendant' ? PEND_Y : state.lamp.layout === 'bell' ? state.base.h + .006 : state.base.h + COLLAR_H - state.shade.h;
+const lampTop = () => state.lamp.layout === 'dome' ? state.base.h + COLLAR_H : partY0('shade') + state.shade.h;
 
 function buildPart(k, geom, closed = false) {
   const P = state[k], y0 = closed ? 0 : partY0(k), m = getMask(k);
@@ -655,18 +688,36 @@ function rebuild(which = 'all', keepPath = false) {
     meshes[k].geometry = geoms[k].smooth;
     if (state.view === 'printed') { if (interacting()) schedulePrinted(k); else { geoms[k].printed = buildPrinted(k, geoms[k].printed); meshes[k].geometry = geoms[k].printed; } }
   }
-  const lamp = state.mode === 'lamp';
-  meshes.shade.visible = meshes.base.visible = collarMesh.visible = lamp; meshes.vessel.visible = !lamp;
+  const lamp = state.mode === 'lamp', lay = state.lamp.layout;
+  meshes.shade.visible = collarMesh.visible = lamp; meshes.base.visible = lamp && lay !== 'pendant'; meshes.vessel.visible = !lamp;
   if (lamp) {
-    const rTop = Math.max(sampleProf(state.base.prof, 1), sampleProf(state.shade.prof, 1)) + .015;
-    collarMesh.geometry?.dispose(); collarMesh.geometry = new THREE.CylinderGeometry(rTop, rTop, COLLAR_H, 72);
-    collarMesh.position.y = state.base.h + COLLAR_H / 2;
+    const F = FITTINGS[state.lamp.fitting];
+    let rTop = lay === 'dome' ? Math.max(sampleProf(state.base.prof, 1), sampleProf(state.shade.prof, 1)) + .015 : F.flange / 2 / MM;
+    if (lay === 'bell') rTop = Math.max(rTop, sampleProf(state.base.prof, 1) + .005);
+    collarMesh.geometry?.dispose(); collarMesh.geometry = new THREE.CylinderGeometry(rTop, rTop, lay === 'dome' ? COLLAR_H : .006, 72);
+    collarMesh.position.y = lay === 'pendant' ? lampTop() + .006 : lay === 'bell' ? state.base.h + .003 : state.base.h + COLLAR_H / 2;
   }
-  drawAttractors(); rebuildPaths(list);
+  drawHardware();
+  if (state.view === 'drawing') scheduleDrawing();
+  drawAttractors(); rebuildPaths(list); if (ui.tab === 'lamp') renderChecksOnly();
   updateBadge(); persist(); requestRender();
 }
 const attrGroup = new THREE.Group(); scene.add(attrGroup);
 const attrGeo = new THREE.SphereGeometry(.018, 16, 12), attrMat = new THREE.MeshBasicMaterial({ color:0x3d6bff, depthTest:false });
+const hwGroup = new THREE.Group(); scene.add(hwGroup);
+const hwMat = new THREE.MeshStandardMaterial({ color:0x2a2927, roughness:.6 });
+const bulbMat = new THREE.MeshStandardMaterial({ color:0xffffff, roughness:.3, transparent:true, opacity:.45, depthWrite:false, side:THREE.DoubleSide });
+function drawHardware() {
+  hwGroup.traverse(o => o.geometry && o.geometry.dispose()); hwGroup.clear();
+  if (state.mode !== 'lamp' || !state.lamp.hw) return;
+  const H = hardware(); if (!H) return;
+  const sock = new THREE.Mesh(new THREE.CylinderGeometry(H.sock.r, H.sock.r, H.sock.h, 40), hwMat); sock.position.y = H.sock.y + H.sock.h / 2; hwGroup.add(sock);
+  if (H.bulb) {
+    const pts = []; for (let i = 0; i <= 40; i++) { const z = i / 40 * H.bulb.h; pts.push(new THREE.Vector2(Math.max(.0005, bulbR(H.bulb, z)), H.bulb.dir > 0 ? z : -z)); }
+    const b = new THREE.Mesh(new THREE.LatheGeometry(pts, 48), bulbMat); b.position.y = H.bulb.y0; b.renderOrder = 5; hwGroup.add(b);
+  }
+  if (H.cord) { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, H.cord[0], 0), new THREE.Vector3(0, H.cord[1], 0)]); hwGroup.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color:0x121211 }))); }
+}
 function drawAttractors() {
   attrGroup.clear();
   for (const k of parts()) {
@@ -686,7 +737,7 @@ function applyLook() {
   drawBed(); persist(); requestRender();
 }
 function frameCamera() {
-  const H = state.mode === 'lamp' ? state.base.h + COLLAR_H : state.vessel.h;
+  const H = state.mode === 'lamp' ? lampTop() + (state.lamp.layout === 'pendant' ? 0 : 0) : state.vessel.h;
   const shift = H * .5 - controls.target.y;
   controls.target.y += shift; camera.position.y += shift; controls.update();
 }
@@ -913,7 +964,7 @@ function showPath() {
 }
 
 /* ═════════════════════ printability ═════════════════════ */
-const printPart = () => state.mode === 'vessel' ? 'vessel' : (state.print.part === 'base' ? 'base' : 'shade');
+const printPart = () => state.mode === 'vessel' ? 'vessel' : (state.print.part === 'base' && state.lamp.layout !== 'pendant' ? 'base' : 'shade');
 function checks(k) {
   const pr = state.print, P = state[k], m = getMask(k), printer = PRINTERS[pr.printer];
   const w = lineW(pr.nozzle), lh = pr.layerH, H = P.h * MM, out = [];
@@ -1034,11 +1085,169 @@ function gcode(k) {
   return { text:o.join('\n'), st, tp };
 }
 
+/* ═════════════════════ lamp engineering ═════════════════════ */
+// Where the socket and bulb sit for each layout (scene units). dir: +1 bulb points up, -1 hangs down.
+function hardware() {
+  if (state.mode !== 'lamp') return null;
+  const lay = state.lamp.layout, F = FITTINGS[state.lamp.fitting], B = BULBS[state.lamp.bulb], u = 1 / MM;
+  if (lay === 'dome') { const y = state.base.h - F.h * u; return { sock:{ r:F.d / 2 * u, h:F.h * u, y }, bulb:null, light:{ y:y, r:0 }, F, B }; }
+  if (lay === 'bell') {
+    const top = state.base.h + .006, sy = top - F.h * .7 * u;
+    const y0 = sy + F.h * u - 4 * u;
+    return { sock:{ r:F.d / 2 * u, h:F.h * u, y:sy }, bulb:{ ...B, y0, dir:1, h:B.h * u, d:B.d * u, neck:F.neck * u }, light:{ y:y0 + (B.h - B.d / 2) * u, r:0 }, F, B };
+  }
+  const top = lampTop(), sy = top - F.h * .35 * u, y0 = sy + 4 * u;
+  return { sock:{ r:F.d / 2 * u, h:F.h * u, y:sy }, bulb:{ ...B, y0, dir:-1, h:B.h * u, d:B.d * u, neck:F.neck * u }, light:{ y:y0 - (B.h - B.d / 2) * u, r:0 }, cord:[sy + F.h * u, 2.6], F, B };
+}
+// bulb radius at distance z from its base (scene units): neck widening into a sphere
+function bulbR(b, z) { const R = b.d / 2, cz = Math.max(0, b.h - R), rn = Math.min(R, b.neck || R * .45); if (z >= cz) return Math.sqrt(Math.max(0, R * R - (z - cz) ** 2)); return rn + (R - rn) * smooth(0, cz, z); }
+// inner radius of the shade wall at a world height (mm), worst case around the circumference
+function shadeInnerAt(y) {
+  const P = state.shade, v = (y - partY0('shade')) / P.h; if (v < 0 || v > 1) return null;
+  return (sampleProf(P.prof, v) * (1 - P.lobeAmt) - Math.max(P.amp, P.b.amp)) * MM - lineW(state.print.nozzle);
+}
+function partMass(k) { // grams and centre-of-mass height (mm, world), from the single-wall spiral + solid bottom
+  const P = state[k], fil = FILAMENTS[state.print.filament], w = lineW(state.print.nozzle), y0 = partY0(k) * MM, H = P.h * MM;
+  let m = 0, my = 0; const n = 60;
+  for (let j = 0; j < n; j++) { const v = (j + .5) / n, r = sampleProf(P.prof, v) * MM, dm = TAU * r * (H / n) * w * fil.rho * 1e-3; m += dm; my += dm * (y0 + v * H); }
+  if (k !== 'shade') { const r0 = sampleProf(P.prof, 0) * MM, dm = Math.PI * r0 * r0 * Math.max(1, state.print.bottom) * state.print.layerH * fil.rho * 1e-3; m += dm; my += dm * y0; }
+  return { m, y:my / m };
+}
+function lampChecks() {
+  const out = [], add = (lvl, msg) => out.push({ lvl, msg }); const H = hardware(); if (!H) return out;
+  const L = state.lamp, lay = L.layout, fil = FILAMENTS[state.print.filament], u = MM;
+  // clearance between bulb (or LED module) and the inner shade wall
+  let minC = Infinity, at = 0, sticksOut = false;
+  if (H.bulb) {
+    for (let i = 0; i <= 50; i++) { const z = i / 50 * H.bulb.h, y = H.bulb.y0 + H.bulb.dir * z, rb = bulbR(H.bulb, z) * u, ri = shadeInnerAt(y);
+      if (ri == null) { if (rb > 1) sticksOut = true; continue; } const c = ri - rb; if (c < minC) { minC = c; at = y; } }
+  } else { const y = H.sock.y + H.sock.h * .5, ri = shadeInnerAt(y); if (ri != null) { minC = ri - H.F.d / 2; at = y; } }
+  if (sticksOut) add('bad', lay === 'pendant' ? 'The bulb hangs out below the shade — make the shade longer or pick a shorter bulb.' : 'The bulb pokes out of the top of the shade — make the shade taller or pick a smaller bulb.');
+  if (isFinite(minC)) add(minC < 8 ? 'bad' : minC < 20 ? 'warn' : 'ok', `Closest gap between ${H.bulb ? 'bulb' : 'LED module'} and shade wall: ${minC.toFixed(0)} mm (aim for ≥ 20 mm).`);
+  // heat (rule of thumb for LED): surface ~ 35 °C + 5 °C per watt, falling off with distance
+  const ts = 35 + 5 * L.watts, tw = 25 + (ts - 25) * Math.exp(-Math.max(0, minC) / 15);
+  add(tw > fil.soft - 5 ? 'bad' : tw > fil.soft - 15 ? 'warn' : 'ok', `Wall near the bulb ≈ ${tw.toFixed(0)} °C with a ${L.watts} W LED (rough estimate). ${fil.name} softens around ${fil.soft} °C. LED only — never incandescent or halogen.`);
+  // glare: from which viewing angles the bare light source is visible
+  const P = state.shade, y0 = partY0('shade') * u, ly = H.light.y * u;
+  if (lay === 'bell') { const rt = sampleProf(P.prof, 1) * u, yt = y0 + P.h * u, a = Math.atan2(yt - ly, rt) * 180 / Math.PI; add(a < 15 ? 'warn' : 'ok', `Glare: the bulb is visible only when looking down into the top opening from more than ${a.toFixed(0)}° above horizontal.`); }
+  else { const rr = sampleProf(P.prof, 0) * u, a = Math.atan2(ly - y0, rr) * 180 / Math.PI; add(a < 15 ? 'warn' : 'ok', `Glare cut-off ${a.toFixed(0)}°: the light source is hidden unless you look up into the shade from more than ${a.toFixed(0)}° below horizontal.`); }
+  // stability (table lamps)
+  if (lay !== 'pendant') {
+    const ms = parts().map(partMass); let M = 0, MY = 0; for (const p of ms) { M += p.m; MY += p.m * p.y; }
+    const hwM = H.F.mass + (H.B.mass || 0), hwY = (H.bulb ? H.bulb.y0 + H.bulb.h / 2 : H.sock.y) * u; M += hwM; MY += hwM * hwY;
+    const hcm = MY / M, Rf = sampleProf(state.base.prof, 0) * (1 - state.base.lobeAmt) * u, tip = Math.atan2(Rf, hcm) * 180 / Math.PI;
+    const need = Math.max(0, M * (hcm * Math.tan(18 * Math.PI / 180) / Rf - 1));
+    add(tip < 12 ? 'bad' : tip < 18 ? 'warn' : 'ok', `Weighs ≈ ${M.toFixed(0)} g, centre of mass at ${hcm.toFixed(0)} mm; tips over at ${tip.toFixed(0)}°.` + (need > 5 ? ` Add ≈ ${Math.ceil(need / 10) * 10} g of ballast in the base (steel washers, sand bag) for ≥ 18°.` : ''));
+  }
+  add('ok', 'Use a certified socket, cord and strain relief. This is a design aid, not an electrical safety test (EN 60598).');
+  return out;
+}
+function fitToFitting() {
+  const L = state.lamp, F = FITTINGS[L.fitting]; if (L.layout === 'dome' || !F.hole) return false;
+  const P = state.shade, target = (F.hole / 2 + lineW(state.print.nozzle) / 2) / MM, v0 = L.layout === 'bell' ? 0 : 1;
+  const delta = target - sampleProf(P.prof, v0);
+  for (let i = 0; i < N; i++) { const d = (i / (N - 1) - v0) / .16; P.prof[i] = +(Math.max(.02, P.prof[i] + delta * Math.exp(-d * d * 2))).toFixed(4); }
+  P.prof[v0 ? N - 1 : 0] = +target.toFixed(4);
+  return true;
+}
+
+/* ───── technical drawing (SVG, A4 landscape, mm) ───── */
+function drawingSVG() {
+  const lamp = state.mode === 'lamp', ks = parts(), u = MM, pr = state.print, w = lineW(pr.nozzle), Hw = hardware();
+  // extents in mm
+  let top = 0, rMax = 0;
+  for (const k of ks) { const P = state[k]; top = Math.max(top, (partY0(k) + P.h) * u); for (let j = 0; j <= 40; j++) rMax = Math.max(rMax, (sampleProf(P.prof, j / 40) * (1 + P.lobeAmt) + Math.max(P.amp, P.b.amp)) * u); }
+  const pend = lamp && state.lamp.layout === 'pendant', yOff = pend ? PEND_Y * u : 0;
+  if (Hw && Hw.cord) top = Math.max(top, (Hw.sock.y + Hw.sock.h) * u + 20);
+  top -= yOff;
+  const SC = [1, 1 / 1.5, .5, .4, 1 / 3, .25, .2, .1].find(sc => top * sc <= 150 && rMax * 2 * sc <= 170) || .1;
+  const cx = Math.min(112, 170 - rMax * SC), gy = Math.min(176, 104 + top * SC / 2 + 8), X = r => cx + r * SC, Y = y => gy - (y - yOff) * SC, f = n => n.toFixed(2);
+  const ink = '#121211', mute = '#86827a', o = [];
+  const T = (x, y, t, a = 'middle', sz = 2.6, c = ink, rot) => o.push(`<text x="${f(x)}" y="${f(y)}" font-size="${sz}" fill="${c}" text-anchor="${a}"${rot ? ` transform="rotate(${rot} ${f(x)} ${f(y)})"` : ''}>${t}</text>`);
+  const Lh = (x1, y1, x2, y2, sw = .18, c = ink, da) => o.push(`<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="${c}" stroke-width="${sw}"${da ? ` stroke-dasharray="${da}"` : ''}/>`);
+  const tick = (x, y) => Lh(x - 1, y + 1, x + 1, y - 1, .25);
+  const dimV = (x, y1, y2, label, side = 1) => { Lh(x, y1, x, y2); tick(x, y1); tick(x, y2); T(x + side * 2.2, (y1 + y2) / 2, label, 'middle', 2.6, ink, -90); };
+  const dimH = (x1, x2, y, label) => { Lh(x1, y, x2, y); tick(x1, y); tick(x2, y); T((x1 + x2) / 2, y - 1.4, label); };
+  // frame + ground + centreline
+  o.push(`<rect x="8" y="8" width="281" height="194" fill="none" stroke="${ink}" stroke-width=".35"/>`);
+  if (!pend) Lh(cx - rMax * SC - 22, gy, cx + rMax * SC + 30, gy, .3);
+  Lh(cx, gy + 6, cx, Y(top + yOff) - 6, .15, ink, '6 1.2 1 1.2');
+  for (const k of ks) {
+    const P = state[k], y0 = partY0(k) * u, H = P.h * u, n = 90;
+    const outR = [], ys = [];
+    for (let j = 0; j <= n; j++) { const v = j / n; outR.push(sampleProf(P.prof, v) * u); ys.push(y0 + v * H); }
+    // left half: section through the single wall (one line = ${w} mm)
+    const wall = outR.map((r, j) => `${f(X(-r))},${f(Y(ys[j]))}`).join(' ') + ' ' + outR.map((r, j) => `${f(X(-(r - w)))},${f(Y(ys[j]))}`).reverse().join(' ');
+    o.push(`<polygon points="${wall}" fill="${ink}" stroke="${ink}" stroke-width="${Math.max(.25, w * SC)}" stroke-linejoin="round"/>`);
+    if (k !== 'shade') { const r0 = outR[0], tb = Math.max(1, pr.bottom) * pr.layerH; o.push(`<rect x="${f(X(-r0))}" y="${f(Y(y0 + tb))}" width="${f(r0 * SC)}" height="${f(Math.max(.3, tb * SC))}" fill="${ink}"/>`); }
+    // right half: elevation with texture envelope and every 5 mm of the spiral
+    const env = outR.map((r, j) => r * (1 + P.lobeAmt) + Math.max(P.amp, P.b.amp) * u + (P.mesh?.on ? P.mesh.amp : 0));
+    o.push(`<polyline points="${env.map((r, j) => `${f(X(r))},${f(Y(ys[j]))}`).join(' ')}" fill="none" stroke="${ink}" stroke-width=".3"/>`);
+    for (let y = y0 + 5; y < y0 + H; y += 5) { const r = sampleProf(P.prof, (y - y0) / H) * u * (1 + P.lobeAmt) + Math.max(P.amp, P.b.amp) * u; Lh(cx, Y(y), X(r), Y(y), .08, mute); }
+    Lh(cx, Y(y0), X(env[0]), Y(y0), .3); Lh(cx, Y(y0 + H), X(env[n]), Y(y0 + H), .3);
+  }
+  // collar / socket ring + hardware
+  if (lamp) {
+    const F = FITTINGS[state.lamp.fitting], cr = Math.max(collarMesh?.geometry?.parameters?.radiusTop || F.flange / 2 / MM, .01) * u;
+    const cy0 = (collarMesh.position.y - (collarMesh.geometry?.parameters?.height || COLLAR_H) / 2) * u, ch = (collarMesh.geometry?.parameters?.height || COLLAR_H) * u;
+    o.push(`<rect x="${f(X(-cr))}" y="${f(Y(cy0 + ch))}" width="${f(cr * 2 * SC)}" height="${f(ch * SC)}" fill="url(#hatch)" stroke="${ink}" stroke-width=".25"/>`);
+    if (Hw) {
+      o.push(`<rect x="${f(X(-Hw.sock.r * u))}" y="${f(Y((Hw.sock.y + Hw.sock.h) * u))}" width="${f(Hw.sock.r * 2 * u * SC)}" height="${f(Hw.sock.h * u * SC)}" fill="none" stroke="${ink}" stroke-width=".22" stroke-dasharray="1.2 .8"/>`);
+      if (Hw.bulb) { const pts = []; for (let i = 0; i <= 40; i++) { const z = i / 40 * Hw.bulb.h; pts.push([bulbR(Hw.bulb, z) * u, (Hw.bulb.y0 + Hw.bulb.dir * z) * u]); }
+        const path = pts.map(([r, y]) => `${f(X(r))},${f(Y(y))}`).join(' ') + ' ' + pts.slice().reverse().map(([r, y]) => `${f(X(-r))},${f(Y(y))}`).join(' ');
+        o.push(`<polygon points="${path}" fill="none" stroke="${ink}" stroke-width=".22" stroke-dasharray="1.6 .9"/>`);
+        T(X(Hw.bulb.d / 2 * u) + 3, Y((Hw.bulb.y0 + Hw.bulb.dir * Hw.bulb.h * .6) * u), `${Hw.B.name} · ${state.lamp.watts} W LED`, 'start', 2.2, mute); }
+      if (Hw.cord) { Lh(cx, Y((Hw.sock.y + Hw.sock.h) * u), cx, Y(top + yOff), .25); T(cx + 2, Y(top + yOff) + 3, 'cord', 'start', 2.2, mute); }
+      T(X(-Hw.sock.r * u) - 2, Y((Hw.sock.y + Hw.sock.h / 2) * u), Hw.F.name, 'end', 2.2, mute);
+    }
+  }
+  // dimensions
+  const xr = X(rMax) + 10;
+  dimV(xr + 21, Y(yOff), Y(Math.min(top, ks.reduce((a, k) => Math.max(a, (partY0(k) + state[k].h) * u), 0))), `${Math.round(ks.reduce((a, k) => Math.max(a, (partY0(k) + state[k].h) * u), 0) - yOff)}`);
+  if (ks.length > 1) ks.forEach((k, i) => { const y0 = partY0(k) * u, H = state[k].h * u; dimV(xr + (k === 'base' ? 0 : -7) + 7, Y(y0), Y(y0 + H), `${k} ${Math.round(H)}`); });
+  const sh = state[ks[0]], shY0 = partY0(ks[0]) * u, shH = sh.h * u;
+  let jm = 0; sh.prof.forEach((r, i) => { if (r > sh.prof[jm]) jm = i; });
+  const rm = sh.prof[jm] * u, ym = shY0 + jm / (N - 1) * shH;
+  dimH(X(-rm), X(rm), Y(shY0 + shH) - 8, `Ø${Math.round(rm * 2)}`); Lh(X(-rm), Y(ym), X(-rm), Y(shY0 + shH) - 9, .08, mute); Lh(X(rm), Y(ym), X(rm), Y(shY0 + shH) - 9, .08, mute);
+  const footK = ks.includes('base') ? 'base' : ks.includes('vessel') ? 'vessel' : 'shade', rf = sampleProf(state[footK].prof, 0) * u;
+  if (!pend) dimH(X(-rf), X(rf), gy + 9, `Ø${Math.round(rf * 2)}`);
+  if (lamp) {
+    const rt = sampleProf(state.shade.prof, 1) * u - w, rb = sampleProf(state.shade.prof, 0) * u - w;
+    T(X(-rt) - 3, Y((partY0('shade') + state.shade.h) * u) - 1.5, `opening Ø${Math.round(rt * 2)}`, 'end', 2.2);
+    T(X(-rb) - 3, Y(partY0('shade') * u) + 3.5, `opening Ø${Math.round(rb * 2)}`, 'end', 2.2);
+    const cl = lampChecks().find(c => /Closest gap/.test(c.msg)); if (cl) T(16, 198, cl.msg.replace(/\(aim.*\)/, '').replace('Closest gap between ', 'min. gap ').replace(' and shade wall', ''), 'start', 2.2, mute);
+  }
+  // notes
+  T(16, 189, 'HALF SECTION · LEFT: WALL SECTION (ONE PRINTED LINE) · RIGHT: ELEVATION, LINES EVERY 5 MM', 'start', 2.2, mute);
+  T(16, 193.5, `WALL ${w} MM · LAYER ${pr.layerH.toFixed(2)} MM · SINGLE CONTINUOUS SPIRAL (VASE MODE) · ALL DIMENSIONS IN MM`, 'start', 2.2, mute);
+  // title block
+  const tbx = 199, tby = 168, st = estimateAll();
+  o.push(`<rect x="${tbx}" y="${tby}" width="86" height="30" fill="none" stroke="${ink}" stroke-width=".3"/>`);
+  Lh(tbx, tby + 11, tbx + 86, tby + 11, .2); Lh(tbx + 43, tby + 11, tbx + 43, tby + 30, .2); Lh(tbx, tby + 20.5, tbx + 86, tby + 20.5, .2);
+  o.push(`<text x="${tbx + 3}" y="${tby + 8.2}" font-size="7" font-family="Instrument Serif, Times New Roman, serif" font-style="italic" fill="${ink}">Spiral</text>`);
+  T(tbx + 83, tby + 5, (lamp ? (LAMP_PRESETS[state.preset]?.name || 'Lamp') : (VESSEL_PRESETS[state.vpreset]?.name || 'Vessel')).toUpperCase(), 'end', 2.4);
+  T(tbx + 83, tby + 9, `SCALE 1:${(1 / SC).toFixed(SC === 1 / 1.5 || SC === 1 / 3 ? 1 : 0).replace('.0', '')} · ${new Date().toISOString().slice(0, 10)}`, 'end', 2.1, mute);
+  T(tbx + 3, tby + 15, PRINTERS[pr.printer].name.toUpperCase(), 'start', 2.1); T(tbx + 3, tby + 18.5, `NOZZLE ${pr.nozzle} · ${FILAMENTS[pr.filament].name.toUpperCase()}`, 'start', 2.1, mute);
+  T(tbx + 46, tby + 15, `≈ ${st.g} G PLASTIC · ${st.h}`, 'start', 2.1); T(tbx + 46, tby + 18.5, lamp ? `${FITTINGS[state.lamp.fitting].name.toUpperCase()}` : 'VESSEL', 'start', 2.1, mute);
+  T(tbx + 3, tby + 25.5, 'DAVIDFICKO.COM/SPIRAL', 'start', 2.1, mute); T(tbx + 46, tby + 25.5, lamp ? LAYOUTS[state.lamp.layout].toUpperCase() : '', 'start', 1.9, mute);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="297mm" height="210mm" viewBox="0 0 297 210" font-family="IBM Plex Mono, ui-monospace, monospace" letter-spacing=".04"><defs><pattern id="hatch" width="1.2" height="1.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="1.2" stroke="${ink}" stroke-width=".18"/></pattern></defs><rect width="297" height="210" fill="#fff"/>${o.join('')}</svg>`;
+}
+function estimateAll() {
+  const pr = state.print, w = lineW(pr.nozzle), fil = FILAMENTS[pr.filament]; let g = 0, sec = 0;
+  for (const k of parts()) { const pm = partMass(k); g += pm.m; const H = state[k].h * MM, layers = Math.floor(H / pr.layerH); let per = 0; for (let j = 0; j < 20; j++) per += TAU * sampleProf(state[k].prof, (j + .5) / 20) * MM; per /= 20;
+    sec += layers * per / Math.min(pr.speed, fil.flow / (w * pr.layerH)) + 240; }
+  const m = Math.round(sec * 1.12 / 60);
+  return { g:Math.round(g), h:m >= 60 ? `${Math.floor(m / 60)} H ${m % 60} MIN` : m + ' MIN' };
+}
+
 /* ═════════════════════ UI ═════════════════════ */
 const $ = s => document.querySelector(s);
 const undoBtn = $('#undoBtn'), redoBtn = $('#redoBtn');
-const VIEW_NAMES = { path:'Path · the nozzle line on the design', printed:'Beads · printed layers', surface:'Surface · design only' };
-function setView(v) { state.view = v; busy(() => { rebuild(); applyLook(); renderPanel(); toast(VIEW_NAMES[v]); }); }
+const VIEW_NAMES = { path:'Path · the nozzle line on the design', printed:'Beads · printed layers', surface:'Surface · design only', drawing:'Drawing · half section with dimensions' };
+let drawT;
+function renderDrawing() { $('#drawing').innerHTML = drawingSVG(); }
+function scheduleDrawing() { clearTimeout(drawT); drawT = setTimeout(renderDrawing, 120); }
+function setView(v) { state.view = v; document.body.classList.toggle('drawing', v === 'drawing'); busy(() => { rebuild(); applyLook(); renderPanel(); if (v === 'drawing') renderDrawing(); toast(VIEW_NAMES[v]); }); }
 document.querySelectorAll('#viewSeg button').forEach(b => b.onclick = () => setView(b.dataset.view));
 const toastEl = $('#toast'); let toastT;
 function toast(m) { toastEl.textContent = m; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('show'), 2200); }
@@ -1079,8 +1288,8 @@ $('#editBtn').onclick = () => openPanel(!panel.classList.contains('open'));
 $('#grab').onclick = () => openPanel(false);
 stage.addEventListener('pointerdown', () => { if (panel.classList.contains('open')) openPanel(false); });
 
-const TAB_NAMES = { shape:'Shape', surface:'Surface', light:'Light', print:'Print', file:'File' };
-const TABS_FOR = () => ['shape', 'surface', 'print', 'file'];
+const TAB_NAMES = { shape:'Shape', surface:'Surface', lamp:'Lamp', print:'Print', file:'File' };
+const TABS_FOR = () => state.mode === 'lamp' ? ['shape', 'surface', 'lamp', 'print', 'file'] : ['shape', 'surface', 'print', 'file'];
 const tabsEl = $('#tabs'), body = $('#body');
 function renderTabs() {
   tabsEl.innerHTML = '';
@@ -1136,7 +1345,7 @@ function renderPanel() {
     for (const [k, p] of Object.entries(P)) {
       const b = el('button', {}, [el('span', { textContent:p.name }), el('small', { textContent:p.note })]);
       b.classList.toggle('on', (lamp ? state.preset : state.vpreset) === k);
-      b.onclick = () => { pushUndo(); if (lamp) { state.preset = k; state.shade = clone(p.shade); state.base = clone(p.base); delete maskCache.shade; delete maskCache.base; } else { state.vpreset = k; state.vessel = clone(p.vessel); delete maskCache.vessel; } rebuild(); applyLook(); frameCamera(); renderPanel(); };
+      b.onclick = () => { pushUndo(); if (lamp) { state.preset = k; if (p.lamp) state.lamp = { ...state.lamp, ...p.lamp }; state.shade = clone(p.shade); state.base = clone(p.base); delete maskCache.shade; delete maskCache.base; } else { state.vpreset = k; state.vessel = clone(p.vessel); delete maskCache.vessel; } rebuild(); applyLook(); frameCamera(); renderPanel(); };
       g.append(b);
     }
     s.append(g);
@@ -1152,13 +1361,29 @@ function renderPanel() {
       this.previousElementSibling.querySelector('b').textContent = pct(f); rebuild();
     };
     wi.onchange = function () { sliderDirty = false; this.value = 1; this.previousElementSibling.querySelector('b').textContent = '100%'; };
+    const sd = section('Dimensions', 'Type exact diameters (mm) at heights along the part.');
+    const dk = lamp ? (parts().includes(ui.surf) ? ui.surf : 'shade') : 'vessel';
+    if (lamp && parts().length > 1) chips(sd, [['shade', 'Shade'], ['base', 'Base']], dk, k => { ui.surf = k; renderPanel(); });
+    const DP = state[dk], grid = el('div', { className:'dims', style:'margin-top:8px' });
+    const hIn = el('input', { type:'number', min:20, max:400, step:1, value:Math.round(DP.h * MM) });
+    hIn.onchange = () => { pushUndo(); DP.h = Math.min(4, Math.max(.2, +hIn.value / MM)); rebuild(); frameCamera(); renderPanel(); };
+    grid.append(el('span', { textContent:'HEIGHT' }), hIn, el('span', { textContent:'mm' }));
+    for (const v of [1, .75, .5, .25, 0]) {
+      const inp = el('input', { type:'number', min:10, max:380, step:1, value:Math.round(sampleProf(DP.prof, v) * 2 * MM) });
+      inp.onchange = () => { pushUndo(); const delta = (+inp.value / 2 / MM) - sampleProf(DP.prof, v);
+        for (let i = 0; i < N; i++) { const d = (i / (N - 1) - v) / .14; DP.prof[i] = +clampR(DP.prof[i] + delta * Math.exp(-d * d * 2)).toFixed(4); }
+        rebuild(dk); renderPanel(); };
+      grid.append(el('span', { textContent:`Ø AT ${Math.round(v * DP.h * MM)}` }), inp, el('span', { textContent:'mm' }));
+    }
+    sd.append(grid);
     const s3 = section('Sculpt brush', 'Grab pulls the outline · Inflate / Pinch push while held · Smooth evens it out.');
     slider(s3, 'Size', () => ui.brush, v => ui.brush = v, .04, .5, .01, pct);
     slider(s3, 'Strength', () => ui.strength, v => ui.strength = v, .1, 1, .01, pct);
     if (lamp) { const s4 = section('Collar'); swatches(s4, ['#b8b5ae', '#d4b07a', '#2b2b2b', '#8c6b52'], state.collar, c => { state.collar = c; applyLook(); }); }
   }
   else if (ui.tab === 'surface') {
-    if (lamp) { const s0 = section('Part'); chips(s0, [['shade', 'Shade'], ['base', 'Base']], ui.surf, k => { ui.surf = k; renderPanel(); }); }
+    if (lamp && !parts().includes(ui.surf)) ui.surf = 'shade';
+    if (lamp && parts().length > 1) { const s0 = section('Part'); chips(s0, [['shade', 'Shade'], ['base', 'Base']], ui.surf, k => { ui.surf = k; renderPanel(); }); }
     const k = lamp ? ui.surf : 'vessel', P = state[k];
     patternControls(section('Pattern A', 'The base texture everywhere.', 'everywhere'), k, P);
     patternControls(section('Pattern B', 'Shows wherever you paint.', 'painted'), k, P.b);
@@ -1232,6 +1457,7 @@ function renderPanel() {
     const s3 = section('Colour');
     swatches(s3, k === 'base' ? ['#3b2622', '#2f2420', '#5a3b2c', '#ddd3c4', '#6b6258', '#8a5a3b'] : ['#ece3d6', '#f0d9b5', '#e8c8a8', '#d9d2c5', '#b88a6a', '#7f8f7a'], P.color, c => { P.color = c; applyLook(); });
   }
+  else if (ui.tab === 'lamp') renderLamp();
   else if (ui.tab === 'print') renderPrint();
   else if (ui.tab === 'file') {
     const s = section('Design file');
@@ -1243,6 +1469,30 @@ function renderPanel() {
   }
 }
 let lastChecks = null;
+function renderLamp() {
+  const L = state.lamp, re = () => { rebuild(); frameCamera(); renderPanel(); };
+  const s1 = section('Layout', 'How the shade, socket and bulb fit together.');
+  chips(s1, Object.entries(LAYOUTS).map(([k, n]) => [k, n]), L.layout, k => { pushUndo(); L.layout = k;
+    if (k === 'dome') { L.fitting = 'led'; L.bulb = 'led'; } else if (L.fitting === 'led') { L.fitting = 'e27'; L.bulb = 'a60'; }
+    if (!parts().includes(ui.surf)) ui.surf = 'shade'; if (k === 'pendant') state.print.part = 'shade'; re(); });
+  const s2 = section('Fitting & bulb', 'Real sizes. The shade opening can be fitted to the socket’s shade ring.');
+  const fits = L.layout === 'dome' ? ['led'] : ['e27', 'e14'];
+  chips(s2, fits.map(k => [k, FITTINGS[k].name]), L.fitting, k => { pushUndo(); L.fitting = k; L.bulb = Object.keys(BULBS).find(b => BULBS[b].fit === k); re(); });
+  s2.append(el('div', { className:'sub', textContent:FITTINGS[L.fitting].note, style:'margin:4px 0 8px' }));
+  if (L.layout !== 'dome') chips(s2, Object.entries(BULBS).filter(([, b]) => b.fit === L.fitting).map(([k, b]) => [k, `${b.name} · Ø${b.d}×${b.h}`]), L.bulb, k => { pushUndo(); L.bulb = k; re(); });
+  slider(s2, 'LED power', () => L.watts, v => L.watts = v, 2, 15, 1, v => v + ' W', () => renderChecksOnly());
+  toggle(s2, 'Show socket & bulb', L.hw, v => { L.hw = v; drawHardware(); requestRender(); });
+  if (L.layout !== 'dome') { const b = el('button', { textContent:`Fit shade opening to ${FITTINGS[L.fitting].name} (Ø${FITTINGS[L.fitting].hole})`, style:'margin-top:6px' }); b.onclick = () => { pushUndo(); fitToFitting(); makePrintable('shade'); rebuild(); renderPanel(); toast('Opening fitted to the shade ring'); }; s2.append(b); }
+  const s3 = section('Engineering checks', 'Clearance, heat, glare and stability — updated live.');
+  const card = el('div', { className:'card', id:'lampChecks' }); s3.append(card); fillChecks(card);
+  const s4 = section('Drawing', 'Half section with dimensions and a title block.');
+  const st = el('div', { className:'stack' });
+  const bv = el('button', { textContent:state.view === 'drawing' ? 'Back to 3D' : 'Show drawing' }); bv.onclick = () => setView(state.view === 'drawing' ? 'path' : 'drawing');
+  const bd = el('button', { textContent:'Download drawing (SVG)' }); bd.onclick = () => saveFile('spiral-drawing.svg', new Blob([drawingSVG()], { type:'image/svg+xml' }));
+  st.append(bv, bd); s4.append(st);
+}
+function fillChecks(card) { card.innerHTML = ''; lampChecks().forEach(c => card.append(el('div', { className:'chk' }, [el('span', { className:'dot ' + c.lvl }), el('span', { textContent:c.msg })]))); }
+function renderChecksOnly() { const c = document.getElementById('lampChecks'); if (c) fillChecks(c); }
 function renderPrint() {
   const pr = state.print, lamp = state.mode === 'lamp';
   const rr = () => { updateBadge(); applyLook(); renderPanel(); };
@@ -1261,7 +1511,7 @@ function renderPrint() {
   chips(s3, Object.entries(FILAMENTS).map(([k, f]) => [k, f.name]), pr.filament, k => { pushUndo(); pr.filament = k; rr(); });
   const s4 = section('What to print');
   if (lamp) {
-    chips(s4, [['shade', 'Shade'], ['base', 'Base']], pr.part, k => { pr.part = k; clearPath(); renderPanel(); });
+    if (parts().length > 1) chips(s4, [['shade', 'Shade'], ['base', 'Base']], pr.part, k => { pr.part = k; clearPath(); renderPanel(); });
     if (pr.part === 'shade') { s4.append(el('div', { className:'sub', textContent:'Shade orientation on the bed' })); chips(s4, [['rim', 'Rim down'], ['top', 'Top down']], pr.orient, k => { pushUndo(); pr.orient = k; clearPath(); renderPanel(); }); }
   }
   if (printPart() !== 'shade') slider(s4, 'Solid bottom layers', () => pr.bottom, v => pr.bottom = v, 0, 10, 1, v => `${v} · ${(v * pr.layerH).toFixed(1)} mm`);
@@ -1395,7 +1645,7 @@ async function saveFile(name, blob, wrapIfNeeded = false) {
       const dl = await window.claude.use('downloads');
       if (dl) {
         let fname = name, data = blob;
-        if (wrapIfNeeded && !/\.(zip|json|txt)$/i.test(name)) { fname = name.replace(/\.[^.]+$/, '') + '.zip'; data = zip([{ name, data:new Uint8Array(await blob.arrayBuffer()) }]); }
+        if (wrapIfNeeded && !/\.(zip|json|txt|svg)$/i.test(name)) { fname = name.replace(/\.[^.]+$/, '') + '.zip'; data = zip([{ name, data:new Uint8Array(await blob.arrayBuffer()) }]); }
         try { await dl.save({ filename:fname, data }); toast('Saved ' + fname); } catch (e) { toast(e?.code === 'declined' ? 'Download cancelled' : 'Download unavailable here'); }
         return;
       }
@@ -1406,7 +1656,7 @@ async function saveFile(name, blob, wrapIfNeeded = false) {
 }
 
 /* ═════════════════════ go ═════════════════════ */
-renderAll(); setTool('grab'); syncUndo();
+renderAll(); setTool('grab'); syncUndo(); document.body.classList.toggle('drawing', state.view === 'drawing'); if (state.view === 'drawing') setTimeout(renderDrawing, 50);
 rebuild(); applyLook(); resize(); frameCamera();
 </script>
 </body>
