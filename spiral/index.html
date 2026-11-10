@@ -188,7 +188,7 @@ const LAMP_PRESETS = {
     shade:part(1.1, prof(v => (15.8 + 50 * Math.sin(Math.PI * .8 * Math.pow(v, .6))) / MM), pat('knurl', .0035, 60, 30, .18), pat('smooth', 0, 40, 20), '#ef7d5a', 0, 0, {}, {}, {}, { on:true, dir:'height', pos:.68, soft:.16 }),
     base: part(.7, prof(v => .36 - .12 * v), pat('rings', .004, 40, 16), pat('smooth', 0, 40, 20), '#a9d6b8') },
   sash:{ studio:true, name:'Sash', note:'Pendant · a knurled ribbon winds through ribs', lamp:{ layout:'pendant', fitting:'e27', bulb:'g95', watts:7 },
-    shade:part(1.9, prof(v => (22.2 + 90 * Math.pow(1 - v, .8)) / MM), pat('ribs', .005, 72, 20, .2), pat('knurl', .0035, 72, 44, .2), '#c96a3b', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.3, span:.3, slant:.5, soft:.035 }),
+    shade:part(1.9, prof(v => (22.2 + 94 * Math.pow(1 - v, .74)) / MM), pat('ribs', .005, 72, 20, .2), pat('knurl', .0035, 72, 44, .2), '#c96a3b', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.3, span:.3, slant:.5, soft:.035 }),
     base: part(.6, prof(v => .2), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#c96a3b') },
   globe:{ name:'Globe', note:'E27 bulb, shade on socket ring', lamp:{ layout:'bell', fitting:'e27', bulb:'a60' },
     shade:part(1.6, prof(v => { const z = v * 160; return Math.min(22.2 + z * .95, 75, 35 + (160 - z) * .95) / MM; }), pat('rings', .004, 40, 24), pat('woven', .004, 40, 24), '#f2efe8'),
@@ -1129,6 +1129,17 @@ function textureStep(k) { // biggest layer-to-layer jump caused by the textures 
   }
   return step;
 }
+// Coarsen patterns that are too fine for the chosen nozzle (repeat ≥ 3 line widths, bands ≥ 2.4 layers, depth that still bonds).
+function adaptToNozzle(k) {
+  const pr = state.print, P = state[k], m = getMask(k), w = lineW(pr.nozzle), H = P.h * MM; let rMin = Infinity, changed = false;
+  for (let j = 0; j <= 40; j++) for (let i = 0; i < 48; i++) rMin = Math.min(rMin, surfR(P, i / 48 * TAU, j / 40, m) * MM);
+  const usesB = m.some(x => x > .01), usesA = m.some(x => x < .99);
+  for (const T of [usesA ? P : null, usesB ? P.b : null]) { if (!T || !T.amp || T.tex === 'smooth') continue;
+    if (T.tex !== 'rings') { const maxF = Math.max(4, Math.floor(TAU * Math.max(rMin, 5) / (w * 3.05))); if (T.freq > maxF) { T.freq = maxF; changed = true; } }
+    if (T.tex !== 'ribs') { const maxL = Math.max(4, Math.floor(H / (pr.layerH * 2.4))); if (T.layers > maxL) { T.layers = maxL; changed = true; } } }
+  const a0 = P.amp + P.b.amp; fitTexture(k); if (P.amp + P.b.amp !== a0) changed = true;
+  return changed;
+}
 function fitTexture(k) {
   const P = state[k], target = lineW(state.print.nozzle) * .4;
   for (let it = 0; it < 4; it++) { const s = textureStep(k); if (s <= target) break; const f = Math.max(.1, target / s * .97); P.amp = +(P.amp * f).toFixed(4); P.b.amp = +(P.b.amp * f).toFixed(4); }
@@ -1448,7 +1459,7 @@ function renderPanel() {
     for (const [k, p] of Object.entries(P)) {
       const b = el('button', {}, [el('span', { textContent:p.name }), el('small', { textContent:p.note })]);
       b.classList.toggle('on', (lamp ? state.preset : state.vpreset) === k);
-      b.onclick = () => { pushUndo(); if (lamp) { state.preset = k; if (p.lamp) state.lamp = { ...state.lamp, ...p.lamp }; state.shade = clone(p.shade); state.base = clone(p.base); delete maskCache.shade; delete maskCache.base; } else { state.vpreset = k; state.vessel = clone(p.vessel); delete maskCache.vessel; } parts().forEach(kk => { if (state[kk].tr.on) applyTransition(kk); }); rebuild(); applyLook(); frameCamera(); renderPanel(); };
+      b.onclick = () => { pushUndo(); if (lamp) { state.preset = k; if (p.lamp) state.lamp = { ...state.lamp, ...p.lamp }; state.shade = clone(p.shade); state.base = clone(p.base); delete maskCache.shade; delete maskCache.base; } else { state.vpreset = k; state.vessel = clone(p.vessel); delete maskCache.vessel; } parts().forEach(kk => { if (state[kk].tr.on) applyTransition(kk); adaptToNozzle(kk); }); rebuild(); applyLook(); frameCamera(); renderPanel(); };
       (p.studio ? gA : g).append(b);
     }
     sA.append(gA); s.append(g);
@@ -1630,7 +1641,7 @@ function renderPrint() {
   const s1 = section('Printer', 'Bambu Lab. G-code is made for the printer you choose here.');
   chips(s1, Object.entries(PRINTERS).map(([k, p]) => [k, p.name]), pr.printer, k => { pushUndo(); pr.printer = k; rr(); });
   const s2 = section('Nozzle', 'Bigger nozzle → thicker, faster, bolder layers. Match the nozzle that’s installed.');
-  chips(s2, NOZZLES.map(n => [n, n + ' mm']), pr.nozzle, n => { pushUndo(); pr.nozzle = n; pr.layerH = +(n * .5).toFixed(2); pr.speed = n === .4 ? 90 : n === .6 ? 70 : 50; pr.bottom = Math.max(2, Math.ceil(.9 / pr.layerH)); busy(() => { rebuild(); rr(); }); });
+  chips(s2, NOZZLES.map(n => [n, n + ' mm']), pr.nozzle, n => { pushUndo(); pr.nozzle = n; pr.layerH = +(n * .5).toFixed(2); pr.speed = n === .4 ? 90 : n === .6 ? 70 : 50; pr.bottom = Math.max(2, Math.ceil(.9 / pr.layerH)); busy(() => { const ch = parts().map(adaptToNozzle).some(Boolean); rebuild(); rr(); if (ch) toast(`Patterns coarsened to suit the ${n} mm nozzle`); }); });
   slider(s2, 'Layer height', () => pr.layerH, v => pr.layerH = v, +(pr.nozzle * .25).toFixed(2), +(pr.nozzle * .75).toFixed(2), .01, v => v.toFixed(2) + ' mm', () => { updateBadge(); applyLook(); if (state.view === 'printed') parts().forEach(schedulePrinted); if (state.view === 'path') rebuildPaths(); });
   onCommit = () => renderPanel();
   slider(s2, 'Wall speed', () => pr.speed, v => pr.speed = v, 15, 200, 1, v => { const cap = FILAMENTS[pr.filament].flow / (lineW(pr.nozzle) * pr.layerH); return v > cap ? `${v} → ${Math.round(cap)} mm/s (flow limit)` : v + ' mm/s'; });
