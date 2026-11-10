@@ -176,9 +176,20 @@ const pat = (tex, amp, freq, layers, twist = 0) => ({ tex, amp, freq, layers, tw
 const NP0 = () => ({ mid:0, rim:0, waves:4, tilt:0 });
 const MESH0 = () => ({ on:false, mode:'radial', amp:2, lobes:32, rings:1, bumps:2, width:1, stagger:true, rim:6, holeW:5, holeH:5, holeH2:8, grad:'even', follow:true });
 const MOD0 = () => ({ src:'none', target:'depth', lift:2, strength:.8, invert:false, radius:30, attrs:[], img:'', repeat:1, noise:3, seed:7 });
-const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}, mesh = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod }, mesh:{ ...MESH0(), ...mesh } });
+const TR0 = () => ({ on:false, dir:'around', pos:.5, soft:.08, span:.5, slant:.1, flip:false });
+const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}, mesh = {}, tr = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod }, mesh:{ ...MESH0(), ...mesh }, tr:{ ...TR0(), ...tr } });
 
 const LAMP_PRESETS = {
+  // ── finished pieces ──
+  lantern:{ studio:true, name:'Lantern', note:'Net that swells open · knurled foot', lamp:{ layout:'bell', fitting:'e27', bulb:'a60', watts:6 },
+    shade:part(1.7, prof(v => (22.2 + 58 * Math.sin(Math.PI * .85 * Math.pow(v, .7))) / MM), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#f3ead8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:5.4, holeH:2.4, holeH2:5.6, grad:'swell', rim:8 }),
+    base: part(.6, prof(v => .48 - .2 * Math.pow(v, 1.4)), pat('knurl', .0035, 44, 16, .22), pat('smooth', 0, 40, 20), '#2f4fb5') },
+  ember:{ studio:true, name:'Ember', note:'Bedside · bumps melt into smooth', lamp:{ layout:'bell', fitting:'e14', bulb:'p45', watts:4 },
+    shade:part(1.1, prof(v => (15.8 + 50 * Math.sin(Math.PI * .8 * Math.pow(v, .6))) / MM), pat('knurl', .0035, 60, 30, .18), pat('smooth', 0, 40, 20), '#ef7d5a', 0, 0, {}, {}, {}, { on:true, dir:'height', pos:.68, soft:.16 }),
+    base: part(.7, prof(v => .36 - .12 * v), pat('rings', .004, 40, 16), pat('smooth', 0, 40, 20), '#a9d6b8') },
+  sash:{ studio:true, name:'Sash', note:'Pendant · a knurled ribbon winds through ribs', lamp:{ layout:'pendant', fitting:'e27', bulb:'g95', watts:7 },
+    shade:part(1.9, prof(v => (22.2 + 90 * Math.pow(1 - v, .8)) / MM), pat('ribs', .005, 72, 20, .2), pat('knurl', .0035, 72, 44, .2), '#c96a3b', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.3, span:.3, slant:.5, soft:.035 }),
+    base: part(.6, prof(v => .2), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#c96a3b') },
   globe:{ name:'Globe', note:'E27 bulb, shade on socket ring', lamp:{ layout:'bell', fitting:'e27', bulb:'a60' },
     shade:part(1.6, prof(v => { const z = v * 160; return Math.min(22.2 + z * .95, 75, 35 + (160 - z) * .95) / MM; }), pat('rings', .004, 40, 24), pat('woven', .004, 40, 24), '#f2efe8'),
     base: part(.55, prof(v => .42 - .14 * v), pat('ribs', .01, 48, 20), pat('rings', .005, 40, 14), '#1e1d1b') },
@@ -205,15 +216,24 @@ const LAMP_PRESETS = {
     base: part(.86, prof(v => .2 + .14 * Math.cos(v * Math.PI) ** 2), pat('diamond', .005, 20, 12), pat('ribs', .01, 40, 12), '#5a3b2c', 6, .06) },
 };
 const VESSEL_PRESETS = {
+  // ── finished pieces ──
+  helix:{ studio:true, name:'Helix vase', note:'Knurled ribbon spiralling up a coiled wall',
+    vessel:part(1.8, prof(v => .3 + .1 * Math.sin(v * Math.PI * 1.1 - .3) - .04 * v), pat('rings', .004, 40, 60), pat('knurl', .0035, 56, 60, .3), '#a9a4e0', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.3, span:.3, slant:.5, soft:.035 }) },
+  tide:{ studio:true, name:'Tide bowl', note:'Three soft corners · wavy rim · knurl',
+    vessel:part(.7, prof(v => .42 + .4 * Math.pow(Math.sin(v * Math.PI / 2), 1.2)), pat('knurl', .0035, 96, 22, .15), pat('smooth', 0, 40, 20), '#f1d98a', 3, .03, { rim:4, waves:6 }) },
+  sieve:{ studio:true, name:'Sieve basket', note:'Solid foot · holes open toward the rim',
+    vessel:part(.8, prof(v => .5 + .3 * Math.sin(v * Math.PI / 2)), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#8fb8e8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:5.2, holeH:2.4, holeH2:5.4, grad:'linear', rim:6 }) },
   bud:{ name:'Bud vase', note:'Round belly, narrow neck',
     vessel:part(.95, prof(v => .12 + .25 * Math.exp(-(((v - .3) / .28) ** 2)) + .05 * smooth(.8, 1, v)), pat('woven', .005, 28, 16), pat('ribs', .008, 32, 16), '#e7d9c4') },
   tall:{ name:'Tall vase', note:'For dried stems',
     vessel:part(1.7, prof(v => .2 + .17 * Math.exp(-(((v - .35) / .32) ** 2)) - .03 * v + .05 * smooth(.85, 1, v)), pat('ribs', .01, 48, 30, .25), pat('woven', .006, 36, 30), '#d8c7b0') },
   bowl:{ name:'Bowl', note:'Open, gently flared',
     vessel:part(.66, prof(v => .38 + .4 * Math.sin(v * Math.PI / 2)), pat('woven', .005, 56, 14), pat('rings', .006, 40, 12), '#efe6d8') },
+  knurl:{ name:'Knurl cup', note:'Bumps fading into smooth',
+    vessel:part(.9, prof(v => .3 + .05 * Math.sin(v * Math.PI * .9) - .02 * v), pat('smooth', 0, 60, 40), pat('knurl', .0035, 64, 30), '#c9372f', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.42, span:.55, soft:.04, slant:.1 }) },
   netvase:{ name:'Net vase', note:'Perforated, up/down holes',
     vessel:part(1.1, prof(v => .26 + .08 * Math.sin(v * Math.PI) - .02 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#e9e3d8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:4.8, holeH:4.8, holeH2:8, rim:10 }) },
-  tide:{ name:'Tide vase', note:'Non-planar wavy layers',
+  tidevase:{ name:'Tide vase', note:'Non-planar wavy layers',
     vessel:part(1.2, prof(v => .27 + .06 * Math.sin(v * Math.PI) - .03 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#d9cbb6', 0, 0, { mid:5, waves:2 }) },
   crown:{ name:'Crown bowl', note:'Wavy rim, noise texture',
     vessel:part(.7, prof(v => .36 + .36 * Math.sin(v * Math.PI / 2)), pat('ribs', .006, 48, 20), pat('woven', .005, 40, 14), '#efe2cf', 0, 0, { rim:4, waves:5 }, { src:'noise', target:'depth', strength:.7, noise:3 }) },
@@ -275,7 +295,7 @@ function upgrade(s) {
   const o = { ...d, ...s, print:{ ...d.print, ...(s.print || {}) }, light:{ ...d.light, ...(s.light || {}) }, lamp:{ ...LAMP0(), ...(s.lamp || {}) } };
   for (const k of ['shade', 'base', 'vessel']) {
     const P = s[k]; if (!P || !Array.isArray(P.prof)) { o[k] = d[k]; continue; }
-    o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) }, np:{ ...NP0(), ...(P.np || {}) }, mod:{ ...MOD0(), ...(P.mod || {}) }, mesh:{ ...MESH0(), ...(P.mesh || {}) } };
+    o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) }, np:{ ...NP0(), ...(P.np || {}) }, mod:{ ...MOD0(), ...(P.mod || {}) }, mesh:{ ...MESH0(), ...(P.mesh || {}) }, tr:{ ...TR0(), ...(P.tr || {}) } };
     if (o[k].prof.length !== N) o[k].prof = d[k].prof;
   }
   if (!s.v || s.v < 4) { o.view = 'path'; o.v = 4; }
@@ -322,6 +342,18 @@ function maskAt(m, th, v) { // bilinear, wraps in θ (seamless around the circum
   return (a * (1 - fx) + b * fx) * (1 - fy) + (c * (1 - fx) + d * fx) * fy;
 }
 
+// Transition between pattern A and B, written into the paint mask (wraps around, so no seam).
+function applyTransition(k) {
+  const P = state[k], T = P.tr, m = getMask(k); maskCache[k].live = true;
+  const soft = Math.max(.008, T.soft);
+  for (let j = 0; j < MH; j++) { const v = j / (MH - 1);
+    for (let i = 0; i < MW; i++) { let f;
+      if (T.dir === 'height') f = smooth(T.pos - soft, T.pos + soft, v);
+      else { const c = T.pos + T.slant * (v - .5); let d = Math.abs((((i / MW - c) % 1) + 1.5) % 1 - .5); f = T.span >= .999 ? 1 : 1 - smooth(T.span / 2 - soft, T.span / 2 + soft, d); }
+      m[j * MW + i] = T.flip ? 1 - f : f; } }
+  flushMasks();
+}
+
 /* ═════════════════════ surface definition ═════════════════════ */
 function sampleProf(p, v) {
   const n = p.length - 1, x = Math.min(Math.max(v, 0), 1) * n;
@@ -342,6 +374,9 @@ function pattern(T, th, v, h) {
     case 'woven': { const L = Math.floor(k), bead = Math.sin(Math.PI * (k - L)); const weave = .5 + .5 * Math.sin(F * th + tw + (L & 1) * Math.PI); val = bead * (.25 + .75 * weave); break; }
     case 'diamond': { const s = .5 * F * th, q = Math.PI * k * .5; val = Math.abs(Math.sin(s + q + tw) * Math.sin(s - q + tw)); break; }
     case 'wave': { val = .5 + .5 * Math.sin(F * th + Math.sin(TAU * k * .5) * 2.2 + tw); break; }
+    case 'knurl': { // staggered round bumps standing on a flat ground (ground stays level with a smooth neighbour)
+      const L = Math.floor(k), bead = Math.sin(Math.PI * (k - L)), c = Math.max(0, Math.sin(F * th + tw + (L & 1) * Math.PI));
+      val = bead * c; GLOW = 1 - val; return a * 2 * val; }
     default: val = 0;
   }
   GLOW = 1 - val;
@@ -454,7 +489,7 @@ function surfR(P, th, v, m) { const d = disp(P, th, v, m); return Math.max(.02, 
 
 function resFor(P) {
   const tex = [P.tex, P.b.tex], amp = Math.max(P.amp, P.b.amp);
-  const layered = tex.some(t => t === 'rings' || t === 'woven' || t === 'diamond' || t === 'wave');
+  const layered = tex.some(t => t === 'rings' || t === 'woven' || t === 'diamond' || t === 'wave' || t === 'knurl');
   const rings = layered && amp ? Math.min(Math.max(Math.round(Math.max(P.layers, P.b.layers) * 6), 120), 420) : 150;
   const segs = amp ? Math.min(Math.max(Math.round(Math.max(P.freq, P.b.freq) * 10), 180), 560) : Math.max(160, P.lobes * 24);
   return { rings, segs };
@@ -1082,7 +1117,7 @@ function checks(k) {
   if (k === 'base') add('ok', 'Base prints closed at the bottom — drill a cable hole or add a slot afterwards.');
   return out;
 }
-const texName = t => ({ smooth:'Smooth', woven:'Woven', ribs:'Ribs', rings:'Coil', diamond:'Lattice', wave:'Wave' })[t] || t;
+const texName = t => ({ smooth:'Smooth', woven:'Woven', ribs:'Ribs', rings:'Coil', diamond:'Lattice', wave:'Wave', knurl:'Knurl' })[t] || t;
 function makePrintable(k) { easeSlope(state[k], 45 + (state.print.nozzle - .4) * 15); }
 function textureStep(k) { // biggest layer-to-layer jump caused by the textures alone (mm)
   const pr = state.print, P = state[k], m = getMask(k), lh = pr.layerH, H = P.h * MM;
@@ -1391,7 +1426,7 @@ function swatches(parent, list, cur, pick) {
   w.append(ci); parent.append(w);
 }
 const mmF = v => (v * MM).toFixed(1) + ' mm', pct = v => Math.round(v * 100) + '%', cmF = v => (v * 10).toFixed(1) + ' cm';
-const TEX_OPTS = [['smooth', 'Smooth'], ['woven', 'Woven'], ['ribs', 'Ribs'], ['rings', 'Coil'], ['diamond', 'Lattice'], ['wave', 'Wave']];
+const TEX_OPTS = [['smooth', 'Smooth'], ['woven', 'Woven'], ['ribs', 'Ribs'], ['rings', 'Coil'], ['diamond', 'Lattice'], ['wave', 'Wave'], ['knurl', 'Knurl']];
 
 function patternControls(s, k, T) {
   const rb = () => rebuild(k);
@@ -1400,22 +1435,23 @@ function patternControls(s, k, T) {
   const w = lineW(state.print.nozzle);
   slider(s, 'Depth', () => T.amp, v => T.amp = v, 0, .04, .001, v => `${(v * 2 * MM).toFixed(1)} mm · ${(v * 2 * MM / w).toFixed(1)}× line`, rb);
   if (T.tex !== 'rings') slider(s, T.tex === 'ribs' ? 'Rib count' : 'Repeats around', () => T.freq, v => T.freq = v, 4, 96, 1, v => v, rb);
-  if (T.tex !== 'ribs') slider(s, 'Bands up the height', () => T.layers, v => T.layers = v, 4, 80, 1, v => `${v} · ${(state[k].h * MM / v).toFixed(1)} mm each`, rb);
+  if (T.tex !== 'ribs') slider(s, 'Bands up the height', () => T.layers, v => T.layers = v, 4, 140, 1, v => `${v} · ${(state[k].h * MM / v).toFixed(1)} mm each`, rb);
   if (T.tex !== 'rings') slider(s, 'Twist', () => T.twist, v => T.twist = v, -1, 1, .01, v => Math.round(v * 360) + '°', rb);
 }
 function renderPanel() {
   body.innerHTML = ''; onCommit = null;
   const lamp = state.mode === 'lamp';
   if (ui.tab === 'shape') {
-    const s = section('Start from', lamp ? 'Pick a lamp, then sculpt it.' : 'Vases and bowls for dried flowers, pens, anything.');
-    const g = el('div', { className:'presets' }), P = lamp ? LAMP_PRESETS : VESSEL_PRESETS;
+    const sA = section('Ready to print', 'Finished pieces — pick one, choose your printer and nozzle, export.');
+    const s = section('Start from', lamp ? 'Simple forms to sculpt into your own.' : 'Simple forms for vases and bowls.');
+    const gA = el('div', { className:'presets' }), g = el('div', { className:'presets' }), P = lamp ? LAMP_PRESETS : VESSEL_PRESETS;
     for (const [k, p] of Object.entries(P)) {
       const b = el('button', {}, [el('span', { textContent:p.name }), el('small', { textContent:p.note })]);
       b.classList.toggle('on', (lamp ? state.preset : state.vpreset) === k);
-      b.onclick = () => { pushUndo(); if (lamp) { state.preset = k; if (p.lamp) state.lamp = { ...state.lamp, ...p.lamp }; state.shade = clone(p.shade); state.base = clone(p.base); delete maskCache.shade; delete maskCache.base; } else { state.vpreset = k; state.vessel = clone(p.vessel); delete maskCache.vessel; } rebuild(); applyLook(); frameCamera(); renderPanel(); };
-      g.append(b);
+      b.onclick = () => { pushUndo(); if (lamp) { state.preset = k; if (p.lamp) state.lamp = { ...state.lamp, ...p.lamp }; state.shade = clone(p.shade); state.base = clone(p.base); delete maskCache.shade; delete maskCache.base; } else { state.vpreset = k; state.vessel = clone(p.vessel); delete maskCache.vessel; } parts().forEach(kk => { if (state[kk].tr.on) applyTransition(kk); }); rebuild(); applyLook(); frameCamera(); renderPanel(); };
+      (p.studio ? gA : g).append(b);
     }
-    s.append(g);
+    sA.append(gA); s.append(g);
     const s2 = section('Proportions');
     if (lamp) {
       slider(s2, 'Shade height', () => state.shade.h, v => state.shade.h = v, .2, 1.4, .01, cmF, () => rebuild());
@@ -1454,6 +1490,20 @@ function renderPanel() {
     const k = lamp ? ui.surf : 'vessel', P = state[k];
     patternControls(section('Pattern A', 'The base texture everywhere.', 'everywhere'), k, P);
     patternControls(section('Pattern B', 'Shows wherever you paint.', 'painted'), k, P.b);
+    const st2 = section('Transition', 'Fade from pattern A into pattern B — up the height, or as a panel around the form. The blend is gradual, so the line stays continuous.');
+    const TR = P.tr, rtr = () => { TR.on = true; applyTransition(k); rebuild(k); };
+    chips(st2, [['around', 'Around (panel)'], ['height', 'Up the height']], TR.on ? TR.dir : '', v => { pushUndo(); TR.dir = v; rtr(); renderPanel(); });
+    if (TR.on) {
+      if (TR.dir === 'height') slider(st2, 'B starts at', () => TR.pos, v => TR.pos = v, 0, 1, .01, v => `${Math.round(v * P.h * MM)} mm`, rtr);
+      else {
+        slider(st2, 'Panel position', () => TR.pos, v => TR.pos = v, 0, 1, .005, v => Math.round(v * 360) + '°', rtr);
+        slider(st2, 'Panel width', () => TR.span, v => TR.span = v, .05, 1, .01, v => v >= .999 ? 'all around' : Math.round(v * 360) + '°', rtr);
+        slider(st2, 'Slant', () => TR.slant, v => TR.slant = v, -.5, .5, .01, v => Math.round(v * 360) + '°', rtr);
+      }
+      slider(st2, 'Softness', () => TR.soft, v => TR.soft = v, .01, .4, .005, v => TR.dir === 'height' ? `${Math.round(v * 2 * P.h * MM)} mm fade` : `${Math.round(v * 2 * 360)}° fade`, rtr);
+      toggle(st2, 'Swap A and B', TR.flip, v => { TR.flip = v; rtr(); });
+      st2.append(el('div', { className:'note', textContent:'Moving these redraws the mix. Use the paint brushes afterwards to refine it by hand.' }));
+    }
     const sp = section('Paint the mix', 'Use Paint B / Paint A in the toolbar. Edges blend gradually, so the line stays one smooth continuous path.');
     const tb = el('div', { className:'chips' });
     [['Paint B', 'paint'], ['Paint A', 'erase']].forEach(([n, t]) => { const b = el('button', { textContent:n }); b.classList.toggle('on', ui.tool === t); b.onclick = () => { setTool(t); renderPanel(); }; tb.append(b); });
