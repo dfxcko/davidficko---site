@@ -48,12 +48,12 @@
   #badge{font:400 10.5px/1.7 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);pointer-events:none}
   #badge b{color:var(--ink);font-weight:400}
   #badge .r{color:var(--bad)}
-  #tools{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;display:flex;gap:2px;padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:999px;z-index:6;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  #tools{position:fixed;left:calc(50% - 175px);transform:translateX(-50%);bottom:18px;white-space:nowrap;display:flex;gap:2px;padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:999px;z-index:6;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
   #tools button{border:none;padding:8px 11px;display:flex;align-items:center;gap:6px}
   #tools button.on{background:var(--ink);color:#fff}
   #tools .lbl{font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase}
   #tools .div{width:1px;background:var(--line);margin:6px 3px}
-  #hint{position:fixed;left:50%;transform:translateX(-50%);bottom:72px;font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);pointer-events:none;transition:opacity .4s;z-index:4;white-space:nowrap}
+  #hint{position:fixed;left:calc(50% - 175px);transform:translateX(-50%);bottom:72px;font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);pointer-events:none;transition:opacity .4s;z-index:4;white-space:nowrap}
   #panel{position:fixed;top:64px;right:18px;bottom:18px;width:332px;background:var(--panel);border:1px solid var(--line);border-radius:4px;display:flex;flex-direction:column;z-index:7;overflow:hidden;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
   #tabs{display:flex;gap:0;padding:0 8px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
   #tabs button{border:none;border-radius:0;padding:13px 10px 11px;font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid transparent;margin-bottom:-1px;white-space:nowrap}
@@ -114,14 +114,14 @@
     #panel{top:auto;left:0;right:0;bottom:0;width:auto;border-radius:10px 10px 0 0;max-height:56vh;transform:translateY(100%);transition:transform .3s ease;padding-bottom:env(safe-area-inset-bottom)}
     #panel.open{transform:translateY(0)}
     #grab{display:block;width:36px;height:3px;border-radius:3px;background:var(--line);margin:8px auto 0;cursor:pointer}
-    #tools{bottom:calc(14px + env(safe-area-inset-bottom))}
+    #tools{bottom:calc(14px + env(safe-area-inset-bottom));left:50%} #hint{left:50%}
     #tools .lbl{display:none}
     #tools button{padding:9px 8px}
     body.panel-open #tools,body.panel-open #hint{opacity:0;pointer-events:none}
     header{padding:12px 12px} header h1{font-size:23px} header h1 .full{display:none}
     #viewbar{left:12px;top:54px}
   }
-  @media (min-width:761px){ #editBtn{display:none} }
+  @media (min-width:761px){ #tools #editBtn{display:none} }
 </style>
 <script type="importmap">
 { "imports": {
@@ -174,7 +174,7 @@ const prof = f => Array.from({length:N}, (_, i) => +f(i / (N - 1)).toFixed(4));
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 const pat = (tex, amp, freq, layers, twist = 0) => ({ tex, amp, freq, layers, twist });
 const NP0 = () => ({ mid:0, rim:0, waves:4, tilt:0 });
-const MESH0 = () => ({ on:false, amp:2, lobes:32, rings:1, bumps:2, width:1, stagger:true, rim:6 });
+const MESH0 = () => ({ on:false, mode:'radial', amp:2, lobes:32, rings:1, bumps:2, width:1, stagger:true, rim:6 });
 const MOD0 = () => ({ src:'none', target:'depth', lift:2, strength:.8, invert:false, radius:30, attrs:[], img:'', repeat:1, noise:3, seed:7 });
 const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}, mesh = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod }, mesh:{ ...MESH0(), ...mesh } });
 
@@ -185,6 +185,9 @@ const LAMP_PRESETS = {
   pendant:{ name:'Pendant', note:'E27, hangs from the cord', lamp:{ layout:'pendant', fitting:'e27', bulb:'g95' },
     shade:part(1.7, prof(v => Math.min(22.2 + (1 - v) * 170 * .95, 118) / MM), pat('ribs', .008, 64, 20), pat('woven', .005, 40, 16), '#efe9df'),
     base: part(.6, prof(v => .2), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#efe9df') },
+  net:{ name:'Net', note:'Up/down holes, E27 bulb', lamp:{ layout:'bell', fitting:'e27', bulb:'a60' },
+    shade:part(1.5, prof(v => { const z = v * 150; return Math.min(22.2 + z * .95, 72, 40 + (150 - z) * .7) / MM; }), pat('smooth', 0, 40, 20), pat('ribs', .006, 48, 20), '#f2efe8', 0, 0, {}, {}, { on:true, mode:'zwave', amp:1.25, lobes:42, rim:6 }),
+    base: part(.55, prof(v => .42 - .14 * v), pat('ribs', .01, 48, 20), pat('rings', .005, 40, 14), '#1e1d1b') },
   mesh:{ name:'Mesh', note:'Open lattice shade', lamp:{ layout:'dome', fitting:'led', bulb:'led' },
     shade:part(.62, prof(v => .22 + .68 * Math.pow(Math.sin((1 - v) * Math.PI / 2 + .12), 1.3)), pat('smooth', 0, 40, 20), pat('ribs', .006, 48, 20), '#f2efe8', 0, 0, {}, {}, { on:true, amp:1.6, lobes:40, rings:1, bumps:2, rim:5 }),
     base: part(.95, prof(v => .2 + .1 * Math.pow(1 - v, 1.6)), pat('ribs', .008, 40, 20), pat('rings', .005, 40, 14), '#f2efe8') },
@@ -208,6 +211,8 @@ const VESSEL_PRESETS = {
     vessel:part(1.7, prof(v => .2 + .17 * Math.exp(-(((v - .35) / .32) ** 2)) - .03 * v + .05 * smooth(.85, 1, v)), pat('ribs', .01, 48, 30, .25), pat('woven', .006, 36, 30), '#d8c7b0') },
   bowl:{ name:'Bowl', note:'Open, gently flared',
     vessel:part(.66, prof(v => .38 + .4 * Math.sin(v * Math.PI / 2)), pat('woven', .005, 56, 14), pat('rings', .006, 40, 12), '#efe6d8') },
+  netvase:{ name:'Net vase', note:'Perforated, up/down holes',
+    vessel:part(1.1, prof(v => .26 + .08 * Math.sin(v * Math.PI) - .02 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#e9e3d8', 0, 0, {}, {}, { on:true, mode:'zwave', amp:1.2, lobes:22, rim:10 }) },
   tide:{ name:'Tide vase', note:'Non-planar wavy layers',
     vessel:part(1.2, prof(v => .27 + .06 * Math.sin(v * Math.PI) - .03 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#d9cbb6', 0, 0, { mid:5, waves:2 }) },
   crown:{ name:'Crown bowl', note:'Wavy rim, noise texture',
@@ -385,6 +390,7 @@ const flowMul = () => 1;
 function baseFrac(P, k) { const pr = state.print; const z0 = k === 'shade' ? pr.layerH : Math.max(1, Math.round(pr.bottom)) * pr.layerH; return Math.min(.3, z0 / (P.h * MM)); }
 function warpMM(P, k, th, v) {
   const np = P.np, lift = P.mod.src !== 'none' && P.mod.target === 'lift' && P.mod.lift;
+  if (isZW(P)) return 0;
   if (!np || (!np.mid && !(np.rim && k === 'vessel') && !lift)) return 0;
   const vb = baseFrac(P, k), u = Math.min(1, Math.max(0, (v - vb) / (1 - vb))), n = Math.max(1, Math.round(np.waves)), env = Math.sin(Math.PI * u);
   let w = np.mid ? np.mid * Math.sin(n * th) * env : 0;
@@ -397,7 +403,7 @@ const lobeF = (P, th) => 1 + P.lobeAmt * Math.cos(Math.round(P.lobes) * th);
 // The bulges bridge over air and sag a little, which opens the gaps. Line width never changes — the path only moves out.
 // Layer changes happen at an angle between bulges, so the single continuous line has no jump.
 function meshMM(P, th, lap, zMM, Hmm) {
-  const M = P.mesh; if (!M || !M.on) return 0;
+  const M = P.mesh; if (!M || !M.on || M.mode === 'zwave') return 0;
   if (zMM < M.rim || zMM > Hmm - M.rim) return 0;
   const N = Math.max(4, Math.round(M.lobes)), C = Math.max(1, Math.round(M.rings)) + Math.max(1, Math.round(M.bumps));
   const q = ((lap % C) + C) % C; if (q < Math.round(M.rings)) return 0;
@@ -407,6 +413,32 @@ function meshMM(P, th, lap, zMM, Hmm) {
   return M.amp * Math.pow(x, .6 + .6 * M.width) * Math.max(0, edge);
 }
 // which lap a point belongs to: laps switch at an angle where every bulge family is zero
+// Up/down net ("z-wave"): every lap waves up and down N times; the next lap is shifted half a wave,
+// so a lap only touches the one below at its low points and real holes open in between.
+// Laps are spaced so the low points land exactly on the crests below: Z[L] = Z[L-1] + layer + A[L-1] + A[L].
+// The wave is zero at θ = 0, where the spiral passes from one lap to the next, so the line stays continuous.
+const isZW = P => !!(P.mesh && P.mesh.on && P.mesh.mode === 'zwave');
+function zwTable(P, z0, lh, Hmm) {
+  const M = P.mesh, Z = [], A = [];
+  // wave scales with the local radius, so the climb angle (and hole shape) stays even on narrow necks
+  const rMax = Math.max(...P.prof);
+  const amp = z => M.amp * Math.max(0, Math.min(1, (z - M.rim) / 3, (Hmm - M.rim - z) / 3)) * sampleProf(P.prof, Math.min(1, Math.max(0, z / Hmm))) / rMax;
+  let aPrev = 0;
+  for (let L = 0; L < 40000; L++) {
+    const base = L === 0 ? z0 + lh : Z[L - 1] + lh + aPrev;
+    const a = amp(base), zz = base + a;
+    if (zz + a > Hmm + 1e-6) break;
+    Z.push(zz); A.push(a); aPrev = a;
+  }
+  return { Z, A, T:Z.length };
+}
+function zwAt(tb, t, th, N, lh) {
+  const L = Math.min(tb.T - 1, Math.max(0, Math.floor(t))), f = Math.min(1, Math.max(0, t - L));
+  const next = L + 1 < tb.T ? tb.Z[L + 1] : tb.Z[L] + lh + 2 * tb.A[L];
+  // amplitude also runs smoothly through the lap: then a lap's low points sit exactly one layer above the crests below, even where the wave grows or fades
+  const base = tb.Z[L] + f * (next - tb.Z[L]), a = tb.A[L] + f * ((L + 1 < tb.T ? tb.A[L + 1] : tb.A[L]) - tb.A[L]);
+  return { base, a, top:base + a * Math.sin(N * th + (L & 1) * Math.PI) };
+}
 const meshLap = (P, t, th) => Math.floor(t - Math.PI / (2 * Math.max(4, Math.round(P.mesh.lobes))) / TAU);
 // outer surface radius (scene units)
 function surfR(P, th, v, m) { const d = disp(P, th, v, m); return Math.max(.02, sampleProf(P.prof, v) * lobeF(P, th) + d * rimFade(v) * (d ? depthMul(P, th, v) : 1)); }
@@ -474,9 +506,10 @@ function buildPart(k, geom, closed = false) {
 function buildPrinted(k, geom) {
   const pr = state.print, P = state[k], m = getMask(k);
   const lh = pr.layerH / MM, w = lineW(pr.nozzle) / MM, H = P.h, y0 = partY0(k);
-  const layers = Math.max(2, Math.floor(H / lh));
+  const zw = isZW(P), tb = zw ? zwTable(P, 0, pr.layerH, H * MM) : null, NW = zw ? Math.max(3, Math.round(P.mesh.lobes)) : 0;
+  const layers = zw ? Math.max(2, tb.T) : Math.max(2, Math.floor(H / lh));
   const rMax = Math.max(...P.prof) * (1 + P.lobeAmt);
-  let segs = Math.round(Math.min(480, Math.max(96, Math.max(P.freq, P.b.freq) * 8, TAU * rMax * MM / .8)));
+  let segs = Math.round(Math.min(480, Math.max(96, Math.max(P.freq, P.b.freq) * 8, TAU * rMax * MM / .8, NW * 16)));
   while (layers * segs > 140000 && segs > 64) segs = Math.floor(segs * .9);
   const steps = layers * segs, cap = k !== 'shade';
   const nV = (steps + 1) * 3 + (cap ? segs + 1 : 0);
@@ -491,6 +524,7 @@ function buildPrinted(k, geom) {
     const b = zb + warpMM(P, k, th, Math.min(1, zb / H)) / MM, tp = zt + warpMM(P, k, th, Math.min(1, zt / H)) / MM;
     R[j] = surfR(P, th, vc, m); MK[j] = MASKV; FM[j] = P.mesh.on ? meshMM(P, th, meshLap(P, t, th), (zb + zt) / 2 * MM, H * MM) / MM : 0;
     ZC[j] = (b + tp) / 2; ZH[j] = Math.max(lh * .2, tp - b);                // local layer height (varies when non-planar)
+    if (zw) { const q = zwAt(tb, t, th, NW, pr.layerH); ZC[j] = (q.top - pr.layerH / 2) / MM; ZH[j] = lh; R[j] = surfR(P, th, Math.min(1, Math.max(0, (q.top - pr.layerH / 2) / (H * MM))), m); MK[j] = MASKV; FM[j] = 0; }
   }
   const inset = lh * .34, ws = w;
   let p = 0, q = 0;
@@ -498,7 +532,7 @@ function buildPrinted(k, geom) {
     const th = (j % segs) / segs * TAU, c = Math.cos(th), s = Math.sin(th);
     const lhj = ZH[j];                                                      // local layer height; width stays constant
     let r = R[j], zc = ZC[j], rk = 0;
-    if (j >= segs) {
+    if (j >= segs && (!zw || ZC[j] - ZC[j - segs] < lh * 1.5)) {   // for a net, only where laps actually touch
       const d = r - R[j - segs], ratio = Math.abs(d) / ws;   // shift vs the layer below, in line widths
       rk = smooth(.5, .85, ratio);
       if (d / ws > .55) { const ex = d / ws - .55; zc -= Math.min(.8 * lh, ex * 2 * lh); r -= Math.min(d * .5, ex * ws * .6); } // unsupported bead droops
@@ -522,7 +556,7 @@ function buildPrinted(k, geom) {
   for (let j = 0; j < steps; j++) {
     idx[t++] = B(j); idx[t++] = M(j); idx[t++] = B(j + 1); idx[t++] = B(j + 1); idx[t++] = M(j); idx[t++] = M(j + 1);
     idx[t++] = M(j); idx[t++] = T(j); idx[t++] = M(j + 1); idx[t++] = M(j + 1); idx[t++] = T(j); idx[t++] = T(j + 1);
-    if (j + segs + 1 <= steps) { const u = j + segs; idx[t++] = T(j); idx[t++] = B(u); idx[t++] = T(j + 1); idx[t++] = T(j + 1); idx[t++] = B(u); idx[t++] = B(u + 1); }
+    if (j + segs + 1 <= steps && (!zw || (ZC[j + segs] - ZC[j] < lh * 1.15 && ZC[j + segs + 1] - ZC[j + 1] < lh * 1.15))) { const u = j + segs; idx[t++] = T(j); idx[t++] = B(u); idx[t++] = T(j + 1); idx[t++] = T(j + 1); idx[t++] = B(u); idx[t++] = B(u + 1); }
   }
   if (cap) { // solid bottom
     const o = (steps + 1) * 3;
@@ -617,7 +651,7 @@ addEventListener('resize', resize);
 let renderQueued = false;
 function requestRender() { if (!renderQueued) { renderQueued = true; requestAnimationFrame(() => { renderQueued = false; renderer.render(scene, camera); }); } }
 let strideT;
-controls.addEventListener('change', () => { requestRender(); if (state.view === 'path') { clearTimeout(strideT); strideT = setTimeout(() => { if (strideNow() !== pathStride) rebuildPaths(); }, 140); } });
+controls.addEventListener('change', () => { requestRender(); if (state.view === 'path' && !parts().some(k => isZW(state[k]))) { clearTimeout(strideT); strideT = setTimeout(() => { if (strideNow() !== pathStride) rebuildPaths(); }, 140); } });
 
 /* ───── live toolpath lines: the actual spiral the nozzle follows, drawn on the design ───── */
 let pathStride = 1; const pathObjs = {};
@@ -629,8 +663,9 @@ function strideNow() {
 }
 function buildPathLines(k) {
   const pr = state.print, P = state[k], m = getMask(k), lh = pr.layerH / MM, w = lineW(pr.nozzle) / MM, H = P.h, y0 = partY0(k);
-  const layers = Math.max(2, Math.floor(H / lh)), rMax = Math.max(...P.prof) * (1 + P.lobeAmt);
-  const segs = Math.round(Math.min(360, Math.max(96, Math.max(P.freq, P.b.freq) * 6, TAU * rMax * MM / 1.2)));
+  const zw = isZW(P), tb = zw ? zwTable(P, 0, pr.layerH, H * MM) : null, NW = zw ? Math.max(3, Math.round(P.mesh.lobes)) : 0;
+  const layers = zw ? Math.max(2, tb.T) : Math.max(2, Math.floor(H / lh)), rMax = Math.max(...P.prof) * (1 + P.lobeAmt);
+  const segs = Math.round(Math.min(360, Math.max(96, Math.max(P.freq, P.b.freq) * 6, TAU * rMax * MM / 1.2, NW * 12)));
   const sel = []; for (let L = 0; L < layers; L += pathStride) sel.push(L); if (sel[sel.length - 1] !== layers - 1) sel.push(layers - 1);
   const pos = new Float32Array(sel.length * segs * 6), col = new Float32Array(sel.length * segs * 6);
   const ink = [.07, .07, .067], red = [.82, .27, .18], risks = state.risks;
@@ -639,11 +674,12 @@ function buildPathLines(k) {
   for (const L of sel) {
     for (let s = 0; s <= segs; s++) {
       const t = L + s / segs, th = (s % segs) / segs * TAU;
-      const zb = Math.max(0, (t - 1) * lh), zt = Math.max(lh, t * lh), vc = Math.min(1, (zb + zt) / 2 / H);
-      const zc = (zb + zt) / 2 + (warpMM(P, k, th, Math.min(1, zb / H)) + warpMM(P, k, th, Math.min(1, zt / H))) / 2 / MM;
+      let zb = Math.max(0, (t - 1) * lh), zt = Math.max(lh, t * lh), vc = Math.min(1, (zb + zt) / 2 / H);
+      let zc = (zb + zt) / 2 + (warpMM(P, k, th, Math.min(1, zb / H)) + warpMM(P, k, th, Math.min(1, zt / H))) / 2 / MM;
+      if (zw) { const q = zwAt(tb, t, th, NW, pr.layerH); zc = (q.top - pr.layerH / 2) / MM; vc = Math.min(1, Math.max(0, (q.top - pr.layerH / 2) / (H * MM))); zb = zc - lh / 2; zt = zc + lh / 2; }
       const r = surfR(P, th, vc, m);
       let rk = 0;
-      if (risks && t >= 1) { const rp = surfR(P, th, Math.max(0, vc - lh / H), m); rk = smooth(.5, .85, Math.abs(r - rp) / w); }
+      if (risks && t >= 1 && !zw) { const rp = surfR(P, th, Math.max(0, vc - lh / H), m); rk = smooth(.5, .85, Math.abs(r - rp) / w); }
       const mo = P.mesh.on ? meshMM(P, th, meshLap(P, t, th), (zb + zt) / 2 * MM, H * MM) / MM : 0;
       ptR[s] = r + mo + w * .06; ptY[s] = y0 + zc; ptK[s] = rk;
     }
@@ -657,7 +693,7 @@ function buildPathLines(k) {
   return { g, layers, shown:sel.length };
 }
 function rebuildPaths(list = parts()) {
-  pathStride = strideNow();
+  pathStride = parts().some(k => isZW(state[k])) ? 1 : strideNow();
   for (const k of ['shade', 'base', 'vessel']) if (pathObjs[k] && (!parts().includes(k) || state.view !== 'path')) { scene.remove(pathObjs[k]); pathObjs[k].geometry.dispose(); delete pathObjs[k]; }
   if (state.view !== 'path') { updateBadge(); return; }
   for (const k of list) {
@@ -697,6 +733,7 @@ function rebuild(which = 'all', keepPath = false) {
     collarMesh.geometry?.dispose(); collarMesh.geometry = new THREE.CylinderGeometry(rTop, rTop, lay === 'dome' ? COLLAR_H : .006, 72);
     collarMesh.position.y = lay === 'pendant' ? lampTop() + .006 : lay === 'bell' ? state.base.h + .003 : state.base.h + COLLAR_H / 2;
   }
+  for (const k of parts()) if (state.view === 'path' && isZW(state[k])) meshes[k].visible = false; // a net is mostly air: show just the line
   drawHardware();
   if (state.view === 'drawing') scheduleDrawing();
   drawAttractors(); rebuildPaths(list); if (ui.tab === 'lamp') renderChecksOnly();
@@ -737,9 +774,14 @@ function applyLook() {
   drawBed(); persist(); requestRender();
 }
 function frameCamera() {
-  const H = state.mode === 'lamp' ? lampTop() + (state.lamp.layout === 'pendant' ? 0 : 0) : state.vessel.h;
-  const shift = H * .5 - controls.target.y;
-  controls.target.y += shift; camera.position.y += shift; controls.update();
+  // fit the whole object: centre on it and pull the camera back so height and width both fit
+  let y0 = Infinity, y1 = 0, r = 0;
+  for (const k of parts()) { const P = state[k], a = partY0(k); y0 = Math.min(y0, a); y1 = Math.max(y1, a + P.h); r = Math.max(r, Math.max(...P.prof) * (1 + P.lobeAmt)); }
+  if (state.mode === 'lamp') { y0 = Math.min(y0, state.lamp.layout === 'pendant' ? PEND_Y : 0); y1 = Math.max(y1, lampTop()); }
+  const cy = (y0 + y1) / 2, span = Math.max(y1 - y0, r * 2 * .95), fov = camera.fov * Math.PI / 180;
+  const d = Math.min(9, Math.max(1, span / 2 / Math.tan(fov / 2) * 1.95));
+  const dir = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+  controls.target.set(0, cy, 0); camera.position.copy(controls.target).addScaledVector(dir, d); controls.update(); requestRender();
 }
 
 /* ═════════════════════ sculpt & paint interaction ═════════════════════ */
@@ -879,7 +921,7 @@ function toolpath(k) {
   const fil = FILAMENTS[pr.filament];
   const maxSeg = Math.max(P.freq, P.b.freq) * 10;
   const rMax = Math.max(...P.prof) * (1 + P.lobeAmt) * MM;
-  const segs = Math.min(1800, Math.max(240, Math.round(TAU * rMax / .7), maxSeg));
+  const segs = Math.min(1800, Math.max(240, Math.round(TAU * rMax / .7), maxSeg, isZW(P) ? Math.round(P.mesh.lobes) * 24 : 0));
   const X = [], Y = [], Z = [], E = [], F = [], K = [];
   const area = (w - lh) * lh + Math.PI * (lh / 2) ** 2, eK = .98 / (Math.PI * .875 * .875);
   let px = 0, py = 0, pz = 0;
@@ -914,7 +956,8 @@ function toolpath(k) {
     const r = R(0, z0 + lh / 2); push(r, 0, z0, 1, 120);
   }
   // 3) the spiral: z climbs continuously, one revolution per layer, never lifts or stops
-  const revs = Math.max(1, Math.floor((H - z0) / lh));
+  const zw = isZW(P), tb = zw ? zwTable(P, z0 - lh, lh, H) : null, NW = zw ? Math.max(3, Math.round(P.mesh.lobes)) : 0;
+  const revs = zw ? Math.max(1, tb.T) : Math.max(1, Math.floor((H - z0) / lh));
   const revLen = []; // for min layer time
   for (let rv = 0; rv < revs; rv++) {
     const zc = z0 + rv * lh + lh / 2;
@@ -925,7 +968,13 @@ function toolpath(k) {
   for (let rv = 0; rv < revs; rv++) {
     const feed = Math.max(8, Math.min(wallSpeed, revLen[rv] / 5)); // ≥5 s per layer so it can cool
     for (let s = 1; s <= segs; s++) {
-      const t = rv + s / segs, z = z0 + t * lh, th = s / segs * TAU;
+      const t = rv + s / segs, th = s / segs * TAU;
+      if (zw) { // up/down net: same line width, the nozzle rides the wave and bridges between contacts
+        const q = zwAt(tb, t, thM(th), NW, lh), r = R(th, q.top - lh / 2);
+        push(r * Math.cos(th), r * Math.sin(th), q.top, 0, q.a > .05 ? Math.min(feed, 22) : feed, rv === 0 ? s / segs : 1);
+        continue;
+      }
+      const z = z0 + t * lh;
       const mo = P.mesh.on ? meshMM(P, thM(th), meshLap(P, z / lh, thM(th)), flip ? H - (z - lh / 2) : z - lh / 2, H) : 0;
       const r = R(th, z - lh / 2) + mo;
       const wz = W(th, z), lhe = Math.max(lh * .3, lh + wz - W(th, z - lh));   // local layer height
@@ -1003,7 +1052,15 @@ function checks(k) {
     const deg = Math.atan(slope) * 180 / Math.PI;
     add(deg > 30 ? 'bad' : deg > 18 ? 'warn' : 'ok', `Nozzle climbs up to ${deg.toFixed(0)}° within a layer — above ~20° the nozzle cone can scrape the layer below. Fewer waves or less amplitude lowers it.`);
   }
-  if (P.mesh.on) {
+  if (isZW(P)) {
+    const M = P.mesh, N = Math.max(3, Math.round(M.lobes)); let rMin = Infinity, rM = 0;
+    for (let j = 0; j <= 20; j++) { const r = sampleProf(P.prof, j / 20) * MM; rMin = Math.min(rMin, r); rM = Math.max(rM, r); }
+    const slope = Math.atan(M.amp * N / rM) * 180 / Math.PI, span = TAU * rM / N, holeH = 4 * M.amp, holeW = span / 2;
+    add(slope > 55 ? 'bad' : slope > 40 ? 'warn' : 'ok', `Net: the line climbs and dips at up to ${slope.toFixed(0)}° (keep under ~40° so strands stay round; fewer openings or a lower wave flattens it).`);
+    add(span > 16 ? 'bad' : span > 11 ? 'warn' : 'ok', `Holes ≈ ${holeW.toFixed(1)} × ${holeH.toFixed(1)} mm. Strands bridge ${span.toFixed(1)} mm of air between contact points (keep under ~11 mm). Prints at ≤ 22 mm/s with full fan.`);
+    add(M.amp < lh ? 'warn' : 'ok', M.amp < lh ? `Wave ${M.amp.toFixed(1)} mm is less than one layer — holes will barely open.` : `Each contact point is one bead on one bead — strong enough for a shade, but handle gently.`);
+  }
+  if (P.mesh.on && !isZW(P)) {
     const M = P.mesh, N = Math.max(4, Math.round(M.lobes)), ratio = M.amp / w;
     let rM = 0; for (let j = 0; j <= 20; j++) rM = Math.max(rM, sampleProf(P.prof, j / 20) * MM);
     const span = TAU * rM / N / 2;
@@ -1430,18 +1487,26 @@ function renderPanel() {
         const b = el('button', { textContent:'Shuffle', style:'margin-top:4px' }); b.onclick = () => { pushUndo(); M.seed = Math.floor(Math.random() * 9999); rbm(); }; sm.append(b);
       }
     }
-    const mz = section('Mesh', 'Open lattice like Studio Wooj’s mesh lamps: a plain ring layer, then layers that bulge outward and bridge, leaving gaps for light. Same line width throughout.');
+    const mz = section('Holes', 'Perforate the wall with layers that move out or up, so they only touch at points. Same line width throughout, still one continuous line.');
     const MS = P.mesh, rbz = () => rebuild(k);
-    toggle(mz, 'Open mesh', MS.on, v => { MS.on = v; if (v && state.view === 'surface') state.view = 'path'; rbz(); applyLook(); });
+    toggle(mz, 'Holes', MS.on, v => { MS.on = v; if (v && state.view === 'surface') state.view = 'path'; rbz(); applyLook(); });
     if (MS.on) {
-      slider(mz, 'Openings around', () => MS.lobes, v => MS.lobes = v, 8, 72, 1, v => v, rbz);
-      slider(mz, 'Bulge', () => MS.amp, v => MS.amp = v, .4, 5, .1, v => `${v.toFixed(1)} mm · ${(v / lineW(state.print.nozzle)).toFixed(1)}× line`, rbz);
-      slider(mz, 'Ring layers', () => MS.rings, v => MS.rings = v, 1, 4, 1, v => v, rbz);
-      slider(mz, 'Bulge layers', () => MS.bumps, v => MS.bumps = v, 1, 5, 1, v => v, rbz);
-      slider(mz, 'Bulge shape', () => MS.width, v => MS.width = v, .3, 3, .05, v => v < .8 ? 'round' : v > 1.6 ? 'pointed' : 'soft', rbz);
-      toggle(mz, 'Stagger (diamond cells)', MS.stagger, v => { MS.stagger = v; rbz(); });
+      chips(mz, [['zwave', 'Up / down net'], ['radial', 'In / out bulges']], MS.mode, v => { pushUndo(); MS.mode = v; if (v === 'zwave' && MS.amp > 3) MS.amp = 1.5; rbz(); renderPanel(); });
+      const wl = lineW(state.print.nozzle);
+      slider(mz, 'Openings around', () => MS.lobes, v => MS.lobes = v, MS.mode === 'zwave' ? 6 : 8, 72, 1, v => v, rbz);
+      if (MS.mode === 'zwave') {
+        slider(mz, 'Wave height', () => MS.amp, v => MS.amp = v, .2, 4, .05, v => `±${v.toFixed(2)} mm · holes ≈ ${(v * 4).toFixed(1)} mm tall`, rbz);
+      } else {
+        slider(mz, 'Bulge', () => MS.amp, v => MS.amp = v, .4, 5, .1, v => `${v.toFixed(1)} mm · ${(v / wl).toFixed(1)}× line`, rbz);
+        slider(mz, 'Ring layers', () => MS.rings, v => MS.rings = v, 1, 4, 1, v => v, rbz);
+        slider(mz, 'Bulge layers', () => MS.bumps, v => MS.bumps = v, 1, 5, 1, v => v, rbz);
+        slider(mz, 'Bulge shape', () => MS.width, v => MS.width = v, .3, 3, .05, v => v < .8 ? 'round' : v > 1.6 ? 'pointed' : 'soft', rbz);
+        toggle(mz, 'Stagger (diamond cells)', MS.stagger, v => { MS.stagger = v; rbz(); });
+      }
       slider(mz, 'Solid rims', () => MS.rim, v => MS.rim = v, 0, 20, .5, v => v + ' mm', rbz);
-      mz.append(el('div', { className:'note', textContent:'Shows in Path and Beads views (it lives in the printed layers). Beads view simulates the slight sag that opens the gaps.' }));
+      mz.append(el('div', { className:'note', textContent:MS.mode === 'zwave'
+        ? 'Each lap waves up and down and sits on the crests of the lap below, shifted half a wave — the gaps between are real holes. See it in Path or Beads view.'
+        : 'Bulging layers bridge over air and sag a little, opening the gaps (like Studio Wooj’s mesh). See it in Path or Beads view.' }));
     }
     const sn = section('Non-planar layers', 'Isocurve printing: layers bend up and down instead of staying flat. Layer height varies, so extrusion is scaled to keep the wall even.');
     slider(sn, 'Layer waves', () => P.np.mid, v => P.np.mid = v, 0, 20, .5, v => v ? v + ' mm' : 'flat', () => rebuild(k));
