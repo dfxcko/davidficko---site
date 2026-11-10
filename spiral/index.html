@@ -48,12 +48,12 @@
   #badge{font:400 10.5px/1.7 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);pointer-events:none}
   #badge b{color:var(--ink);font-weight:400}
   #badge .r{color:var(--bad)}
-  #tools{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;display:flex;gap:2px;padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:999px;z-index:6;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  #tools{position:fixed;left:calc(50% - 175px);transform:translateX(-50%);bottom:18px;white-space:nowrap;display:flex;gap:2px;padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:999px;z-index:6;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
   #tools button{border:none;padding:8px 11px;display:flex;align-items:center;gap:6px}
   #tools button.on{background:var(--ink);color:#fff}
   #tools .lbl{font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase}
   #tools .div{width:1px;background:var(--line);margin:6px 3px}
-  #hint{position:fixed;left:50%;transform:translateX(-50%);bottom:72px;font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);pointer-events:none;transition:opacity .4s;z-index:4;white-space:nowrap}
+  #hint{position:fixed;left:calc(50% - 175px);transform:translateX(-50%);bottom:72px;font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);pointer-events:none;transition:opacity .4s;z-index:4;white-space:nowrap}
   #panel{position:fixed;top:64px;right:18px;bottom:18px;width:332px;background:var(--panel);border:1px solid var(--line);border-radius:4px;display:flex;flex-direction:column;z-index:7;overflow:hidden;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
   #tabs{display:flex;gap:0;padding:0 8px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
   #tabs button{border:none;border-radius:0;padding:13px 10px 11px;font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid transparent;margin-bottom:-1px;white-space:nowrap}
@@ -114,14 +114,14 @@
     #panel{top:auto;left:0;right:0;bottom:0;width:auto;border-radius:10px 10px 0 0;max-height:56vh;transform:translateY(100%);transition:transform .3s ease;padding-bottom:env(safe-area-inset-bottom)}
     #panel.open{transform:translateY(0)}
     #grab{display:block;width:36px;height:3px;border-radius:3px;background:var(--line);margin:8px auto 0;cursor:pointer}
-    #tools{bottom:calc(14px + env(safe-area-inset-bottom))}
+    #tools{bottom:calc(14px + env(safe-area-inset-bottom));left:50%} #hint{left:50%}
     #tools .lbl{display:none}
     #tools button{padding:9px 8px}
     body.panel-open #tools,body.panel-open #hint{opacity:0;pointer-events:none}
     header{padding:12px 12px} header h1{font-size:23px} header h1 .full{display:none}
     #viewbar{left:12px;top:54px}
   }
-  @media (min-width:761px){ #editBtn{display:none} }
+  @media (min-width:761px){ #tools #editBtn{display:none} }
 </style>
 <script type="importmap">
 { "imports": {
@@ -737,9 +737,14 @@ function applyLook() {
   drawBed(); persist(); requestRender();
 }
 function frameCamera() {
-  const H = state.mode === 'lamp' ? lampTop() + (state.lamp.layout === 'pendant' ? 0 : 0) : state.vessel.h;
-  const shift = H * .5 - controls.target.y;
-  controls.target.y += shift; camera.position.y += shift; controls.update();
+  // fit the whole object: centre on it and pull the camera back so height and width both fit
+  let y0 = Infinity, y1 = 0, r = 0;
+  for (const k of parts()) { const P = state[k], a = partY0(k); y0 = Math.min(y0, a); y1 = Math.max(y1, a + P.h); r = Math.max(r, Math.max(...P.prof) * (1 + P.lobeAmt)); }
+  if (state.mode === 'lamp') { y0 = Math.min(y0, state.lamp.layout === 'pendant' ? PEND_Y : 0); y1 = Math.max(y1, lampTop()); }
+  const cy = (y0 + y1) / 2, span = Math.max(y1 - y0, r * 2 * .95), fov = camera.fov * Math.PI / 180;
+  const d = Math.min(9, Math.max(1, span / 2 / Math.tan(fov / 2) * 1.95));
+  const dir = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+  controls.target.set(0, cy, 0); camera.position.copy(controls.target).addScaledVector(dir, d); controls.update(); requestRender();
 }
 
 /* ═════════════════════ sculpt & paint interaction ═════════════════════ */
