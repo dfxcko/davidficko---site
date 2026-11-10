@@ -174,7 +174,7 @@ const prof = f => Array.from({length:N}, (_, i) => +f(i / (N - 1)).toFixed(4));
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 const pat = (tex, amp, freq, layers, twist = 0) => ({ tex, amp, freq, layers, twist });
 const NP0 = () => ({ mid:0, rim:0, waves:4, tilt:0 });
-const MESH0 = () => ({ on:false, mode:'radial', amp:2, lobes:32, rings:1, bumps:2, width:1, stagger:true, rim:6 });
+const MESH0 = () => ({ on:false, mode:'radial', amp:2, lobes:32, rings:1, bumps:2, width:1, stagger:true, rim:6, holeW:5, holeH:5, holeH2:8, grad:'even', follow:true });
 const MOD0 = () => ({ src:'none', target:'depth', lift:2, strength:.8, invert:false, radius:30, attrs:[], img:'', repeat:1, noise:3, seed:7 });
 const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}, mesh = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod }, mesh:{ ...MESH0(), ...mesh } });
 
@@ -186,7 +186,7 @@ const LAMP_PRESETS = {
     shade:part(1.7, prof(v => Math.min(22.2 + (1 - v) * 170 * .95, 118) / MM), pat('ribs', .008, 64, 20), pat('woven', .005, 40, 16), '#efe9df'),
     base: part(.6, prof(v => .2), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#efe9df') },
   net:{ name:'Net', note:'Up/down holes, E27 bulb', lamp:{ layout:'bell', fitting:'e27', bulb:'a60' },
-    shade:part(1.5, prof(v => { const z = v * 150; return Math.min(22.2 + z * .95, 72, 40 + (150 - z) * .7) / MM; }), pat('smooth', 0, 40, 20), pat('ribs', .006, 48, 20), '#f2efe8', 0, 0, {}, {}, { on:true, mode:'zwave', amp:1.25, lobes:42, rim:6 }),
+    shade:part(1.5, prof(v => { const z = v * 150; return Math.min(22.2 + z * .95, 72, 40 + (150 - z) * .7) / MM; }), pat('smooth', 0, 40, 20), pat('ribs', .006, 48, 20), '#f2efe8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:5.4, holeH:5, holeH2:8, rim:6 }),
     base: part(.55, prof(v => .42 - .14 * v), pat('ribs', .01, 48, 20), pat('rings', .005, 40, 14), '#1e1d1b') },
   mesh:{ name:'Mesh', note:'Open lattice shade', lamp:{ layout:'dome', fitting:'led', bulb:'led' },
     shade:part(.62, prof(v => .22 + .68 * Math.pow(Math.sin((1 - v) * Math.PI / 2 + .12), 1.3)), pat('smooth', 0, 40, 20), pat('ribs', .006, 48, 20), '#f2efe8', 0, 0, {}, {}, { on:true, amp:1.6, lobes:40, rings:1, bumps:2, rim:5 }),
@@ -212,7 +212,7 @@ const VESSEL_PRESETS = {
   bowl:{ name:'Bowl', note:'Open, gently flared',
     vessel:part(.66, prof(v => .38 + .4 * Math.sin(v * Math.PI / 2)), pat('woven', .005, 56, 14), pat('rings', .006, 40, 12), '#efe6d8') },
   netvase:{ name:'Net vase', note:'Perforated, up/down holes',
-    vessel:part(1.1, prof(v => .26 + .08 * Math.sin(v * Math.PI) - .02 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#e9e3d8', 0, 0, {}, {}, { on:true, mode:'zwave', amp:1.2, lobes:22, rim:10 }) },
+    vessel:part(1.1, prof(v => .26 + .08 * Math.sin(v * Math.PI) - .02 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#e9e3d8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:4.8, holeH:4.8, holeH2:8, rim:10 }) },
   tide:{ name:'Tide vase', note:'Non-planar wavy layers',
     vessel:part(1.2, prof(v => .27 + .06 * Math.sin(v * Math.PI) - .03 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#d9cbb6', 0, 0, { mid:5, waves:2 }) },
   crown:{ name:'Crown bowl', note:'Wavy rim, noise texture',
@@ -280,6 +280,7 @@ function upgrade(s) {
   }
   if (!s.v || s.v < 4) { o.view = 'path'; o.v = 4; }
   for (const k of ['shade', 'base', 'vessel']) if (o[k].mod.target !== 'lift') o[k].mod.target = 'depth';
+  for (const k of ['shade', 'base', 'vessel']) { const M = o[k].mesh; if (M && M.mode === 'zwave' && !(s[k]?.mesh?.holeW)) { M.holeW = +(Math.PI * Math.max(...o[k].prof) * MM / Math.max(6, M.lobes)).toFixed(1); M.holeH = +(M.amp * 4).toFixed(1); } }
   return o;
 }
 let state;
@@ -418,11 +419,19 @@ function meshMM(P, th, lap, zMM, Hmm) {
 // Laps are spaced so the low points land exactly on the crests below: Z[L] = Z[L-1] + layer + A[L-1] + A[L].
 // The wave is zero at θ = 0, where the spiral passes from one lap to the next, so the line stays continuous.
 const isZW = P => !!(P.mesh && P.mesh.on && P.mesh.mode === 'zwave');
+// Net hole size (mm) → number of waves around (hole width = half a wave at the widest point) and wave amplitude (hole ≈ 4 × amplitude tall)
+const zwN = P => Math.min(120, Math.max(6, Math.round(Math.PI * Math.max(...P.prof) * MM / Math.max(1, P.mesh.holeW))));
+function zwHoleH(P, z, Hmm) { // hole height (mm) at a height, following the chosen gradient
+  const M = P.mesh, u = Math.min(1, Math.max(0, (z - M.rim) / Math.max(1, Hmm - 2 * M.rim)));
+  if (M.grad === 'linear') return M.holeH + (M.holeH2 - M.holeH) * u;
+  if (M.grad === 'swell') return M.holeH + (M.holeH2 - M.holeH) * Math.sin(Math.PI * u);
+  return M.holeH;
+}
 function zwTable(P, z0, lh, Hmm) {
   const M = P.mesh, Z = [], A = [];
   // wave scales with the local radius, so the climb angle (and hole shape) stays even on narrow necks
   const rMax = Math.max(...P.prof);
-  const amp = z => M.amp * Math.max(0, Math.min(1, (z - M.rim) / 3, (Hmm - M.rim - z) / 3)) * sampleProf(P.prof, Math.min(1, Math.max(0, z / Hmm))) / rMax;
+  const amp = z => zwHoleH(P, z, Hmm) / 4 * Math.max(0, Math.min(1, (z - M.rim) / 3, (Hmm - M.rim - z) / 3)) * (M.follow ? sampleProf(P.prof, Math.min(1, Math.max(0, z / Hmm))) / rMax : 1);
   let aPrev = 0;
   for (let L = 0; L < 40000; L++) {
     const base = L === 0 ? z0 + lh : Z[L - 1] + lh + aPrev;
@@ -506,7 +515,7 @@ function buildPart(k, geom, closed = false) {
 function buildPrinted(k, geom) {
   const pr = state.print, P = state[k], m = getMask(k);
   const lh = pr.layerH / MM, w = lineW(pr.nozzle) / MM, H = P.h, y0 = partY0(k);
-  const zw = isZW(P), tb = zw ? zwTable(P, 0, pr.layerH, H * MM) : null, NW = zw ? Math.max(3, Math.round(P.mesh.lobes)) : 0;
+  const zw = isZW(P), tb = zw ? zwTable(P, 0, pr.layerH, H * MM) : null, NW = zw ? zwN(P) : 0;
   const layers = zw ? Math.max(2, tb.T) : Math.max(2, Math.floor(H / lh));
   const rMax = Math.max(...P.prof) * (1 + P.lobeAmt);
   let segs = Math.round(Math.min(480, Math.max(96, Math.max(P.freq, P.b.freq) * 8, TAU * rMax * MM / .8, NW * 16)));
@@ -663,7 +672,7 @@ function strideNow() {
 }
 function buildPathLines(k) {
   const pr = state.print, P = state[k], m = getMask(k), lh = pr.layerH / MM, w = lineW(pr.nozzle) / MM, H = P.h, y0 = partY0(k);
-  const zw = isZW(P), tb = zw ? zwTable(P, 0, pr.layerH, H * MM) : null, NW = zw ? Math.max(3, Math.round(P.mesh.lobes)) : 0;
+  const zw = isZW(P), tb = zw ? zwTable(P, 0, pr.layerH, H * MM) : null, NW = zw ? zwN(P) : 0;
   const layers = zw ? Math.max(2, tb.T) : Math.max(2, Math.floor(H / lh)), rMax = Math.max(...P.prof) * (1 + P.lobeAmt);
   const segs = Math.round(Math.min(360, Math.max(96, Math.max(P.freq, P.b.freq) * 6, TAU * rMax * MM / 1.2, NW * 12)));
   const sel = []; for (let L = 0; L < layers; L += pathStride) sel.push(L); if (sel[sel.length - 1] !== layers - 1) sel.push(layers - 1);
@@ -921,7 +930,7 @@ function toolpath(k) {
   const fil = FILAMENTS[pr.filament];
   const maxSeg = Math.max(P.freq, P.b.freq) * 10;
   const rMax = Math.max(...P.prof) * (1 + P.lobeAmt) * MM;
-  const segs = Math.min(1800, Math.max(240, Math.round(TAU * rMax / .7), maxSeg, isZW(P) ? Math.round(P.mesh.lobes) * 24 : 0));
+  const segs = Math.min(1800, Math.max(240, Math.round(TAU * rMax / .7), maxSeg, isZW(P) ? zwN(P) * 24 : 0));
   const X = [], Y = [], Z = [], E = [], F = [], K = [];
   const area = (w - lh) * lh + Math.PI * (lh / 2) ** 2, eK = .98 / (Math.PI * .875 * .875);
   let px = 0, py = 0, pz = 0;
@@ -956,7 +965,7 @@ function toolpath(k) {
     const r = R(0, z0 + lh / 2); push(r, 0, z0, 1, 120);
   }
   // 3) the spiral: z climbs continuously, one revolution per layer, never lifts or stops
-  const zw = isZW(P), tb = zw ? zwTable(P, z0 - lh, lh, H) : null, NW = zw ? Math.max(3, Math.round(P.mesh.lobes)) : 0;
+  const zw = isZW(P), tb = zw ? zwTable(P, z0 - lh, lh, H) : null, NW = zw ? zwN(P) : 0;
   const revs = zw ? Math.max(1, tb.T) : Math.max(1, Math.floor((H - z0) / lh));
   const revLen = []; // for min layer time
   for (let rv = 0; rv < revs; rv++) {
@@ -1053,12 +1062,13 @@ function checks(k) {
     add(deg > 30 ? 'bad' : deg > 18 ? 'warn' : 'ok', `Nozzle climbs up to ${deg.toFixed(0)}° within a layer — above ~20° the nozzle cone can scrape the layer below. Fewer waves or less amplitude lowers it.`);
   }
   if (isZW(P)) {
-    const M = P.mesh, N = Math.max(3, Math.round(M.lobes)); let rMin = Infinity, rM = 0;
+    const M = P.mesh, N = zwN(P); let rMin = Infinity, rM = 0;
     for (let j = 0; j <= 20; j++) { const r = sampleProf(P.prof, j / 20) * MM; rMin = Math.min(rMin, r); rM = Math.max(rM, r); }
-    const slope = Math.atan(M.amp * N / rM) * 180 / Math.PI, span = TAU * rM / N, holeH = 4 * M.amp, holeW = span / 2;
-    add(slope > 55 ? 'bad' : slope > 40 ? 'warn' : 'ok', `Net: the line climbs and dips at up to ${slope.toFixed(0)}° (keep under ~40° so strands stay round; fewer openings or a lower wave flattens it).`);
-    add(span > 16 ? 'bad' : span > 11 ? 'warn' : 'ok', `Holes ≈ ${holeW.toFixed(1)} × ${holeH.toFixed(1)} mm. Strands bridge ${span.toFixed(1)} mm of air between contact points (keep under ~11 mm). Prints at ≤ 22 mm/s with full fan.`);
-    add(M.amp < lh ? 'warn' : 'ok', M.amp < lh ? `Wave ${M.amp.toFixed(1)} mm is less than one layer — holes will barely open.` : `Each contact point is one bead on one bead — strong enough for a shade, but handle gently.`);
+    let hMax = 0, hMin = Infinity; for (let j = 0; j <= 20; j++) { const hz = zwHoleH(P, M.rim + (H - 2 * M.rim) * j / 20, H); hMax = Math.max(hMax, hz); hMin = Math.min(hMin, hz); }
+    const A = hMax / 4, slope = Math.atan(A * N / rM) * 180 / Math.PI, span = TAU * rM / N, holeW = span / 2;
+    add(slope > 55 ? 'bad' : slope > 40 ? 'warn' : 'ok', `Net: ${N} holes around; the line climbs and dips at up to ${slope.toFixed(0)}° (keep under ~40° — wider or lower holes flatten it).`);
+    add(span > 16 ? 'bad' : span > 11 ? 'warn' : 'ok', `Holes ≈ ${holeW.toFixed(1)} mm wide × ${hMin === hMax ? hMax.toFixed(1) : hMin.toFixed(1) + '–' + hMax.toFixed(1)} mm tall. Strands bridge ${span.toFixed(1)} mm between contacts (keep under ~11 mm). Prints at ≤ 22 mm/s with full fan.`);
+    add(hMin / 4 < lh ? 'warn' : 'ok', hMin / 4 < lh ? `Smallest holes (${hMin.toFixed(1)} mm) are under ~4 layers tall — they will barely open.` : `Each contact point is one bead on one bead — strong enough for a shade, but handle gently.`);
   }
   if (P.mesh.on && !isZW(P)) {
     const M = P.mesh, N = Math.max(4, Math.round(M.lobes)), ratio = M.amp / w;
@@ -1491,12 +1501,18 @@ function renderPanel() {
     const MS = P.mesh, rbz = () => rebuild(k);
     toggle(mz, 'Holes', MS.on, v => { MS.on = v; if (v && state.view === 'surface') state.view = 'path'; rbz(); applyLook(); });
     if (MS.on) {
-      chips(mz, [['zwave', 'Up / down net'], ['radial', 'In / out bulges']], MS.mode, v => { pushUndo(); MS.mode = v; if (v === 'zwave' && MS.amp > 3) MS.amp = 1.5; rbz(); renderPanel(); });
+      chips(mz, [['zwave', 'Up / down net'], ['radial', 'In / out bulges']], MS.mode, v => { pushUndo(); MS.mode = v; rbz(); renderPanel(); });
       const wl = lineW(state.print.nozzle);
-      slider(mz, 'Openings around', () => MS.lobes, v => MS.lobes = v, MS.mode === 'zwave' ? 6 : 8, 72, 1, v => v, rbz);
       if (MS.mode === 'zwave') {
-        slider(mz, 'Wave height', () => MS.amp, v => MS.amp = v, .2, 4, .05, v => `±${v.toFixed(2)} mm · holes ≈ ${(v * 4).toFixed(1)} mm tall`, rbz);
+        const rM = Math.max(...P.prof) * MM;
+        slider(mz, 'Hole width', () => MS.holeW, v => MS.holeW = v, 2, 25, .1, v => `${v.toFixed(1)} mm · ${Math.round(Math.min(120, Math.max(6, Math.PI * rM / v)))} around`, rbz);
+        mz.append(el('div', { className:'sub', textContent:'Hole height up the shade', style:'margin:10px 0 2px' }));
+        chips(mz, [['even', 'Even'], ['linear', 'Grow / shrink'], ['swell', 'Swell in middle']], MS.grad, v => { pushUndo(); MS.grad = v; rbz(); renderPanel(); });
+        slider(mz, MS.grad === 'even' ? 'Hole height' : MS.grad === 'linear' ? 'Hole height · bottom' : 'Hole height · ends', () => MS.holeH, v => MS.holeH = v, 1, 20, .1, v => v.toFixed(1) + ' mm', rbz);
+        if (MS.grad !== 'even') slider(mz, MS.grad === 'linear' ? 'Hole height · top' : 'Hole height · middle', () => MS.holeH2, v => MS.holeH2 = v, 1, 20, .1, v => v.toFixed(1) + ' mm', rbz);
+        toggle(mz, 'Shrink holes where the form narrows', MS.follow, v => { MS.follow = v; rbz(); });
       } else {
+        slider(mz, 'Openings around', () => MS.lobes, v => MS.lobes = v, 8, 72, 1, v => v, rbz);
         slider(mz, 'Bulge', () => MS.amp, v => MS.amp = v, .4, 5, .1, v => `${v.toFixed(1)} mm · ${(v / wl).toFixed(1)}× line`, rbz);
         slider(mz, 'Ring layers', () => MS.rings, v => MS.rings = v, 1, 4, 1, v => v, rbz);
         slider(mz, 'Bulge layers', () => MS.bumps, v => MS.bumps = v, 1, 5, 1, v => v, rbz);
