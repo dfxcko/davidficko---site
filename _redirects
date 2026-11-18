@@ -1,6 +1,9 @@
-/spiral /monoline/ 301
-/spiral/ /monoline/ 301
-/spiral/* /monoline/ 301
-/shade /monoline/ 301
-/shade/ /monoline/ 301
-/shade/* /monoline/ 301
+/monoline https://monoline.si/ 301
+/monoline/ https://monoline.si/ 301
+/monoline/* https://monoline.si/ 301
+/spiral https://monoline.si/ 301
+/spiral/ https://monoline.si/ 301
+/spiral/* https://monoline.si/ 301
+/shade https://monoline.si/ 301
+/shade/ https://monoline.si/ 301
+/shade/* https://monoline.si/ 301
