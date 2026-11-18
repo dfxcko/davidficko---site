@@ -3,18 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Spiral — David Ficko</title>
-<meta name="description" content="Sculpt a 3D-printed lamp or vase in your browser, preview the printed layers, see the live toolpath, try non-planar layers, and export G-code for Bambu Lab printers.">
-<link rel="canonical" href="https://davidficko.com/spiral/">
+<title>Monoline — design lamps and vessels that print as one line</title>
+<meta name="description" content="Monoline is a free browser tool for designing 3D-printed lamps, vases and bowls that print as one continuous line. Sculpt the form, add textures and holes, check printability and export G-code for Bambu Lab printers.">
+<link rel="canonical" href="https://monoline.si/">
+<meta name="theme-color" content="#ffffff">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="David Ficko">
-<meta property="og:url" content="https://davidficko.com/spiral/">
-<meta property="og:title" content="Spiral — David Ficko">
-<meta property="og:description" content="Sculpt a 3D-printed lamp or vase, preview the printed layers, export G-code.">
-<meta property="og:image" content="https://davidficko.com/og.jpg">
+<meta property="og:site_name" content="Monoline">
+<meta property="og:url" content="https://monoline.si/">
+<meta property="og:title" content="Monoline — one continuous line">
+<meta property="og:description" content="Design 3D-printed lamps and vessels that print as one continuous line. Free, in your browser.">
+<meta property="og:image" content="https://monoline.si/og.png">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0F2QH31JZW"></script>
@@ -36,8 +37,6 @@
   header{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;gap:8px;padding:16px 18px;pointer-events:none;z-index:5}
   header h1{margin:0 8px 0 0;font:400 28px/1 var(--serif);letter-spacing:-.01em;pointer-events:auto;white-space:nowrap}
   header h1 i{font-style:italic}
-  header .back{pointer-events:auto;color:var(--muted);text-decoration:none;font:300 20px var(--sans);padding:2px 6px 2px 0}
-  header .back:hover{color:var(--ink)}
   header .sp{flex:1}
   header button{pointer-events:auto;padding:7px 9px;background:rgba(255,255,255,.8)}
   .seg{display:flex;pointer-events:auto;border:1px solid var(--line);border-radius:999px;padding:2px;background:rgba(255,255,255,.85)}
@@ -140,6 +139,85 @@
     #viewbar{left:12px;top:54px}
   }
   @media (min-width:761px){ #tools #editBtn{display:none} }
+  header h1{cursor:pointer}
+  header button.txt{padding:6px 12px;font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+  .presets button .th{display:block;height:62px;background:#f7f6f2;border-radius:2px;margin-bottom:5px}
+  .presets button .th svg,.tile .th svg{width:100%;height:100%;display:block}
+  #start{position:fixed;inset:0;background:#fff;z-index:35;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  #start.show{display:block}
+  #start .in{max-width:1000px;margin:0 auto;padding:34px 22px 70px}
+  #start .top{display:flex;align-items:flex-start;gap:12px}
+  #start h2{margin:0;font:400 46px/1 var(--serif);font-style:italic;letter-spacing:-.01em}
+  #start .lead{margin:8px 0 22px;color:var(--soft);font:400 22px/1.2 var(--serif)}
+  #start .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+  #start .filters button{padding:6px 12px;font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+  #start h4{margin:26px 0 10px;font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(156px,1fr));gap:10px}
+  .tile{border:1px solid var(--line);border-radius:4px;padding:0;text-align:left;display:flex;flex-direction:column;background:#fff;overflow:hidden}
+  .tile .th{background:#f7f6f2;aspect-ratio:1/1;padding:12px}
+  .tile .tx{padding:10px 11px 12px;display:flex;flex-direction:column;gap:5px;border-top:1px solid var(--hair)}
+  .tile .tx span{font:400 20px/1 var(--serif)}
+  .tile .tx small{color:var(--muted);font:400 9.5px/1.45 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+  #start .foot{display:flex;gap:8px;flex-wrap:wrap;margin-top:30px;padding-top:18px;border-top:1px solid var(--hair)}
+  #share{position:fixed;inset:0;background:rgba(255,255,255,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:41;display:none;align-items:center;justify-content:center;padding:20px}
+  #share.show{display:flex}
+  #share .box{max-width:440px;width:100%;background:#fff;border:1px solid var(--line);border-radius:4px;padding:24px}
+  #share h2{margin:0 0 6px;font:400 30px/1 var(--serif);font-style:italic}
+  #share p{margin:0 0 14px;color:var(--muted);font-size:13px}
+  #share input{width:100%;font:400 11px var(--mono);color:var(--ink);background:#fafaf8;border:1px solid var(--line);border-radius:3px;padding:10px;margin-bottom:12px}
+  #share .btns{display:flex;gap:6px;flex-wrap:wrap}
+  @media (max-width:760px){
+    header{gap:6px} header button{padding:7px 8px} #helpBtn{display:none}
+    #start .in{padding:22px 14px 60px} #start h2{font-size:36px} #start .lead{font-size:19px;margin-bottom:16px}
+    #start .filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -14px 14px;padding:0 14px}
+    .tiles{grid-template-columns:1fr 1fr;gap:8px} .tile .tx span{font-size:18px}
+  }
+
+  /* ── layout: settings column on the left, view on the right, print timeline along the bottom ── */
+  #panel{left:18px;right:auto;width:344px;background:#f6f5f1}
+  #body{padding:2px 12px 22px}
+  .sec{margin-top:10px;padding:13px 14px 12px;border:1px solid var(--line);border-top:1px solid var(--line);border-radius:4px;background:#fff}
+  .sec:first-child{padding-top:13px;border-top:1px solid var(--line);margin-top:12px}
+  .sec h3{font-size:19px}
+  #viewbar{left:380px}
+  #tools{left:calc(50% + 181px);bottom:150px}
+  #hint{left:calc(50% + 181px);bottom:204px}
+  #drawing{right:0;left:362px}
+  #dock{position:fixed;left:380px;right:18px;bottom:18px;z-index:6;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 12px 10px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:6px}
+  #dock .r{display:flex;align-items:center;gap:8px;min-width:0}
+  #dock .lab{font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #dock .lab b{color:var(--ink);font-weight:400}
+  #dock .sp{flex:1}
+  #dock button{padding:5px 11px;font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+  #dock select,#dock input[type=number]{font:400 12px var(--mono);color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 8px}
+  #dock input[type=number]{width:70px;border-radius:3px}
+  #dkPlay{min-width:74px}
+  #dkScrub{flex:1;min-width:60px}
+  #dkBars{width:100%;height:44px;display:block;cursor:crosshair;touch-action:none}
+  #dkSel{display:none;align-items:center;gap:6px}
+  #dock.sel #dkSel{display:flex} #dock.sel #dkTip{display:none}
+  body.sim #tools,body.sim #hint{display:none}
+  #hud{position:fixed;left:calc(50% + 181px);transform:translateX(-50%);bottom:150px;z-index:5;display:none;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font:400 10.5px var(--mono);letter-spacing:.05em;color:var(--muted);white-space:nowrap}
+  #hud b{font:400 15px var(--mono);color:var(--ink);letter-spacing:0}
+  body.sim #hud{display:block}
+  body.drawing #dock,body.drawing #hud{display:none}
+  .tile.imp .th{display:flex;align-items:center;justify-content:center;color:var(--muted)}
+  .tile.imp .th svg{width:46%;height:46%}
+  @media (max-width:760px){
+    #panel{left:0;width:auto;background:#f6f5f1}
+    #viewbar{left:12px}
+    #dock{left:0;right:0;bottom:0;border-radius:10px 10px 0 0;padding:7px 10px calc(8px + env(safe-area-inset-bottom));gap:5px}
+    #dock .r1 .lab{font-size:9.5px}
+    #dkBars{height:30px}
+    #dock button{padding:5px 9px}
+    #dkTime{display:none} #dock.sel #dkInfo{display:none}
+    #tools{left:50%;bottom:calc(112px + env(safe-area-inset-bottom))} #hint{left:50%;bottom:calc(166px + env(safe-area-inset-bottom))}
+    #hud{left:50%;bottom:calc(112px + env(safe-area-inset-bottom));padding:5px 11px;font-size:9.5px} #hud .wide{display:none}
+    #dkCol{display:none} #dkUnit{display:none} #dock input[type=number]{width:56px} #dock .r1{gap:5px} #dock select{padding:4px 4px} #dkPlay{min-width:0} #dkTip{display:none}
+    #hud b{font-size:13px}
+    body.sim #tools,body.sim #hint{display:none}
+    #drawing{left:0}
+  }
 </style>
 <script type="importmap">
 { "imports": {
@@ -151,13 +229,14 @@
 <body>
 <div id="stage"></div>
 <header>
-  <a href="/" class="back" title="David Ficko — portfolio" aria-label="Back to davidficko.com">←</a>
-  <h1><i>Spiral</i></h1>
-  <div class="seg" id="modeSeg"><button data-mode="lamp">Lamp</button><button data-mode="vessel">Vessel</button></div>
+  <h1><i>Monoline</i></h1>
+  <button id="newBtn" class="txt" title="Choose another piece">New</button>
   <div class="sp"></div>
   <button id="undoBtn" title="Undo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
-  <button id="fitBtn" title="Fit to view"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
   <button id="redoBtn" title="Redo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+  <button id="resetBtn" title="Reset — back to how this piece started"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 3.5v5h5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg></button>
+  <button id="fitBtn" title="Fit to view"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  <button id="shareBtn" title="Share a link to this design"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15V3M8 7l4-4 4 4M5 12v8h14v-8"/></svg></button>
   <button id="helpBtn" title="How it works" style="font:400 13px var(--mono);width:34px">?</button>
 </header>
 <div id="viewbar"><div class="seg" id="viewSeg"><button data-view="path">Path</button><button data-view="printed">Beads</button><button data-view="surface">Surface</button><button data-view="drawing">Drawing</button></div><div id="badge"></div><button id="status" title="Printability — tap for details"><span class="dot ok"></span><span id="statusTxt">Checking…</span></button></div>
@@ -175,23 +254,55 @@
   <button id="editBtn" title="Edit"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
 </div>
 <div id="drawing"></div>
+<div id="hud"></div>
+<div id="dock">
+  <div class="r r1"><span class="lab" id="dkInfo">Speed per layer</span><span class="lab" id="dkTip">· tap or drag across the bars to pick layers</span>
+    <span id="dkSel"><span class="lab" id="dkSelTxt"></span><input type="number" id="dkSpd" min="4" max="300" step="1" placeholder="mm/s"><span class="lab" id="dkUnit">mm/s</span><button id="dkSet">Set</button><button id="dkAuto" title="Back to the planned speeds">Auto</button><button id="dkClear" title="Clear selection">×</button></span>
+    <span class="sp"></span><span class="lab" id="dkTime"></span></div>
+  <div class="r r2"><button id="dkPlay">▶ Play</button><select id="dkMul" title="Playback speed"><option value="10">×10</option><option value="50">×50</option><option value="100" selected>×100</option><option value="300">×300</option><option value="1000">×1000</option></select>
+    <select id="dkCol" title="Colour"><option value="0">Colour · part</option><option value="1">Colour · speed</option></select>
+    <input type="range" id="dkScrub" min="0" max="1000" step="1" value="1000"><button id="dkExit" title="Back to the design">Design</button></div>
+  <canvas id="dkBars"></canvas>
+</div>
 <aside id="panel"><div id="grab"></div><div id="tabs"></div><div id="body"></div></aside>
 <div id="toast"></div>
 <div id="help"><div class="box">
-  <h2>Spiral</h2>
-  <p class="lead">Design a lamp or vessel that prints as one continuous line.</p>
+  <h2>Monoline</h2>
+  <p class="lead">Design lamps, shades, vases and planters that print as one continuous line.</p>
   <ol>
-    <li><span><b>Pick a piece.</b> Start from a ready-to-print design or a simple form (Shape tab). Switch Lamp / Vessel at the top.</span></li>
+    <li><span><b>Pick a piece.</b> Lamps, shades for a lamp you own, vases, bowls and planters. <b>New</b> at the top brings the choice back.</span></li>
     <li><span><b>Shape it.</b> Drag on the object to sculpt; drag empty space to turn it, pinch or scroll to zoom. Type exact sizes under Dimensions.</span></li>
     <li><span><b>Give it a surface.</b> Choose patterns, fade one into another, paint them on, or open the wall with holes (Surface tab).</span></li>
     <li><span><b>Check it.</b> The pill at the top left shows if it will print. Path shows the nozzle line, Beads the printed layers, Drawing a dimensioned section.</span></li>
     <li><span><b>Print it.</b> Choose printer, nozzle and filament, then download G-code or STL (Print tab).</span></li>
+    <li><span><b>Watch it print.</b> Play runs the real toolpath layer by layer. The bars along the bottom are each layer's speed: drag across them to set your own.</span></li>
+    <li><span><b>Your own model.</b> Import an STL (New → Your own model) and Monoline turns its outer surface into one line.</span></li>
+    <li><span><b>Changed your mind?</b> Undo steps back; the round arrow resets the piece to how it started. The arrow-up button makes a link to share it.</span></li>
   </ol>
   <button id="helpClose" class="on" style="padding:9px 18px">Start designing</button>
+  <p class="lead" style="margin:16px 0 0;font-size:12px">Made by <a href="https://davidficko.com" style="color:inherit">David Ficko</a></p>
+
+
+
+
+
+</div></div>
+<div id="start"><div class="in">
+  <div class="top"><div style="flex:1"><h2>Monoline</h2><p class="lead">What do you want to make?</p></div><button id="startClose" class="txt" style="padding:8px 14px;font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase">Back to my design</button></div>
+  <div class="filters" id="startCats"></div>
+  <div id="startBody"></div>
+  <div class="foot"><button id="startStl">Import STL…</button><button id="startOpen">Open a design file…</button><button id="startHelp">How it works</button></div>
+</div></div>
+<div id="share"><div class="box">
+  <h2>Share this design</h2>
+  <p id="shareNote"></p>
+  <input id="shareUrl" readonly>
+  <div class="btns"><button id="shareCopy" class="on">Copy link</button><button id="shareSys">Share…</button><button id="shareClose">Close</button></div>
 </div></div>
 <div id="busy">Working…</div>
 <input type="file" id="fileIn" accept=".json,application/json" hidden>
 <input type="file" id="imgIn" accept="image/*" hidden>
+<input type="file" id="stlIn" accept=".stl,model/stl,application/sla" hidden>
 
 <script type="module">
 import * as THREE from 'three';
@@ -201,6 +312,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const N = 41;                 // profile samples per part (v: 0 bottom → 1 top)
 const MW = 160, MH = 120;     // paint-mask resolution (θ × v); θ wraps → seamless
 const COLLAR_H = .07, TAU = Math.PI * 2, MM = 100; // 1 scene unit = 100 mm
+// One wall, one line: a line ~1.35× the nozzle is much stiffer than the usual 1.1× (stiffness grows with the cube of the wall) and still prints cleanly.
+const lineW = n => +Math.min(n * 1.35, n + .25).toFixed(2);
 const prof = f => Array.from({length:N}, (_, i) => +f(i / (N - 1)).toFixed(4));
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 const pat = (tex, amp, freq, layers, twist = 0) => ({ tex, amp, freq, layers, twist });
@@ -208,84 +321,70 @@ const NP0 = () => ({ mid:0, rim:0, waves:4, tilt:0 });
 const MESH0 = () => ({ on:false, mode:'radial', amp:2, lobes:32, rings:1, bumps:2, width:1, stagger:true, rim:6, holeW:5, holeH:5, holeH2:8, grad:'even', follow:true });
 const MOD0 = () => ({ src:'none', target:'depth', lift:2, strength:.8, invert:false, radius:30, attrs:[], img:'', repeat:1, noise:3, seed:7 });
 const TR0 = () => ({ on:false, dir:'around', pos:.5, soft:.08, span:.5, slant:.1, flip:false });
-const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}, mesh = {}, tr = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod }, mesh:{ ...MESH0(), ...mesh }, tr:{ ...TR0(), ...tr } });
+const SECT0 = () => ({ n:0, k:.8, n2:-1, twist:0 });   // cross-section: n sides (0 = round, 2 = oval), corner sharpness, shape at the top (-1 = same), twist in sides
+const PLANTER0 = () => ({ on:false, hole:0, rim:16, auto:true });
+const PARTS = ['shade', 'base', 'vessel', 'saucer'];
+const part = (h, p, A, B, color, lobes = 0, lobeAmt = 0, np = {}, mod = {}, mesh = {}, tr = {}, sect = {}) => ({ h, prof:p, ...A, b:B, mask:'', lobes, lobeAmt, color, np:{ ...NP0(), ...np }, mod:{ ...MOD0(), ...mod }, mesh:{ ...MESH0(), ...mesh }, tr:{ ...TR0(), ...tr }, sect:{ ...SECT0(), ...sect } });
+const PLAIN = () => pat('smooth', 0, 40, 20);
+const STEM = () => part(1.2, prof(v => .2), PLAIN(), PLAIN(), '#b8b5ae');   // stands in for the lamp you already own
+const SAUCER0 = c => part(.16, prof(v => .5), PLAIN(), PLAIN(), c || '#c96a3b');
 
+// A small set of pieces, each checked so every layer rests on the one below at 0.4, 0.6 and 0.8 mm nozzles.
 const LAMP_PRESETS = {
-  // ── finished pieces ──
-  lantern:{ studio:true, name:'Lantern', note:'Net that swells open · knurled foot', lamp:{ layout:'bell', fitting:'e27', bulb:'a60', watts:6 },
-    shade:part(1.7, prof(v => (22.2 + 58 * Math.sin(Math.PI * .85 * Math.pow(v, .7))) / MM), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#f3ead8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:5.4, holeH:2.4, holeH2:5.6, grad:'swell', rim:8 }),
-    base: part(.6, prof(v => .48 - .2 * Math.pow(v, 1.4)), pat('knurl', .0035, 44, 16, .22), pat('smooth', 0, 40, 20), '#2f4fb5') },
-  ember:{ studio:true, name:'Ember', note:'Bedside · bumps melt into smooth', lamp:{ layout:'bell', fitting:'e14', bulb:'p45', watts:4 },
-    shade:part(1.1, prof(v => (15.8 + 50 * Math.sin(Math.PI * .8 * Math.pow(v, .6))) / MM), pat('knurl', .0035, 60, 30, .18), pat('smooth', 0, 40, 20), '#ef7d5a', 0, 0, {}, {}, {}, { on:true, dir:'height', pos:.68, soft:.16 }),
-    base: part(.7, prof(v => .36 - .12 * v), pat('rings', .004, 40, 16), pat('smooth', 0, 40, 20), '#a9d6b8') },
+  ember:{ studio:true, name:'Ember', note:'Bedside lamp · knurl melting into smooth · E14', lamp:{ layout:'bell', fitting:'e14', bulb:'p45', watts:4 },
+    shade:part(1.1, prof(v => (15.8 + 50 * Math.sin(Math.PI * .8 * Math.pow(v, .6))) / MM), pat('knurl', .0025, 56, 26, .18), PLAIN(), '#ef7d5a', 0, 0, {}, {}, {}, { on:true, dir:'height', pos:.62, soft:.16 }),
+    base: part(.6, prof(v => .52 - .26 * Math.pow(v, 1.3)), pat('rings', .003, 40, 14), PLAIN(), '#a9d6b8') },
+  lantern:{ studio:true, name:'Lantern', note:'Table lamp · open mesh, diamond cells', lamp:{ layout:'bell', fitting:'e27', bulb:'a60', watts:6 },
+    shade:part(1.6, prof(v => (24 + 55 * Math.sin(Math.PI * .85 * Math.pow(v, .7))) / MM), PLAIN(), PLAIN(), '#f3ead8', 0, 0, {}, {}, { on:true, mode:'radial', amp:1.5, lobes:46, rings:1, bumps:2, width:1, stagger:true, rim:8 }),
+    base: part(.6, prof(v => .58 - .28 * Math.pow(v, 1.2)), pat('ribs', .004, 52, 16), PLAIN(), '#2f4fb5') },
   sash:{ studio:true, name:'Sash', note:'Pendant · a knurled ribbon winds through ribs', lamp:{ layout:'pendant', fitting:'e27', bulb:'g95', watts:7 },
-    shade:part(1.9, prof(v => (22.2 + 94 * Math.pow(1 - v, .74)) / MM), pat('ribs', .005, 72, 20, .2), pat('knurl', .0035, 72, 44, .2), '#c96a3b', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.3, span:.3, slant:.5, soft:.035 }),
-    base: part(.6, prof(v => .2), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#c96a3b') },
-  globe:{ name:'Globe', note:'E27 bulb, shade on socket ring', lamp:{ layout:'bell', fitting:'e27', bulb:'a60' },
-    shade:part(1.6, prof(v => { const z = v * 160; return Math.min(22.2 + z * .95, 75, 35 + (160 - z) * .95) / MM; }), pat('rings', .004, 40, 24), pat('woven', .004, 40, 24), '#f2efe8'),
-    base: part(.55, prof(v => .42 - .14 * v), pat('ribs', .01, 48, 20), pat('rings', .005, 40, 14), '#1e1d1b') },
-  pendant:{ name:'Pendant', note:'E27, hangs from the cord', lamp:{ layout:'pendant', fitting:'e27', bulb:'g95' },
-    shade:part(1.7, prof(v => Math.min(22.2 + (1 - v) * 170 * .95, 118) / MM), pat('ribs', .008, 64, 20), pat('woven', .005, 40, 16), '#efe9df'),
-    base: part(.6, prof(v => .2), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#efe9df') },
-  net:{ name:'Net', note:'Up/down holes, E27 bulb', lamp:{ layout:'bell', fitting:'e27', bulb:'a60' },
-    shade:part(1.5, prof(v => { const z = v * 150; return Math.min(22.2 + z * .95, 72, 40 + (150 - z) * .7) / MM; }), pat('smooth', 0, 40, 20), pat('ribs', .006, 48, 20), '#f2efe8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:5.4, holeH:5, holeH2:8, rim:6 }),
-    base: part(.55, prof(v => .42 - .14 * v), pat('ribs', .01, 48, 20), pat('rings', .005, 40, 14), '#1e1d1b') },
-  mesh:{ name:'Mesh', note:'Open lattice shade', lamp:{ layout:'dome', fitting:'led', bulb:'led' },
-    shade:part(.62, prof(v => .22 + .68 * Math.pow(Math.sin((1 - v) * Math.PI / 2 + .12), 1.3)), pat('smooth', 0, 40, 20), pat('ribs', .006, 48, 20), '#f2efe8', 0, 0, {}, {}, { on:true, amp:1.6, lobes:40, rings:1, bumps:2, rim:5 }),
-    base: part(.95, prof(v => .2 + .1 * Math.pow(1 - v, 1.6)), pat('ribs', .008, 40, 20), pat('rings', .005, 40, 14), '#f2efe8') },
-  mushroom:{ name:'Mushroom', note:'Dome shade, fluted foot', lamp:{ layout:'dome', fitting:'led', bulb:'led' },
-    shade:part(.72, prof(v => .26 + .76 * Math.pow(Math.cos(v * Math.PI / 2), .7)), pat('woven', .005, 40, 16), pat('ribs', .008, 60, 16), '#ece3d6'),
-    base: part(1.0, prof(v => .2 + .29 * Math.pow(1 - v, 2.3)), pat('ribs', .012, 48, 20), pat('rings', .005, 40, 14), '#3b2622') },
-  cone:{ name:'Cone', note:'Tapered shade, ribbed column',
-    shade:part(.66, prof(v => .16 + .62 * (1 - v)), pat('rings', .005, 40, 16), pat('woven', .005, 40, 16), '#efe6d8'),
-    base: part(.92, prof(v => .27 - .06 * v), pat('ribs', .01, 56, 20), pat('diamond', .005, 28, 14), '#ddd3c4') },
-  saucer:{ name:'Saucer', note:'Wide disc, slim stem',
-    shade:part(.5, prof(v => .26 + .7 * Math.pow(Math.sin(Math.min(1, (1 - v) * 1.25) * Math.PI / 2), .8) + .08 * Math.sin(v * Math.PI)), pat('woven', .005, 56, 12), pat('ribs', .008, 64, 12), '#e9dfd0'),
-    base: part(1.08, prof(v => .17 + .2 * Math.pow(1 - v, 3)), pat('ribs', .01, 36, 20, .15), pat('rings', .005, 40, 16), '#2f2420') },
-  hive:{ name:'Hive', note:'Coiled bell, petal foot',
-    shade:part(.86, prof(v => .24 + .6 * Math.pow(Math.max(0, 1 - v * v), .6)), pat('rings', .007, 40, 14), pat('woven', .005, 40, 14), '#f0d9b5'),
-    base: part(.86, prof(v => .2 + .14 * Math.cos(v * Math.PI) ** 2), pat('diamond', .005, 20, 12), pat('ribs', .01, 40, 12), '#5a3b2c', 6, .06) },
+    shade:part(1.8, prof(v => (22.2 + 88 * Math.pow(1 - v, .74)) / MM), pat('ribs', .004, 64, 20, .2), pat('knurl', .003, 64, 40, .2), '#c96a3b', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.3, span:.3, slant:.5, soft:.035 }), base:STEM() },
+  pleat:{ studio:true, name:'Pleat', note:'Pendant · deep pleats · fits any cord set', lamp:{ layout:'pendant', fitting:'e27', bulb:'a60', watts:6 },
+    shade:part(1.5, prof(v => (22.2 + 88 * Math.pow(1 - v, .85)) / MM), pat('ribs', .006, 32, 20), PLAIN(), '#f3ead8'), base:STEM() },
+  tulip:{ studio:true, name:'Tulip', note:'New shade for a table lamp you own', lamp:{ layout:'bell', own:true, fitting:'e27', bulb:'a60', watts:6 },
+    shade:part(1.5, prof(v => (22.2 + 62 * Math.sin(Math.PI * .78 * Math.pow(v, .6))) / MM), pat('woven', .0025, 40, 30), PLAIN(), '#f1d98a'), base:STEM() },
+  carre:{ studio:true, name:'Carré', note:'Soft-square shade for a lamp you own', lamp:{ layout:'bell', own:true, fitting:'e27', bulb:'a60', watts:6 },
+    shade:part(1.4, prof(v => (22.2 + 72 * Math.pow(v, .62)) / MM), pat('rings', .002, 40, 36), PLAIN(), '#8fb8e8', 0, 0, {}, {}, {}, {}, { n:4, k:.75 }), base:STEM() },
 };
 const VESSEL_PRESETS = {
-  // ── finished pieces ──
-  helix:{ studio:true, name:'Helix vase', note:'Knurled ribbon spiralling up a coiled wall',
-    vessel:part(1.8, prof(v => .3 + .1 * Math.sin(v * Math.PI * 1.1 - .3) - .04 * v), pat('rings', .004, 40, 60), pat('knurl', .0035, 56, 60, .3), '#a9a4e0', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.3, span:.3, slant:.5, soft:.035 }) },
-  tide:{ studio:true, name:'Tide bowl', note:'Three soft corners · wavy rim · knurl',
-    vessel:part(.7, prof(v => .42 + .4 * Math.pow(Math.sin(v * Math.PI / 2), 1.2)), pat('knurl', .0035, 96, 22, .15), pat('smooth', 0, 40, 20), '#f1d98a', 3, .03, { rim:4, waves:6 }) },
-  sieve:{ studio:true, name:'Sieve basket', note:'Solid foot · holes open toward the rim',
-    vessel:part(.8, prof(v => .5 + .3 * Math.sin(v * Math.PI / 2)), pat('smooth', 0, 40, 20), pat('smooth', 0, 40, 20), '#8fb8e8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:5.2, holeH:2.4, holeH2:5.4, grad:'linear', rim:6 }) },
-  bud:{ name:'Bud vase', note:'Round belly, narrow neck',
-    vessel:part(.95, prof(v => .12 + .25 * Math.exp(-(((v - .3) / .28) ** 2)) + .05 * smooth(.8, 1, v)), pat('woven', .005, 28, 16), pat('ribs', .008, 32, 16), '#e7d9c4') },
-  tall:{ name:'Tall vase', note:'For dried stems',
-    vessel:part(1.7, prof(v => .2 + .17 * Math.exp(-(((v - .35) / .32) ** 2)) - .03 * v + .05 * smooth(.85, 1, v)), pat('ribs', .01, 48, 30, .25), pat('woven', .006, 36, 30), '#d8c7b0') },
-  bowl:{ name:'Bowl', note:'Open, gently flared',
-    vessel:part(.66, prof(v => .38 + .4 * Math.sin(v * Math.PI / 2)), pat('woven', .005, 56, 14), pat('rings', .006, 40, 12), '#efe6d8') },
-  knurl:{ name:'Knurl cup', note:'Bumps fading into smooth',
-    vessel:part(.9, prof(v => .3 + .05 * Math.sin(v * Math.PI * .9) - .02 * v), pat('smooth', 0, 60, 40), pat('knurl', .0035, 64, 30), '#c9372f', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.42, span:.55, soft:.04, slant:.1 }) },
-  netvase:{ name:'Net vase', note:'Perforated, up/down holes',
-    vessel:part(1.1, prof(v => .26 + .08 * Math.sin(v * Math.PI) - .02 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#e9e3d8', 0, 0, {}, {}, { on:true, mode:'zwave', holeW:4.8, holeH:4.8, holeH2:8, rim:10 }) },
-  tidevase:{ name:'Tide vase', note:'Non-planar wavy layers',
-    vessel:part(1.2, prof(v => .27 + .06 * Math.sin(v * Math.PI) - .03 * v), pat('smooth', 0, 40, 20), pat('rings', .005, 40, 20), '#d9cbb6', 0, 0, { mid:5, waves:2 }) },
-  crown:{ name:'Crown bowl', note:'Wavy rim, noise texture',
-    vessel:part(.7, prof(v => .36 + .36 * Math.sin(v * Math.PI / 2)), pat('ribs', .006, 48, 20), pat('woven', .005, 40, 14), '#efe2cf', 0, 0, { rim:4, waves:5 }, { src:'noise', target:'depth', strength:.7, noise:3 }) },
-  pot:{ name:'Petal pot', note:'Lobed tumbler',
-    vessel:part(.95, prof(v => .33 - .05 * v + .02 * smooth(.9, 1, v)), pat('ribs', .01, 56, 20), pat('diamond', .005, 28, 16), '#b88a6a', 8, .05) },
+  helix:{ studio:true, cat:'vase', name:'Helix vase', note:'Knurled ribbon spiralling up a coiled wall',
+    vessel:part(1.8, prof(v => .3 + .1 * Math.sin(v * Math.PI * 1.1 - .3) - .04 * v), pat('rings', .0035, 40, 60), pat('knurl', .003, 56, 60, .3), '#a9a4e0', 0, 0, {}, {}, {}, { on:true, dir:'around', pos:.3, span:.3, slant:.5, soft:.035 }) },
+  twist:{ studio:true, cat:'vase', name:'Twist vase', note:'Square foot turning into a round lip',
+    vessel:part(1.8, prof(v => .34 + .05 * Math.sin(v * Math.PI) - .04 * v), pat('rings', .003, 40, 70), PLAIN(), '#8fb8e8', 0, 0, {}, {}, {}, {}, { n:4, k:.8, n2:0, twist:.6 }) },
+  bud:{ studio:true, cat:'vase', name:'Bud vase', note:'Round belly, narrow neck, fine coil',
+    vessel:part(1.1, prof(v => .14 + .22 * Math.exp(-(((v - .32) / .34) ** 2)) + .04 * smooth(.8, 1, v)), pat('rings', .0025, 40, 40), PLAIN(), '#e7d9c4') },
+  tide:{ studio:true, cat:'bowl', name:'Tide bowl', note:'Three soft corners · knurl · rim rises at each corner',
+    vessel:part(.7, prof(v => .44 + .32 * Math.pow(Math.sin(v * Math.PI / 2), 1.2)), pat('knurl', .003, 88, 22, .15), PLAIN(), '#f1d98a', 3, .03, { rim:1.4, waves:3 }) },
+  sieve:{ studio:true, cat:'bowl', name:'Sieve basket', note:'Solid foot · open mesh wall',
+    vessel:part(.8, prof(v => .5 + .26 * Math.sin(v * Math.PI / 2)), PLAIN(), PLAIN(), '#8fb8e8', 0, 0, {}, {}, { on:true, mode:'radial', amp:1.4, lobes:48, rings:1, bumps:2, width:1, stagger:true, rim:6 }) },
+  terra:{ studio:true, cat:'planter', name:'Terra planter', note:'Coiled pot · saucer · drainage hole', planter:{ on:true, hole:10 },
+    vessel:part(1.1, prof(v => .36 + .2 * Math.pow(v, .9)), pat('rings', .0035, 40, 36), PLAIN(), '#c96a3b') },
+  quad:{ studio:true, cat:'planter', name:'Quad planter', note:'Soft square · knurled band · saucer', planter:{ on:true, hole:10 },
+    vessel:part(1.0, prof(v => .46 + .14 * Math.pow(v, .8)), PLAIN(), pat('knurl', .003, 64, 30), '#7f8f7a', 0, 0, {}, {}, {}, { on:true, dir:'height', pos:.55, soft:.12 }, { n:4, k:.75 }) },
 };
+// make a shade's opening fit the socket's shade ring (bottom opening for table lamps, top opening for pendants)
+function fitProf(P, layout, fitting, w = lineW(.4), deg = 40) {
+  const F = FITTINGS[fitting] || FITTINGS.e27, target = (F.hole / 2 + w / 2) / MM, a = layout === 'bell' ? 0 : N - 1, dir = a ? -1 : 1;
+  const maxD = Math.tan(deg * Math.PI / 180) * (P.h / (N - 1)), pr = P.prof;
+  pr[a] = +target.toFixed(4);
+  // walk away from the opening, never steeper than a printable overhang, until the wall meets the designed form
+  for (let i = a + dir; i >= 0 && i < N; i += dir) { const lim = Math.min(Math.max(pr[i], pr[i - dir] - maxD), pr[i - dir] + maxD); if (lim === pr[i]) break; pr[i] = +lim.toFixed(4); }
+}
 // keep every preset inside a printable overhang for vase mode
 function easeSlope(P, deg = 45) {
   const maxD = Math.tan(deg * Math.PI / 180) * (P.h / (N - 1)), pr = P.prof; let iMax = 0; pr.forEach((r, i) => { if (r > pr[iMax]) iMax = i; });
   for (let i = iMax + 1; i < N; i++) pr[i] = +Math.min(Math.max(pr[i], pr[i - 1] - maxD), pr[i - 1] + maxD).toFixed(4);
   for (let i = iMax - 1; i >= 0; i--) pr[i] = +Math.min(Math.max(pr[i], pr[i + 1] - maxD), pr[i + 1] + maxD).toFixed(4);
 }
-for (const p of [...Object.values(LAMP_PRESETS), ...Object.values(VESSEL_PRESETS)]) for (const k of ['shade', 'base', 'vessel']) if (p[k]) easeSlope(p[k]);
+for (const p of [...Object.values(LAMP_PRESETS), ...Object.values(VESSEL_PRESETS)]) for (const k of ['shade', 'base', 'vessel']) if (p[k]) easeSlope(p[k], 40);
 
 const PRINTERS = {
-  a1mini:{ name:'A1 mini', bed:[180,180], maxZ:180, park:[10,170], purgeY:4 },
-  a1:{ name:'A1', bed:[256,256], maxZ:256, park:[10,250], purgeY:4 },
-  p1s:{ name:'P1S / P1P', bed:[256,256], maxZ:250, park:[65,245], purgeY:4 },
-  x1c:{ name:'X1C / X1E', bed:[256,256], maxZ:250, park:[65,245], purgeY:4 },
-  p2s:{ name:'P2S', bed:[256,256], maxZ:256, park:[65,245], purgeY:4 },
-  a2l:{ name:'A2L', bed:[330,320], maxZ:325, park:[10,310], purgeY:4 },
+  a1mini:{ name:'A1 mini', bed:[180,180], maxZ:180, zSpeed:10, park:[10,170], purgeY:4 },
+  a1:{ name:'A1', bed:[256,256], maxZ:256, zSpeed:10, park:[10,250], purgeY:4 },
+  p1s:{ name:'P1S / P1P', bed:[256,256], maxZ:250, zSpeed:10, park:[65,245], purgeY:4 },
+  x1c:{ name:'X1C / X1E', bed:[256,256], maxZ:250, zSpeed:10, park:[65,245], purgeY:4 },
+  p2s:{ name:'P2S', bed:[256,256], maxZ:256, zSpeed:10, park:[65,245], purgeY:4 },
+  a2l:{ name:'A2L', bed:[330,320], maxZ:325, zSpeed:10, park:[10,310], purgeY:4 },
 };
 const FILAMENTS = {
   pla:{ name:'PLA', nozzle:220, bed:55, fan:100, flow:18, soft:55, rho:1.24 },
@@ -308,44 +407,49 @@ const BULBS = {
   c35:{ fit:'e14', name:'C35 candle', d:35, h:100, mass:20 },
   p45:{ fit:'e14', name:'P45 ball', d:45, h:80, mass:25 },
 };
-const LAYOUTS = { dome:'Dome over an LED module', bell:'Shade on a socket ring', pendant:'Pendant' };
+const LAYOUTS = { bell:'Table lamp · shade clamps on the socket', pendant:'Pendant · shade hangs from the socket' };
+const ringH = F => (F.h - 18) / MM;   // height of the socket's shade ring above its foot (scene units)
+const PLATE_HOLE = 10.5;             // mm, hole in the base's top plate for an M10 threaded nipple
 const PEND_Y = .55;
-const LAMP0 = () => ({ layout:'dome', fitting:'led', bulb:'led', watts:6, hw:true });
-const lineW = n => +(n * 1.12).toFixed(2);
+const LAMP0 = () => ({ layout:'bell', own:false, fitting:'e27', bulb:'a60', watts:6, hw:true });
+for (const p of Object.values(LAMP_PRESETS)) { fitProf(p.shade, p.lamp.layout, p.lamp.fitting); easeSlope(p.shade, 40); }   // every lamp's opening fits its socket
 
 const clone = o => JSON.parse(JSON.stringify(o));
 function defaultState() {
   const L = LAMP_PRESETS.ember, V = VESSEL_PRESETS.helix;
-  return { v:4, view:'path', risks:true, mode:'lamp', preset:'ember', vpreset:'helix', shade:clone(L.shade), base:clone(L.base), vessel:clone(V.vessel),
+  return { v:6, view:'path', risks:true, mode:'lamp', preset:'ember', vpreset:'helix', shade:clone(L.shade), base:clone(L.base), vessel:clone(V.vessel), saucer:SAUCER0(), planter:PLANTER0(),
     collar:'#b8b5ae', light:{ on:false, power:1, warmth:.35 }, lamp:{ ...LAMP0(), ...L.lamp },
-    print:{ printer:'x1c', nozzle:.4, filament:'pla', layerH:.2, speed:90, orient:'rim', bottom:4, abl:true, part:'shade', layerLines:true, customStart:'' } };
+    print:{ printer:'x1c', nozzle:.4, filament:'pla', layerH:.2, speed:60, orient:'auto', brim:'auto', bottom:4, spd:{}, abl:true, part:'shade', layerLines:true, customStart:'' } };
 }
 function upgrade(s) {
   const d = defaultState();
   if (!s || typeof s !== 'object') return d;
-  const o = { ...d, ...s, print:{ ...d.print, ...(s.print || {}) }, light:{ ...d.light, ...(s.light || {}) }, lamp:{ ...LAMP0(), ...(s.lamp || {}) } };
-  for (const k of ['shade', 'base', 'vessel']) {
+  const o = { ...d, ...s, print:{ ...d.print, ...(s.print || {}) }, light:{ ...d.light, ...(s.light || {}) }, lamp:{ ...LAMP0(), ...(s.lamp || {}) }, planter:{ ...PLANTER0(), ...(s.planter || {}) } };
+  for (const k of PARTS) {
     const P = s[k]; if (!P || !Array.isArray(P.prof)) { o[k] = d[k]; continue; }
-    o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) }, np:{ ...NP0(), ...(P.np || {}) }, mod:{ ...MOD0(), ...(P.mod || {}) }, mesh:{ ...MESH0(), ...(P.mesh || {}) }, tr:{ ...TR0(), ...(P.tr || {}) } };
+    o[k] = { ...d[k], ...P, b:{ ...d[k].b, ...(P.b || {}) }, np:{ ...NP0(), ...(P.np || {}) }, mod:{ ...MOD0(), ...(P.mod || {}) }, mesh:{ ...MESH0(), ...(P.mesh || {}) }, tr:{ ...TR0(), ...(P.tr || {}) }, sect:{ ...SECT0(), ...(P.sect || {}) } };
     if (o[k].prof.length !== N) o[k].prof = d[k].prof;
   }
-  if (!s.v || s.v < 4) { o.view = 'path'; o.v = 4; }
-  for (const k of ['shade', 'base', 'vessel']) if (o[k].mod.target !== 'lift') o[k].mod.target = 'depth';
-  for (const k of ['shade', 'base', 'vessel']) { const M = o[k].mesh; if (M && M.mode === 'zwave' && !(s[k]?.mesh?.holeW)) { M.holeW = +(Math.PI * Math.max(...o[k].prof) * MM / Math.max(6, M.lobes)).toFixed(1); M.holeH = +(M.amp * 4).toFixed(1); } }
+  if (!s.v || s.v < 4) o.view = 'path';
+  if (!s.v || s.v < 6) { o.print.orient = 'auto'; o.print.brim = 'auto'; const sp = { .4:90, .6:70, .8:50 }, ns = { .4:60, .6:50, .8:40 }; if (o.print.speed === sp[o.print.nozzle]) o.print.speed = ns[o.print.nozzle]; }
+  o.v = 6;
+  for (const k of PARTS) if (o[k].mod.target !== 'lift') o[k].mod.target = 'depth';
+  for (const k of PARTS) { const M = o[k].mesh; if (M && M.mode === 'zwave' && !(s[k]?.mesh?.holeW)) { M.holeW = +(Math.PI * Math.max(...o[k].prof) * MM / Math.max(6, M.lobes)).toFixed(1); M.holeH = +(M.amp * 4).toFixed(1); } }
   return o;
 }
-let state;
-try { state = upgrade(JSON.parse(localStorage.getItem('spiral.v1') || localStorage.getItem('lampstudio.v2') || localStorage.getItem('lampstudio.v1'))); } catch (e) { state = defaultState(); }
+let state, hadSaved = false;
+try { hadSaved = !!localStorage.getItem('monoline.v1'); state = upgrade(JSON.parse(localStorage.getItem('monoline.v1') || localStorage.getItem('spiral.v1') || localStorage.getItem('lampstudio.v2') || localStorage.getItem('lampstudio.v1'))); } catch (e) { state = defaultState(); }
 
-const ui = { fold:{}, tool:'grab', brush:.16, strength:.6, paintSize:22, tab:'shape', surf:state.mode === 'vessel' ? 'vessel' : 'shade' };
-const parts = () => state.mode === 'lamp' ? (state.lamp.layout === 'pendant' ? ['shade'] : ['shade', 'base']) : ['vessel'];
+const ui = { fold:{}, cat:'all', started:false, tool:'grab', brush:.16, strength:.6, paintSize:22, tab:'shape', surf:state.mode === 'vessel' ? 'vessel' : 'shade' };
+const parts = () => state.mode === 'lamp' ? (state.lamp.layout === 'pendant' || state.lamp.own ? ['shade'] : ['shade', 'base']) : (state.planter.on ? ['vessel', 'saucer'] : ['vessel']);
+const PART_NAMES = k => ({ shade:'Shade', base:'Base', vessel:state.planter.on ? 'Pot' : 'Vessel', saucer:'Saucer' })[k];
 
 /* ═════════════════════ undo / persistence ═════════════════════ */
 const undoStack = [], redoStack = [];
 function pushUndo() { flushMasks(); undoStack.push(JSON.stringify(state)); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0; syncUndo(); }
 function syncUndo() { undoBtn.disabled = !undoStack.length; redoBtn.disabled = !redoStack.length; }
 let saveT;
-function persist() { clearTimeout(saveT); saveT = setTimeout(() => { flushMasks(); try { localStorage.setItem('spiral.v1', JSON.stringify(state)); } catch (e) {} }, 500); }
+function persist() { if (typeof simDirty === 'function' && SIM.key && SIM.key !== simKey()) simDirty(); clearTimeout(saveT); saveT = setTimeout(() => { flushMasks(); try { localStorage.setItem('monoline.v1', JSON.stringify(state)); } catch (e) {} }, 500); }
 
 /* ═════════════════════ paint masks ═════════════════════ */
 const maskCache = {};
@@ -374,15 +478,16 @@ function maskAt(m, th, v) { // bilinear, wraps in θ (seamless around the circum
 }
 
 // Transition between pattern A and B, written into the paint mask (wraps around, so no seam).
-function applyTransition(k) {
-  const P = state[k], T = P.tr, m = getMask(k); maskCache[k].live = true;
+function applyTransition(k) { getMask(k).set(transitionMask(k)); maskCache[k].live = true; flushMasks(); }
+function transitionMask(k) {
+  const P = state[k], T = P.tr, m = new Float32Array(MW * MH);
   const soft = Math.max(.008, T.soft);
   for (let j = 0; j < MH; j++) { const v = j / (MH - 1);
     for (let i = 0; i < MW; i++) { let f;
       if (T.dir === 'height') f = smooth(T.pos - soft, T.pos + soft, v);
       else { const c = T.pos + T.slant * (v - .5); let d = Math.abs((((i / MW - c) % 1) + 1.5) % 1 - .5); f = T.span >= .999 ? 1 : 1 - smooth(T.span / 2 - soft, T.span / 2 + soft, d); }
       m[j * MW + i] = T.flip ? 1 - f : f; } }
-  flushMasks();
+  return m;
 }
 
 /* ═════════════════════ surface definition ═════════════════════ */
@@ -423,8 +528,8 @@ function disp(P, th, v, m) {
   GLOW = ga + (gb - ga) * w;
   return a + (b - a) * w;
 }
-const rimFade = v => Math.min(1, Math.min(v, 1 - v) * 40);
-const keyOf = P => P === state.shade ? 'shade' : P === state.base ? 'base' : 'vessel';
+const rimFade = (v, P) => Math.min(1, Math.min(v, 1 - v) * (P ? P.h * MM / 8 : 40));
+const keyOf = P => P === state.shade ? 'shade' : P === state.base ? 'base' : P === state.saucer ? 'saucer' : 'vessel';
 // Modulation field (0..1) after the book's "attractor" and "Image Sampler" strategies.
 const imgCache = {}, noiseCache = {};
 function getImg(k) {
@@ -465,7 +570,96 @@ function warpMM(P, k, th, v) {
   if (lift) w += P.mod.lift * P.mod.strength * (2 * field(P, th, v) - 1) * env;
   return w;
 }
-const lobeF = (P, th) => 1 + P.lobeAmt * Math.cos(Math.round(P.lobes) * th);
+// Cross-section: a rounded polygon in polar form (n = 2 is an oval). k = 0 is a circle, k = 1 a sharp polygon; widest point stays at the profile radius.
+const polyF = (n, k, th) => n < 2 ? 1 : Math.cos(2 / n * Math.asin(k)) / Math.cos(2 / n * Math.asin(k * Math.sin(n * th / 2)));
+const sectOn = P => !!P.sect && (P.sect.n >= 2 || P.sect.n2 >= 2);
+function sectF(P, th, v) {
+  const S = P.sect; if (!sectOn(P)) return 1;
+  const k = Math.sin(Math.min(.95, Math.max(0, S.k)) * Math.PI / 2), n2 = S.n2 < 0 ? S.n : S.n2;
+  const t = th - S.twist * TAU / Math.max(2, S.n || n2) * v, a = polyF(S.n, k, t);
+  return n2 === S.n ? a : a + (polyF(n2, k, t) - a) * smooth(0, 1, v);
+}
+const sectMin = P => { if (!sectOn(P)) return 1; const S = P.sect, c = n => n >= 2 ? Math.cos(Math.min(.95, S.k) * Math.PI / n) : 1; return Math.min(c(S.n), c(S.n2 < 0 ? S.n : S.n2)); };
+// Imported model: its outer surface stored as radius ÷ profile, 256 directions × 161 heights (Uint16, base64)
+const fieldCache = new Map();
+function fieldArr(Fd) {
+  let a = fieldCache.get(Fd.d); if (a) return a;
+  const bin = atob(Fd.d), u = new Uint16Array(bin.length / 2);
+  for (let i = 0; i < u.length; i++) u[i] = bin.charCodeAt(i * 2) | bin.charCodeAt(i * 2 + 1) << 8;
+  a = Float32Array.from(u, x => x / 16384); if (fieldCache.size > 6) fieldCache.clear(); fieldCache.set(Fd.d, a); return a;
+}
+function fieldF(P, th, v) {
+  const Fd = P.field; if (!Fd) return 1;
+  const a = fieldArr(Fd), nt = Fd.nt, nv = Fd.nv;
+  let u = th / TAU % 1; if (u < 0) u += 1;
+  const x = u * nt, i0 = Math.floor(x) % nt, i1 = (i0 + 1) % nt, fx = x - Math.floor(x);
+  const y = Math.min(nv - 1, Math.max(0, v * (nv - 1))), j0 = Math.min(nv - 2, Math.floor(y)), fy = y - j0;
+  const r = (a[j0 * nt + i0] * (1 - fx) + a[j0 * nt + i1] * fx) * (1 - fy) + (a[(j0 + 1) * nt + i0] * (1 - fx) + a[(j0 + 1) * nt + i1] * fx) * fy;
+  return 1 + (r - 1) * (Fd.s ?? 1);
+}
+const fieldMax = P => P.field ? 1 + (P.field.max - 1) * (P.field.s ?? 1) : 1;
+const rMaxOf = P => Math.max(...P.prof) * (1 + P.lobeAmt) * fieldMax(P);
+// radius multiplier around the form: petals × cross-section × imported shape. A lamp shade stays round where it meets the socket.
+function lobeF(P, th, v = 0) {
+  let f = (1 + P.lobeAmt * Math.cos(Math.round(P.lobes) * th)) * sectF(P, th, v) * fieldF(P, th, v);
+  if (f !== 1 && P === state.shade) f = 1 + (f - 1) * smooth(.02, .3, state.lamp.layout === 'bell' ? v : 1 - v);
+  return f;
+}
+const minF = P => (1 - P.lobeAmt) * sectMin(P) * (P.field ? 1 + (P.field.min - 1) * (P.field.s ?? 1) : 1);
+// Turn an STL (triangles, mm, Z up) into a profile + shape field. Every height is cut, and from the vertical axis we keep
+// the farthest wall in each of 256 directions: the outer surface, which is what a single continuous line can print.
+function stlToField(T, NT = 256, NV = 161) {
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+  for (let i = 0; i < T.length; i += 3) { const x = T[i], y = T[i + 1], z = T[i + 2]; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; if (z < z0) z0 = z; if (z > z1) z1 = z; }
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, H = z1 - z0; if (!(H > 0)) throw new Error('flat');
+  const Fm = new Float32Array(NT * NV), zAt = j => z0 + H * (.002 + .996 * j / (NV - 1)), dz = H * .996 / (NV - 1);
+  const hit = (j, ax, ay, bx, by) => {   // segment of the cut at row j (centred, STL frame): widest crossing per direction
+    const t1 = -Math.atan2(ay, ax); let dl = -Math.atan2(by, bx) - t1; dl -= TAU * Math.round(dl / TAU);
+    const lo = Math.min(t1, t1 + dl), hi = Math.max(t1, t1 + dl), dx = bx - ax, dy = by - ay;
+    for (let b = Math.ceil(lo / TAU * NT); b <= Math.floor(hi / TAU * NT); b++) {
+      const th = b / NT * TAU, ux = Math.cos(th), uy = -Math.sin(th), den = ux * dy - uy * dx; if (Math.abs(den) < 1e-12) continue;
+      const r = (ax * dy - ay * dx) / den, o = j * NT + ((b % NT) + NT) % NT; if (r > Fm[o]) Fm[o] = r;
+    }
+  };
+  for (let i = 0; i < T.length; i += 9) {
+    const za = T[i + 2], zb = T[i + 5], zc = T[i + 8], lo = Math.min(za, zb, zc), hi = Math.max(za, zb, zc);
+    const jA = Math.max(0, Math.ceil((lo - zAt(0)) / dz)), jB = Math.min(NV - 1, Math.floor((hi - zAt(0)) / dz));
+    for (let j = jA; j <= jB; j++) {
+      const z = zAt(j), q = [];
+      for (const [p, r] of [[0, 3], [3, 6], [6, 0]]) { const pz = T[i + p + 2], rz = T[i + r + 2]; if ((pz <= z) !== (rz <= z)) { const t = (z - pz) / (rz - pz); q.push(T[i + p] + t * (T[i + r] - T[i + p]) - cx, T[i + p + 1] + t * (T[i + r + 1] - T[i + p + 1]) - cy); } }
+      if (q.length === 4) hit(j, q[0], q[1], q[2], q[3]);
+    }
+  }
+  const mean = new Float32Array(NV), full = [];
+  for (let j = 0; j < NV; j++) {   // close gaps in each cut by going round to the nearest found wall on either side
+    const row = Fm.subarray(j * NT, (j + 1) * NT), got = []; for (let b = 0; b < NT; b++) if (row[b] > 0) got.push(b);
+    if (got.length < NT * .1) continue; full.push(j);
+    for (let g = 0; g < got.length; g++) { const a = got[g], c = got[(g + 1) % got.length], n = ((c - a + NT) % NT) || NT; for (let s = 1; s < n; s++) row[(a + s) % NT] = row[a] + (row[c] - row[a]) * s / n; }
+    let m = 0; for (let b = 0; b < NT; b++) m += row[b]; mean[j] = m / NT;
+  }
+  if (full.length < 2) throw new Error('empty');
+  for (let j = 0; j < NV; j++) if (!mean[j]) { const n = full.reduce((a, b) => Math.abs(b - j) < Math.abs(a - j) ? b : a); Fm.copyWithin(j * NT, n * NT, (n + 1) * NT); mean[j] = mean[n]; }
+  const pr = prof(v => { const y = v * (NV - 1), j = Math.min(NV - 2, Math.floor(y)), f = y - j; return (mean[j] * (1 - f) + mean[j + 1] * f) / MM; });
+  const u = new Uint16Array(NT * NV); let mn = 9, mx = 0;
+  for (let j = 0; j < NV; j++) { const base = sampleProf(pr, j / (NV - 1)) * MM; for (let b = 0; b < NT; b++) { const r = Math.min(3.99, Fm[j * NT + b] / base); u[j * NT + b] = Math.round(r * 16384); mn = Math.min(mn, r); mx = Math.max(mx, r); } }
+  const by = new Uint8Array(u.buffer); let t = ''; for (let i = 0; i < by.length; i += 8192) t += String.fromCharCode.apply(null, by.subarray(i, i + 8192));
+  return { h:H / MM, prof:pr, field:{ nt:NT, nv:NV, d:btoa(t), s:1, min:+mn.toFixed(4), max:+mx.toFixed(4) }, size:[x1 - x0, y1 - y0, H] };
+}
+// Layer speeds you set yourself: [from, to, mm/s] in mm above the bed, per part
+function spdAt(k, z) { const L = state.print.spd?.[k]; if (L) for (const [a, b, v] of L) if (z >= a && z < b) return v; return 0; }
+// matching saucer: follows the pot's foot with a few mm to spare
+function fitSaucer() {
+  const V = state.vessel, S = state.saucer, pl = state.planter, w = lineW(state.print.nozzle), hS = Math.max(8, pl.rim), H = V.h * MM;
+  let rf = 0; for (let z = 0; z <= hS + 2; z += 2) rf = Math.max(rf, sampleProf(V.prof, Math.min(1, z / H)) * MM);
+  rf += 2 * Math.max(V.amp, V.b.amp) * MM + 3 + w;
+  S.h = +(hS / MM).toFixed(3); S.prof = prof(v => (rf + Math.min(hS * .55, 9) * v) / MM);
+  S.sect = { ...V.sect, n2:-1, twist:0 }; S.lobes = V.lobes; S.lobeAmt = V.lobeAmt;
+}
+function saucerGap() { // smallest gap (mm) between the pot wall and the inside of the saucer
+  const V = state.vessel, S = state.saucer, w = lineW(state.print.nozzle), hS = S.h * MM, H = V.h * MM; let g = Infinity;
+  for (let z = 0; z <= hS; z += 1) g = Math.min(g, sampleProf(S.prof, Math.min(1, z / hS)) * MM - w - sampleProf(V.prof, Math.min(1, z / H)) * MM - Math.max(V.amp, V.b.amp) * MM);
+  return g;
+}
 // Mesh / open lattice (per printed layer): a plain ring layer, then layers whose line bulges outward at N spots.
 // The bulges bridge over air and sag a little, which opens the gaps. Line width never changes — the path only moves out.
 // Layer changes happen at an angle between bulges, so the single continuous line has no jump.
@@ -486,52 +680,60 @@ function meshMM(P, th, lap, zMM, Hmm) {
 // The wave is zero at θ = 0, where the spiral passes from one lap to the next, so the line stays continuous.
 const isZW = P => !!(P.mesh && P.mesh.on && P.mesh.mode === 'zwave');
 // Net hole size (mm) → number of waves around (hole width = half a wave at the widest point) and wave amplitude (hole ≈ 4 × amplitude tall)
-const zwN = P => Math.min(120, Math.max(6, Math.round(Math.PI * Math.max(...P.prof) * MM / Math.max(1, P.mesh.holeW))));
-function zwHoleH(P, z, Hmm) { // hole height (mm) at a height, following the chosen gradient
-  const M = P.mesh, u = Math.min(1, Math.max(0, (z - M.rim) / Math.max(1, Hmm - 2 * M.rim)));
+const zwN = P => Math.min(120, Math.max(6, Math.round(Math.PI * rMaxOf(P) * MM / Math.max(1, P.mesh.holeW))));
+function zwHoleH(P, z, Hmm, flip = false) { // hole height (mm) at a height, following the chosen gradient
+  const M = P.mesh, u0 = Math.min(1, Math.max(0, (z - M.rim) / Math.max(1, Hmm - 2 * M.rim))), u = flip ? 1 - u0 : u0;
   if (M.grad === 'linear') return M.holeH + (M.holeH2 - M.holeH) * u;
   if (M.grad === 'swell') return M.holeH + (M.holeH2 - M.holeH) * Math.sin(Math.PI * u);
   return M.holeH;
 }
-function zwTable(P, z0, lh, Hmm) {
+function zwTable(P, z0, lh, Hmm, flip = false) {
   const M = P.mesh, Z = [], A = [];
   // wave scales with the local radius, so the climb angle (and hole shape) stays even on narrow necks
   const rMax = Math.max(...P.prof);
-  const amp = z => zwHoleH(P, z, Hmm) / 4 * Math.max(0, Math.min(1, (z - M.rim) / 3, (Hmm - M.rim - z) / 3)) * (M.follow ? sampleProf(P.prof, Math.min(1, Math.max(0, z / Hmm))) / rMax : 1);
+  const amp = z => { const v = Math.min(1, Math.max(0, z / Hmm)); return zwHoleH(P, z, Hmm, flip) / 4 * Math.max(0, Math.min(1, (z - M.rim) / 3, (Hmm - M.rim - z) / 3)) * (M.follow ? sampleProf(P.prof, flip ? 1 - v : v) / rMax : 1); };
   let aPrev = 0;
   for (let L = 0; L < 40000; L++) {
-    const base = L === 0 ? z0 + lh : Z[L - 1] + lh + aPrev;
-    const a = amp(base), zz = base + a;
+    // Each lap presses down into the crest below: its low points sit only ~half a layer above the strand they land on,
+    // so the hot line squashes into it and fuses, even where the strand below has sagged.
+    const press = ZW_PRESS * Math.min(1, aPrev / (lh * .5));
+    const base = L === 0 ? z0 + lh : Z[L - 1] + aPrev + lh * (1 - press);
+    // holes grow slowly: the wave may grow by at most a quarter of a layer per lap, so every lap still finds the one below
+    const a = Math.min(amp(base), aPrev + lh * .25), zz = base + a;
     if (zz + a > Hmm + 1e-6) break;
     Z.push(zz); A.push(a); aPrev = a;
   }
   return { Z, A, T:Z.length };
 }
+const ZW_PRESS = .45, MESH_PRESS = .4;   // how far (in layers) a net lap pushes down into the strand below at each contact
+// Wave shape: a sine with flattened crests and troughs, so each contact is a short level run where the lap rests on the one below
+const zwS = ph => Math.max(-1, Math.min(1, 1.5 * Math.sin(ph)));
 function zwAt(tb, t, th, N, lh) {
   const L = Math.min(tb.T - 1, Math.max(0, Math.floor(t))), f = Math.min(1, Math.max(0, t - L));
   const next = L + 1 < tb.T ? tb.Z[L + 1] : tb.Z[L] + lh + 2 * tb.A[L];
   // amplitude also runs smoothly through the lap: then a lap's low points sit exactly one layer above the crests below, even where the wave grows or fades
   const base = tb.Z[L] + f * (next - tb.Z[L]), a = tb.A[L] + f * ((L + 1 < tb.T ? tb.A[L + 1] : tb.A[L]) - tb.A[L]);
-  return { base, a, top:base + a * Math.sin(N * th + (L & 1) * Math.PI) };
+  return { base, a, top:base + a * zwS(N * th + (L & 1) * Math.PI) };
 }
 const meshLap = (P, t, th) => Math.floor(t - Math.PI / (2 * Math.max(4, Math.round(P.mesh.lobes))) / TAU);
 // outer surface radius (scene units)
-function surfR(P, th, v, m) { const d = disp(P, th, v, m); return Math.max(.02, sampleProf(P.prof, v) * lobeF(P, th) + d * rimFade(v) * (d ? depthMul(P, th, v) : 1)); }
+function surfR(P, th, v, m) { const d = disp(P, th, v, m); return Math.max(.02, sampleProf(P.prof, v) * lobeF(P, th, v) + d * rimFade(v, P) * (d ? depthMul(P, th, v) : 1)); }
 
 function resFor(P) {
   const tex = [P.tex, P.b.tex], amp = Math.max(P.amp, P.b.amp);
   const layered = tex.some(t => t === 'rings' || t === 'woven' || t === 'diamond' || t === 'wave' || t === 'knurl');
   const rings = layered && amp ? Math.min(Math.max(Math.round(Math.max(P.layers, P.b.layers) * 6), 120), 420) : 150;
   const segs = amp ? Math.min(Math.max(Math.round(Math.max(P.freq, P.b.freq) * 10), 180), 560) : Math.max(160, P.lobes * 24);
-  return { rings, segs };
+  return P.field ? { rings:Math.max(rings, 320), segs:Math.max(segs, P.field.nt) } : { rings, segs };
 }
-const partY0 = k => k !== 'shade' ? 0 : state.lamp.layout === 'pendant' ? PEND_Y : state.lamp.layout === 'bell' ? state.base.h + .006 : state.base.h + COLLAR_H - state.shade.h;
+const partY0 = k => k === 'shade' ? (state.lamp.layout === 'pendant' ? PEND_Y : state.base.h + ringH(FITTINGS[state.lamp.fitting] || FITTINGS.e27))
+  : k === 'vessel' && state.mode === 'vessel' && state.planter.on ? Math.max(1, Math.round(state.print.bottom)) * state.print.layerH / MM : 0;   // the pot stands on the saucer's floor
 const lampTop = () => state.lamp.layout === 'dome' ? state.base.h + COLLAR_H : partY0('shade') + state.shade.h;
 
 function buildPart(k, geom, closed = false) {
   const P = state[k], y0 = closed ? 0 : partY0(k), m = getMask(k);
   const { rings, segs } = resFor(P);
-  const capB = closed || k !== 'shade', capT = closed;
+  const capB = closed || k === 'vessel' || k === 'saucer', capT = closed || k === 'base';
   const vCount = (rings + 1) * segs + (capB ? segs + 1 : 0) + (capT ? segs + 1 : 0);
   const triCount = rings * segs * 2 + (capB ? segs : 0) + (capT ? segs : 0);
   let pos, glow, pm;
@@ -583,7 +785,7 @@ function buildPrinted(k, geom) {
   const lh = pr.layerH / MM, w = lineW(pr.nozzle) / MM, H = P.h, y0 = partY0(k);
   const zw = isZW(P), tb = zw ? zwTable(P, 0, pr.layerH, H * MM) : null, NW = zw ? zwN(P) : 0;
   const layers = zw ? Math.max(2, tb.T) : Math.max(2, Math.floor(H / lh));
-  const rMax = Math.max(...P.prof) * (1 + P.lobeAmt);
+  const rMax = rMaxOf(P);
   let segs = Math.round(Math.min(480, Math.max(96, Math.max(P.freq, P.b.freq) * 8, TAU * rMax * MM / .8, NW * 16)));
   const budget = (globalThis.innerWidth || 1200) <= 760 ? 70000 : 140000;   // lighter on phones
   while (layers * segs > budget && segs > 64) segs = Math.floor(segs * .9);
@@ -634,11 +836,11 @@ function buildPrinted(k, geom) {
     idx[t++] = M(j); idx[t++] = T(j); idx[t++] = M(j + 1); idx[t++] = M(j + 1); idx[t++] = T(j); idx[t++] = T(j + 1);
     if (j + segs + 1 <= steps && (!zw || (ZC[j + segs] - ZC[j] < lh * 1.15 && ZC[j + segs + 1] - ZC[j + 1] < lh * 1.15))) { const u = j + segs; idx[t++] = T(j); idx[t++] = B(u); idx[t++] = T(j + 1); idx[t++] = T(j + 1); idx[t++] = B(u); idx[t++] = B(u + 1); }
   }
-  if (cap) { // solid bottom
-    const o = (steps + 1) * 3;
-    for (let i = 0; i < segs; i++) { const th = i / segs * TAU; pos[(o + i) * 3] = (R[i] - inset) * Math.cos(th); pos[(o + i) * 3 + 1] = y0; pos[(o + i) * 3 + 2] = (R[i] - inset) * Math.sin(th); nor[(o + i) * 3 + 1] = -1; }
-    pos[(o + segs) * 3 + 1] = y0; nor[(o + segs) * 3 + 1] = -1;
-    for (let i = 0; i < segs; i++) { idx[t++] = o + segs; idx[t++] = o + i; idx[t++] = o + (i + 1) % segs; }
+  if (cap) { // solid bottom (vessel) or solid top plate (lamp base, printed upside down)
+    const o = (steps + 1) * 3, top = k === 'base', off = top ? steps - segs : 0, yc = top ? y0 + ZC[steps] + lh / 2 : y0;
+    for (let i = 0; i < segs; i++) { const th = i / segs * TAU; pos[(o + i) * 3] = (R[off + i] - inset) * Math.cos(th); pos[(o + i) * 3 + 1] = yc; pos[(o + i) * 3 + 2] = (R[off + i] - inset) * Math.sin(th); }
+    pos[(o + segs) * 3 + 1] = yc;
+    for (let i = 0; i < segs; i++) { idx[t++] = o + segs; idx[t++] = top ? o + (i + 1) % segs : o + i; idx[t++] = top ? o + i : o + (i + 1) % segs; }
   }
   geom?.dispose(); geom = new THREE.BufferGeometry();
   geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
@@ -700,11 +902,13 @@ const matOpts = { roughness:.85, side:THREE.DoubleSide, polygonOffset:true, poly
 const shadeMat = patch(new THREE.MeshStandardMaterial(matOpts), false);
 const baseMat = patch(new THREE.MeshStandardMaterial(matOpts), false);
 const vesselMat = patch(new THREE.MeshStandardMaterial(matOpts), false);
+const saucerMat = patch(new THREE.MeshStandardMaterial(matOpts), false);
 const collarMat = new THREE.MeshStandardMaterial({ color:0xc9c6bf, metalness:.2, roughness:.5 });
 const meshes = {
   shade:new THREE.Mesh(new THREE.BufferGeometry(), shadeMat),
   base:new THREE.Mesh(new THREE.BufferGeometry(), baseMat),
   vessel:new THREE.Mesh(new THREE.BufferGeometry(), vesselMat),
+  saucer:new THREE.Mesh(new THREE.BufferGeometry(), saucerMat),
 };
 Object.values(meshes).forEach(m => scene.add(m));
 const collarMesh = new THREE.Mesh(undefined, collarMat); scene.add(collarMesh);
@@ -721,7 +925,7 @@ controls.target.set(0, .85, 0); controls.minDistance = .8; controls.maxDistance 
 function resize() {
   const w = stage.clientWidth, h = stage.clientHeight;
   renderer.setSize(w, h); camera.aspect = w / h;
-  camera.setViewOffset(w, h, innerWidth > 760 ? 170 : 0, innerWidth > 760 ? 0 : 50, w, h);
+  camera.setViewOffset(w, h, innerWidth > 760 ? -181 : 0, innerWidth > 760 ? 66 : 92, w, h);
   camera.updateProjectionMatrix(); requestRender();
 }
 addEventListener('resize', resize);
@@ -741,7 +945,7 @@ function strideNow() {
 function buildPathLines(k) {
   const pr = state.print, P = state[k], m = getMask(k), lh = pr.layerH / MM, w = lineW(pr.nozzle) / MM, H = P.h, y0 = partY0(k);
   const zw = isZW(P), tb = zw ? zwTable(P, 0, pr.layerH, H * MM) : null, NW = zw ? zwN(P) : 0;
-  const layers = zw ? Math.max(2, tb.T) : Math.max(2, Math.floor(H / lh)), rMax = Math.max(...P.prof) * (1 + P.lobeAmt);
+  const layers = zw ? Math.max(2, tb.T) : Math.max(2, Math.floor(H / lh)), rMax = rMaxOf(P);
   const segs = Math.round(Math.min(360, Math.max(96, Math.max(P.freq, P.b.freq) * 6, TAU * rMax * MM / 1.2, NW * 12)));
   const sel = []; for (let L = 0; L < layers; L += pathStride) sel.push(L); if (sel[sel.length - 1] !== layers - 1) sel.push(layers - 1);
   const pos = new Float32Array(sel.length * segs * 6), col = new Float32Array(sel.length * segs * 6);
@@ -771,7 +975,7 @@ function buildPathLines(k) {
 }
 function rebuildPaths(list = parts()) {
   pathStride = parts().some(k => isZW(state[k])) ? 1 : strideNow();
-  for (const k of ['shade', 'base', 'vessel']) if (pathObjs[k] && (!parts().includes(k) || state.view !== 'path')) { scene.remove(pathObjs[k]); pathObjs[k].geometry.dispose(); delete pathObjs[k]; }
+  for (const k of PARTS) if (pathObjs[k] && (!parts().includes(k) || state.view !== 'path')) { scene.remove(pathObjs[k]); pathObjs[k].geometry.dispose(); delete pathObjs[k]; }
   if (state.view !== 'path') { updateBadge(); return; }
   for (const k of list) {
     const { g, layers, shown } = buildPathLines(k);
@@ -781,7 +985,7 @@ function rebuildPaths(list = parts()) {
   updateBadge(); requestRender();
 }
 
-const geoms = { shade:{}, base:{}, vessel:{} }, pendingPrinted = new Set(); let printedT;
+const geoms = { shade:{}, base:{}, vessel:{}, saucer:{} }, pendingPrinted = new Set(); let printedT;
 const interacting = () => !!drag || sliderDirty;
 function schedulePrinted(k) {
   pendingPrinted.add(k); clearTimeout(printedT);
@@ -795,20 +999,21 @@ function schedulePrinted(k) {
 }
 function rebuild(which = 'all', keepPath = false) {
   if (!keepPath) clearPath();
+  if (typeof simExit === 'function') { simExit(); simDirty(); }
   const list = which === 'all' ? parts() : [which];
+  if (state.mode === 'vessel' && state.planter.on && state.planter.auto && which !== 'saucer') { fitSaucer(); if (!list.includes('saucer')) list.push('saucer'); }
   for (const k of list) {
     geoms[k].smooth = buildPart(k, geoms[k].smooth || null);
     meshes[k].geometry = geoms[k].smooth;
     if (state.view === 'printed') { if (interacting()) schedulePrinted(k); else { geoms[k].printed = buildPrinted(k, geoms[k].printed); meshes[k].geometry = geoms[k].printed; } }
   }
   const lamp = state.mode === 'lamp', lay = state.lamp.layout;
-  meshes.shade.visible = collarMesh.visible = lamp; meshes.base.visible = lamp && lay !== 'pendant'; meshes.vessel.visible = !lamp;
+  meshes.shade.visible = collarMesh.visible = lamp; meshes.base.visible = lamp && parts().includes('base'); meshes.vessel.visible = !lamp; meshes.saucer.visible = !lamp && state.planter.on;
   if (lamp) {
     const F = FITTINGS[state.lamp.fitting];
     let rTop = lay === 'dome' ? Math.max(sampleProf(state.base.prof, 1), sampleProf(state.shade.prof, 1)) + .015 : F.flange / 2 / MM;
-    if (lay === 'bell') rTop = Math.max(rTop, sampleProf(state.base.prof, 1) + .005);
     collarMesh.geometry?.dispose(); collarMesh.geometry = new THREE.CylinderGeometry(rTop, rTop, lay === 'dome' ? COLLAR_H : .006, 72);
-    collarMesh.position.y = lay === 'pendant' ? lampTop() + .006 : lay === 'bell' ? state.base.h + .003 : state.base.h + COLLAR_H / 2;
+    collarMesh.position.y = lay === 'pendant' ? lampTop() + .006 : lay === 'bell' ? partY0('shade') + .005 : state.base.h + COLLAR_H / 2;
   }
   for (const k of parts()) if (state.view === 'path' && isZW(state[k])) meshes[k].visible = false; // a net is mostly air: show just the line
   drawHardware();
@@ -820,9 +1025,18 @@ const attrGroup = new THREE.Group(); scene.add(attrGroup);
 const attrGeo = new THREE.SphereGeometry(.018, 16, 12), attrMat = new THREE.MeshBasicMaterial({ color:0x3d6bff, depthTest:false });
 const hwGroup = new THREE.Group(); scene.add(hwGroup);
 const hwMat = new THREE.MeshStandardMaterial({ color:0x2a2927, roughness:.6 });
+const standMat = new THREE.MeshStandardMaterial({ color:0xdedbd4, roughness:.8 });
 const bulbMat = new THREE.MeshStandardMaterial({ color:0xffffff, roughness:.3, transparent:true, opacity:.45, depthWrite:false, side:THREE.DoubleSide });
 function drawHardware() {
   hwGroup.traverse(o => o.geometry && o.geometry.dispose()); hwGroup.clear();
+  if (state.mode === 'vessel' && state.planter.hole > 0) { // drainage hole, drawn on the pot's floor
+    const r = state.planter.hole / 2 / MM, pts = []; for (let i = 0; i <= 48; i++) pts.push(new THREE.Vector3(r * Math.cos(i / 48 * TAU), partY0('vessel') + .004, r * Math.sin(i / 48 * TAU)));
+    hwGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color:0x121211 })));
+  }
+  if (state.mode === 'lamp' && state.lamp.own && state.lamp.layout === 'bell') { // the lamp you already own: a plain stand
+    const h = state.base.h, stem = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, h, 24), standMat), foot = new THREE.Mesh(new THREE.CylinderGeometry(.6, .6, .014, 64), standMat);
+    stem.position.y = h / 2; foot.position.y = .007; hwGroup.add(stem, foot);
+  }
   if (state.mode !== 'lamp' || !state.lamp.hw) return;
   const H = hardware(); if (!H) return;
   const sock = new THREE.Mesh(new THREE.CylinderGeometry(H.sock.r, H.sock.r, H.sock.h, 40), hwMat); sock.position.y = H.sock.y + H.sock.h / 2; hwGroup.add(sock);
@@ -843,7 +1057,7 @@ function applyLook() {
   const v = state.view, white = new THREE.Color(0xffffff);
   // path view: pale surface so the dark toolpath reads clearly; beads/surface: filament colour
   const tone = c => v === 'path' ? new THREE.Color(c).lerp(white, .82) : new THREE.Color(c);
-  shadeMat.color.copy(tone(state.shade.color)); baseMat.color.copy(tone(state.base.color)); vesselMat.color.copy(tone(state.vessel.color));
+  shadeMat.color.copy(tone(state.shade.color)); baseMat.color.copy(tone(state.base.color)); vesselMat.color.copy(tone(state.vessel.color)); saucerMat.color.copy(tone(state.saucer.color));
   U.uLayer.value = state.print.layerH / MM; U.uLayerAmt.value = state.print.layerLines && v === 'surface' ? 1 : 0;
   U.uRisk.value = v === 'printed' && state.risks ? 1 : 0;
   key.intensity = v === 'printed' ? 1.9 : 1.5;
@@ -853,12 +1067,12 @@ function applyLook() {
 function frameCamera() {
   // fit the whole object: centre on it and pull the camera back so height and width both fit
   let y0 = Infinity, y1 = 0, r = 0;
-  for (const k of parts()) { const P = state[k], a = partY0(k); y0 = Math.min(y0, a); y1 = Math.max(y1, a + P.h); r = Math.max(r, Math.max(...P.prof) * (1 + P.lobeAmt)); }
+  for (const k of parts()) { const P = state[k], a = partY0(k); y0 = Math.min(y0, a); y1 = Math.max(y1, a + P.h); r = Math.max(r, rMaxOf(P)); }
   if (state.mode === 'lamp') { y0 = Math.min(y0, state.lamp.layout === 'pendant' ? PEND_Y : 0); y1 = Math.max(y1, lampTop()); }
   const cy = (y0 + y1) / 2, fov = camera.fov * Math.PI / 180, W = stage.clientWidth, Hh = stage.clientHeight;
-  const asp = innerWidth > 760 ? Math.max(.4, (W - 380) / Hh) : W / (Hh * .78);
+  const asp = innerWidth > 760 ? Math.max(.4, (W - 380) / (Hh - 150)) : W / (Hh * .62);
   const span = Math.max(y1 - y0 + r * .7, r * 2.15 / asp);
-  const d = Math.min(12, Math.max(1, span / 2 / Math.tan(fov / 2) * (innerWidth > 760 ? 1.32 : 1.75)));
+  const d = Math.min(12, Math.max(1, span / 2 / Math.tan(fov / 2) * (innerWidth > 760 ? 1.5 : 2.05)));
   const dir = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
   controls.target.set(0, cy, 0); camera.position.copy(controls.target).addScaledVector(dir, d); controls.update(); requestRender();
 }
@@ -874,10 +1088,10 @@ function setRay(e) {
 function hitTest(ray) { // analytic march against surfaces of revolution
   let best = null; const p = new THREE.Vector3();
   for (const k of parts()) {
-    const P = state[k], y0 = partY0(k), m = getMask(k), maxR = Math.max(...P.prof) * (1 + P.lobeAmt) + Math.max(P.amp, P.b.amp) + .02;
+    const P = state[k], y0 = partY0(k), m = getMask(k), maxR = rMaxOf(P) + Math.max(P.amp, P.b.amp) + .02;
     const steps = 360, t1 = camera.position.distanceTo(controls.target) + 4, dt = t1 / steps;
     const vAt = (y, th) => { let v = (y - y0) / P.h; for (let it = 0; it < 3; it++) v = (y - y0 - warpMM(P, k, th, Math.min(1, Math.max(0, v))) / MM) / P.h; return v; };
-    const inside = t => { ray.at(t, p); const rr = Math.hypot(p.x, p.z); if (rr > maxR) return false; const th = Math.atan2(p.z, p.x), v = vAt(p.y, th); if (v < 0 || v > 1) return false; return rr <= sampleProf(P.prof, v) * lobeF(P, th) + Math.max(P.amp, P.b.amp) * .5; };
+    const inside = t => { ray.at(t, p); const rr = Math.hypot(p.x, p.z); if (rr > maxR) return false; const th = Math.atan2(p.z, p.x), v = vAt(p.y, th); if (v < 0 || v > 1) return false; return rr <= sampleProf(P.prof, v) * lobeF(P, th, v) + Math.max(P.amp, P.b.amp) * .5; };
     for (let s = 0; s <= steps; s++) {
       const t = s * dt; if (best && t > best.t) break;
       if (inside(t)) {
@@ -906,7 +1120,7 @@ function showBrush(hit) {
   [hit.v, hit.v - ui.brush * .7, hit.v + ui.brush * .7].forEach((vv, n) => {
     const l = brushRings[n]; if (vv < 0 || vv > 1) return;
     const R = sampleProf(P.prof, vv) + Math.max(P.amp, P.b.amp) + .012, y = y0 + vv * P.h, a = l.geometry.attributes.position.array;
-    for (let i = 0; i <= 96; i++) { const th = i / 96 * TAU, rr = R * lobeF(P, th); a[i * 3] = rr * Math.cos(th); a[i * 3 + 1] = y + warpMM(P, hit.part, th, vv) / MM; a[i * 3 + 2] = rr * Math.sin(th); }
+    for (let i = 0; i <= 96; i++) { const th = i / 96 * TAU, rr = R * lobeF(P, th, vv); a[i * 3] = rr * Math.cos(th); a[i * 3 + 1] = y + warpMM(P, hit.part, th, vv) / MM; a[i * 3 + 2] = rr * Math.sin(th); }
     l.geometry.attributes.position.needsUpdate = true; l.visible = true;
   });
   requestRender();
@@ -965,7 +1179,7 @@ stage.addEventListener('pointerdown', e => {
     rebuild(hit.part); if (ui.tab === 'surface') renderPanel(); return;
   }
   stage.setPointerCapture?.(e.pointerId);
-  pushUndo(); hideHint();
+  pushUndo(); hideHint(); if (hit.part === 'saucer') state.planter.auto = false;   // a saucer shaped by hand stops following the pot
   drag = { part:hit.part, hit, id:e.pointerId, s0:planeCoord(raycaster.ray), snap:state[hit.part].prof.slice() };
   showBrush(hit);
   if (ui.tool !== 'grab') { lastT = 0; requestAnimationFrame(holdLoop); }
@@ -991,37 +1205,63 @@ stage.addEventListener('pointerleave', () => { if (!drag) showBrush(null); });
 /* ═════════════════════ toolpath (single continuous spiral) ═════════════════════ */
 // Returns typed arrays in printer space (mm, origin = bed centre) plus a parallel array
 // of model-space y for the preview. Kind: 0 = extrude, 1 = travel.
+// Which end of a part goes on the bed. The base always prints upside down (its top plate on the bed).
+// A shade goes wider end down by default: a 40 mm opening is a poor foot for a 170 mm tall single wall.
+function shadeFlip() { const pr = state.print, P = state.shade; return pr.orient === 'top' || (pr.orient === 'auto' && sampleProf(P.prof, 1) > sampleProf(P.prof, 0) * 1.08); }
+const partFlip = k => k === 'base' || (k === 'shade' && shadeFlip());
+function brimMM(k) { // a brim widens the foot of single-wall parts so they cannot be knocked off or peel up
+  const pr = state.print; if (pr.brim !== 'auto') return +pr.brim || 0;
+  const P = state[k], foot = sampleProf(P.prof, partFlip(k) ? 1 : 0) * 2 * MM * minF(P), H = P.h * MM;
+  return k === 'shade' ? 6 : foot < H * .45 ? 4 : 0;
+}
+// Speeds (mm/s) for the parts of a perforated wall: strands in mid-air need time to set; contact points fuse at a moderate speed.
+const NET_SPEED = n => ({ air:n >= .8 ? 8 : n >= .6 ? 9 : 10, touch:n >= .8 ? 6 : n >= .6 ? 7 : 8 });   // contacts print slowest: the line has time to press in and fuse
+// Returns arrays in printer space (mm, origin = bed centre). Kind: 0 = extrude, 1 = travel.
+// Feed rate is planned per point: it slows where a layer hangs out over the one below, where a strand crosses air,
+// where the nozzle climbs or dips (Z axis kept under its limit) and on very short segments. E always follows length,
+// so the line keeps one width whatever the speed.
 function toolpath(k) {
-  const pr = state.print, P = state[k], m = getMask(k);
+  const pr = state.print, P = state[k], m = getMask(k), printer = PRINTERS[pr.printer];
   const lh = pr.layerH, w = lineW(pr.nozzle), H = P.h * MM;
-  const flip = k === 'shade' && pr.orient === 'top';
+  const flip = partFlip(k);
   const vOf = z => { const v = Math.min(1, Math.max(0, z / H)); return flip ? 1 - v : v; };
   const R = (th, z) => surfR(P, flip ? -th : th, vOf(z), m) * MM - w / 2; // nozzle centre sits half a line inside the surface
   const fil = FILAMENTS[pr.filament];
   const maxSeg = Math.max(P.freq, P.b.freq) * 10;
-  const rMax = Math.max(...P.prof) * (1 + P.lobeAmt) * MM;
+  const rMax = rMaxOf(P) * MM;
   const segs = Math.min(1800, Math.max(240, Math.round(TAU * rMax / .7), maxSeg, isZW(P) ? zwN(P) * 24 : 0));
-  const X = [], Y = [], Z = [], E = [], F = [], K = [];
+  const X = [], Y = [], Z = [], E = [], F = [], K = [], LAY = []; let curL = 0;
   const area = (w - lh) * lh + Math.PI * (lh / 2) ** 2, eK = .98 / (Math.PI * .875 * .875);
+  const zLim = printer.zSpeed || 10, rateLim = 200;   // Z axis mm/s · G-code lines per second the printer can digest smoothly
   let px = 0, py = 0, pz = 0;
   const push = (x, y, z, kind, feed, flowScale = 1) => {
-    const d = Math.hypot(x - px, y - py, z - pz);
-    X.push(x); Y.push(y); Z.push(z); K.push(kind); F.push(feed);
+    const d = Math.hypot(x - px, y - py, z - pz), dz = Math.abs(z - pz);
+    if (!kind && d > 1e-6) { if (dz > 1e-4) feed = Math.min(feed, zLim * d / dz); feed = Math.max(4, Math.min(feed, rateLim * d)); }
+    X.push(x); Y.push(y); Z.push(z); K.push(kind); F.push(feed); LAY.push(curL);
     E.push(kind ? 0 : d * area * eK * flowScale); px = x; py = y; pz = z;
   };
   const thM = th => flip ? -th : th;
   const W = (th, z) => { const w = warpMM(P, k, thM(th), vOf(z)); return flip ? -w : w; };  // non-planar offset in print space
 
-  const wallSpeed = Math.min(pr.speed, fil.flow / (w * lh));
+  const zw = isZW(P), mesh = P.mesh.on && !zw, NS = NET_SPEED(pr.nozzle);
+  const wallSpeed = Math.min(pr.speed, fil.flow / (w * lh)), minLayer = zw || mesh ? 8 : 6;
+  // on a non-round outline the inward loops are offset square to the wall, not toward the centre, so they stay one line apart
+  const body = (th, z) => { const v = vOf(z); return sampleProf(P.prof, v) * lobeF(P, flip ? -th : th, v) * MM; }, slant = new Float32Array(segs + 1);
+  const setSlant = zc => { for (let s = 0; s <= segs; s++) { const th = s / segs * TAU, b = body(th, zc), db = (body(th + .002, zc) - body(th - .002, zc)) / .004; slant[s] = Math.min(2.2, Math.hypot(b, db) / b); } };
   const bottom = (k === 'shade') ? 0 : Math.max(0, Math.round(pr.bottom));
+  // 0) brim: loops outward from the foot on the first layer, printed outside-in so the last one touches the wall
+  const nBrim = Math.round(brimMM(k) / (w * .96));
+  if (nBrim) { setSlant(lh / 2);
+    for (let b = nBrim; b >= 1; b--) for (let s = 0; s <= segs; s++) { const th = s / segs * TAU, r = R(th, lh / 2) + b * w * .96 * slant[s]; push(r * Math.cos(th), r * Math.sin(th), lh, b === nBrim && s === 0 ? 1 : 0, 25); } }
   // 1) solid bottom layers: outer loop + concentric loops inward, one continuous line per layer
   for (let L = 0; L < bottom; L++) {
-    const z = (L + 1) * lh, zc = z - lh / 2, feed = L === 0 ? 25 : 60;
-    let ring = 0, first = true;
+    const z = (L + 1) * lh, zc = z - lh / 2, feed = spdAt(k, zc) || (L === 0 ? 25 : 50); curL = L;
+    let ring = 0, first = !(L === 0 && nBrim);
     while (true) {
       const off = ring * w * .96; let minR = Infinity; const pts = [];
-      for (let s = 0; s <= segs; s++) { const th = s / segs * TAU, r = R(th, zc) - off; minR = Math.min(minR, r); pts.push([r * Math.cos(th), r * Math.sin(th)]); }
-      if (minR < w * .55) break;
+      if (!ring) setSlant(zc);
+      for (let s = 0; s <= segs; s++) { const th = s / segs * TAU, r = R(th, zc) - off * slant[s]; minR = Math.min(minR, r); pts.push([r * Math.cos(th), r * Math.sin(th)]); }
+      if (minR < (k === 'base' ? PLATE_HOLE / 2 + w * .5 : k === 'vessel' && state.planter.hole > 0 ? state.planter.hole / 2 + w * .5 : w * .55)) break;   // leave the nipple hole (base plate) or drainage hole (pot) open
       pts.forEach((q, i) => push(q[0], q[1], z, first && i === 0 ? 1 : 0, feed));
       first = false; ring++;
     }
@@ -1030,12 +1270,12 @@ function toolpath(k) {
   let z0 = bottom * lh;
   if (bottom === 0) {
     z0 = lh;
-    for (let s = 0; s <= segs; s++) { const th = s / segs * TAU, r = R(th, lh / 2); push(r * Math.cos(th), r * Math.sin(th), lh, s === 0 ? 1 : 0, 20); }
+    for (let s = 0; s <= segs; s++) { const th = s / segs * TAU, r = R(th, lh / 2); push(r * Math.cos(th), r * Math.sin(th), lh, s === 0 && !nBrim ? 1 : 0, 20); }
   } else {
-    const r = R(0, z0 + lh / 2); push(r, 0, z0, 1, 120);
+    curL = bottom; const r = R(0, z0 + lh / 2); push(r, 0, z0, 1, 120);
   }
   // 3) the spiral: z climbs continuously, one revolution per layer, never lifts or stops
-  const zw = isZW(P), tb = zw ? zwTable(P, z0 - lh, lh, H) : null, NW = zw ? zwN(P) : 0;
+  const tb = zw ? zwTable(P, z0 - lh, lh, H, flip) : null, NW = zw ? zwN(P) : 0;
   const revs = zw ? Math.max(1, tb.T) : Math.max(1, Math.floor((H - z0) / lh));
   const revLen = []; // for min layer time
   for (let rv = 0; rv < revs; rv++) {
@@ -1044,23 +1284,47 @@ function toolpath(k) {
     for (let s = 1; s <= 64; s++) { const th = s / 64 * TAU, r = R(th, zc); const x = r * Math.cos(th), y = r * Math.sin(th); len += Math.hypot(x - qx, y - qy); qx = x; qy = y; }
     revLen.push(len);
   }
+  const lapR = new Float32Array(segs + 1);   // where the lap below put its line, to see how far this one hangs out
+  for (let s = 0; s <= segs; s++) lapR[s] = R(s / segs * TAU, Math.max(lh / 2, z0 - lh / 2));
+  // mesh: where this lap lands back on a strand that bridged air in the lap below, it presses down into it (that strand has sagged)
+  const prevAir = new Uint8Array(segs + 1), prevD = new Float32Array(segs + 1);
+  const rA = new Float32Array(segs + 1), hA = new Float32Array(segs + 1), pA = new Float32Array(segs + 1), dA = new Float32Array(segs + 1);
+  const win = Math.max(1, Math.round(.8 / (TAU * rMax / segs)));   // press ramps in and out over ~0.8 mm
   for (let rv = 0; rv < revs; rv++) {
-    const feed = Math.max(8, Math.min(wallSpeed, revLen[rv] / 5)); // ≥5 s per layer so it can cool
-    for (let s = 1; s <= segs; s++) {
-      const t = rv + s / segs, th = s / segs * TAU;
-      if (zw) { // up/down net: same line width, the nozzle rides the wave and bridges between contacts
+    curL = Math.max(bottom, 1) + rv;
+    const ov = spdAt(k, zw ? tb.Z[rv] : z0 + rv * lh + lh / 2);   // a speed you set for this layer replaces the planned one (still under the flow limit)
+    const cap = ov ? Math.min(ov, fil.flow / (w * lh)) : Math.max(6, Math.min(wallSpeed, revLen[rv] / minLayer)); // every lap takes ≥ 6 s (8 s for perforated walls) so it can cool
+    if (zw) {
+      for (let s = 1; s <= segs; s++) {
+        const t = rv + s / segs, th = s / segs * TAU;
+        // up/down net: the nozzle rides the wave, presses ZW_PRESS of a layer into the strand below at each contact, slowest there
         const q = zwAt(tb, t, thM(th), NW, lh), r = R(th, q.top - lh / 2);
-        push(r * Math.cos(th), r * Math.sin(th), q.top, 0, q.a > .05 ? Math.min(feed, 22) : feed, rv === 0 ? s / segs : 1);
-        continue;
+        const below = rv === 0 ? z0 : zwAt(tb, t - 1, thM(th), NW, lh).top, gap = q.top - below - lh;
+        const sup = 1 - smooth(-.2 * lh, .6 * lh, gap), feed = Math.min(cap, NS.air + (NS.touch - NS.air) * sup);
+        push(r * Math.cos(th), r * Math.sin(th), q.top, 0, feed, (rv === 0 ? s / segs : 1) * (1 + .12 * sup));   // a little extra plastic where it presses into the lap below
       }
-      const z = z0 + t * lh;
-      const mo = P.mesh.on ? meshMM(P, thM(th), meshLap(P, z / lh, thM(th)), flip ? H - (z - lh / 2) : z - lh / 2, H) : 0;
-      const r = R(th, z - lh / 2) + mo;
-      const wz = W(th, z), lhe = Math.max(lh * .3, lh + wz - W(th, z - lh));   // local layer height
-      push(r * Math.cos(th), r * Math.sin(th), z + wz, 0, mo > .05 ? Math.min(feed, 30) : feed, (rv === 0 ? s / segs : 1) * (lhe / lh)); // bulges bridge: slow down // first lap ramps up; E follows local layer height so width stays constant
+      continue;
+    }
+    for (let s = 1; s <= segs; s++) {
+      const t = rv + s / segs, th = s / segs * TAU, z = z0 + t * lh;
+      const mo = mesh ? meshMM(P, thM(th), meshLap(P, z / lh, thM(th)), flip ? H - (z - lh / 2) : z - lh / 2, H) : 0;
+      rA[s] = R(th, z - lh / 2) + mo; hA[s] = Math.abs(rA[s] - lapR[s]) / w;   // sideways step from where the lap below put its line, in line widths
+      pA[s] = mesh && rv > 0 && hA[s] <= .5 && prevAir[s] ? 1 : 0;
+    }
+    if (mesh) for (let s = 1; s <= segs; s++) { let m = 0, c = 0; for (let j = -win; j <= win; j++) { m += pA[((s + j - 1) % segs + segs) % segs + 1]; c++; } dA[s] = -MESH_PRESS * lh * Math.min(1, m / c * 1.6); }
+    for (let s = 1; s <= segs; s++) {
+      const t = rv + s / segs, th = s / segs * TAU, z = z0 + t * lh, r = rA[s], hang = hA[s];
+      let feed = cap * (1 - .6 * smooth(.25, .55, hang));      // hanging layers print slower, like a slicer's overhang speed
+      if (mesh && hang > .5) feed = Math.min(feed, 15);        // mesh: this stretch bridges over air (a bulge going out, or a ring coming back in)
+      const d = mesh ? dA[s] : 0, pressing = d < -lh * .05;
+      if (pressing) feed = Math.min(feed, 12);                 // press slowly so the line has time to fuse
+      const wz = W(th, z), lhe = Math.max(lh * .3, lh + wz - W(th, z - lh) + (pressing ? 0 : d - prevD[s]));   // local layer height
+      push(r * Math.cos(th), r * Math.sin(th), z + wz + d, 0, feed, (rv === 0 ? s / segs : 1) * (lhe / lh) * (pressing ? 1.1 : 1)); // first lap ramps up; E follows local layer height so width stays constant; extra plastic where it presses
+      lapR[s] = r; prevAir[s] = mesh && hang > .5 ? 1 : 0; prevD[s] = d;
     }
   }
-  return { X, Y, Z, E, F, K, flip, H, lh, w, segs, revs, bottom, wallSpeed };
+  for (let i = 0; i < Y.length; i++) Y[i] = -Y[i];   // printer XY = the view seen from above (a rotation, not a mirror image)
+  return { X, Y, Z, E, F, K, LAY, flip, H, lh, w, segs, revs, bottom, wallSpeed, brim:nBrim, zLim };
 }
 function pathStats(tp) {
   let t = 0, e = 0, ox = tp.X[0], oy = tp.Y[0], oz = tp.Z[0];
@@ -1079,7 +1343,7 @@ function showPath() {
   const y0 = partY0(k), c0 = new THREE.Color(0x121211), c1 = new THREE.Color(0x86827a), c = new THREE.Color();
   for (let i = 0; i < n; i++) {
     const zm = tp.flip ? tp.H - tp.Z[i] : tp.Z[i];
-    pos[i * 3] = tp.X[i] / MM; pos[i * 3 + 1] = y0 + zm / MM; pos[i * 3 + 2] = (tp.flip ? -tp.Y[i] : tp.Y[i]) / MM;
+    pos[i * 3] = tp.X[i] / MM; pos[i * 3 + 1] = y0 + zm / MM; pos[i * 3 + 2] = (tp.flip ? tp.Y[i] : -tp.Y[i]) / MM;
     c.lerpColors(c0, c1, (Math.sin(i / tp.segs * .9) + 1) / 2); if (tp.K[i]) c.set(0x5a8cff);
     col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
   }
@@ -1092,7 +1356,7 @@ function showPath() {
 }
 
 /* ═════════════════════ printability ═════════════════════ */
-const printPart = () => state.mode === 'vessel' ? 'vessel' : (state.print.part === 'base' && state.lamp.layout !== 'pendant' ? 'base' : 'shade');
+const printPart = () => parts().includes(state.print.part) ? state.print.part : parts()[0];
 function checks(k) {
   const pr = state.print, P = state[k], m = getMask(k), printer = PRINTERS[pr.printer];
   const w = lineW(pr.nozzle), lh = pr.layerH, H = P.h * MM, out = [];
@@ -1106,12 +1370,18 @@ function checks(k) {
   if (rMin * 2 < 8) add('bad', `Narrowest point is only ${(rMin * 2).toFixed(1)} mm across — too tight to spiral.`);
   // overhang from the silhouette
   let worst = 0, at = 0;
-  for (let j = 0; j < 200; j++) { const v0 = j / 200, v1 = (j + 1) / 200; const dr = (sampleProf(P.prof, v1) - sampleProf(P.prof, v0)) * MM, dz = H / 200; const a = Math.atan2(Math.abs(dr), dz) * 180 / Math.PI; if (a > worst) { worst = a; at = v0; } }
-  const lim = 50 + (pr.nozzle - .4) * 15;
-  add(worst > lim + 8 ? 'bad' : worst > lim ? 'warn' : 'ok', `Steepest overhang ${worst.toFixed(0)}° at ${Math.round(at * 100)}% height (≈${lim.toFixed(0)}° is safe with a ${pr.nozzle} mm nozzle).`);
-  // layer-to-layer step caused by the textures (must stay well inside one line width)
-  const step = textureStep(k), ratio = step / w;
-  add(ratio > .6 ? 'bad' : ratio > .45 ? 'warn' : 'ok', `Texture moves up to ${step.toFixed(2)} mm between layers (${Math.round(ratio * 100)}% of the ${w} mm line). Under ~45% keeps layers bonded.`);
+  const nTh = sectOn(P) ? 24 : 1;   // a twisting or changing cross-section leans differently around the form
+  for (let j = 0; j < 200; j++) { const v0 = j / 200, v1 = (j + 1) / 200, dz = H / 200;
+    for (let i = 0; i < nTh; i++) { const th = i / nTh * TAU, dr = (sampleProf(P.prof, v1) * (nTh > 1 ? lobeF(P, th, v1) : 1) - sampleProf(P.prof, v0) * (nTh > 1 ? lobeF(P, th, v0) : 1)) * MM; const a = Math.atan2(Math.abs(dr), dz) * 180 / Math.PI; if (a > worst) { worst = a; at = v0; } } }
+  const fv = v => Math.round((partFlip(k) ? 1 - v : v) * 100);
+  add(worst > 52 ? 'bad' : worst > 45 ? 'warn' : 'ok', `Steepest overhang of the outline ${worst.toFixed(0)}° at ${fv(at)}% of the print height (past ~45° the wall starts to droop).`);
+  // the real test: how far each layer steps sideways from the one it sits on — outline, cross-section and texture together
+  for (const [a, b, v] of state.print.spd?.[k] || []) {   // speeds you set per layer
+    const mid = Math.min(H, (a + b) / 2), vv = partFlip(k) ? 1 - mid / H : mid / H, lap = TAU * sampleProf(P.prof, Math.min(1, Math.max(0, vv))) * MM, t = lap / v;
+    add(t < 5 ? 'warn' : 'ok', `Your speed: ${v} mm/s from ${a.toFixed(1)} to ${Math.min(b, H).toFixed(1)} mm above the bed` + (t < 5 ? ` — a lap there takes only ${t.toFixed(1)} s, too little to cool, so it may slump.` : '.'));
+  }
+  const st = layerStep(k), ratio = st.mm / w;
+  add(ratio > .6 ? 'bad' : ratio > .5 ? 'warn' : 'ok', `Each layer rests on the one below: the biggest sideways step is ${st.mm.toFixed(2)} mm (${Math.round(ratio * 100)}% of the ${w} mm line) at ${fv(st.v)}% of the print height. Over ~50% the line has nothing under it and the print fails there.`);
   // texture detail vs line width
   const usesB = m.some(x => x > .01), usesA = m.some(x => x < .99);
   for (const T of [usesA ? P : null, usesB ? P.b : null].filter(Boolean)) {
@@ -1130,6 +1400,8 @@ function checks(k) {
     add(hi > lmax || lo < lmin ? 'bad' : (hi > pr.nozzle * .65 || lo < pr.nozzle * .2) ? 'warn' : 'ok', `Non-planar layers vary ${lo.toFixed(2)}–${hi.toFixed(2)} mm (extrusion is scaled to match; ${lmin.toFixed(2)}–${lmax.toFixed(2)} works for this nozzle).`);
     const deg = Math.atan(slope) * 180 / Math.PI;
     add(deg > 30 ? 'bad' : deg > 18 ? 'warn' : 'ok', `Nozzle climbs up to ${deg.toFixed(0)}° within a layer — above ~20° the nozzle cone can scrape the layer below. Fewer waves or less amplitude lowers it.`);
+    const rise = headRise(k);
+    add(rise > 3.5 ? 'bad' : rise > 2 ? 'warn' : 'ok', `Printed wall rises up to ${rise.toFixed(1)} mm above the nozzle tip within 35 mm of it. The heater block and fan duct sit only ~3 mm above the tip, so more than that and the print head hits the part.`);
   }
   if (isZW(P)) {
     const M = P.mesh, N = zwN(P); let rMin = Infinity, rM = 0;
@@ -1137,7 +1409,8 @@ function checks(k) {
     let hMax = 0, hMin = Infinity; for (let j = 0; j <= 20; j++) { const hz = zwHoleH(P, M.rim + (H - 2 * M.rim) * j / 20, H); hMax = Math.max(hMax, hz); hMin = Math.min(hMin, hz); }
     const A = hMax / 4, slope = Math.atan(A * N / rM) * 180 / Math.PI, span = TAU * rM / N, holeW = span / 2;
     add(slope > 55 ? 'bad' : slope > 40 ? 'warn' : 'ok', `Net: ${N} holes around; the line climbs and dips at up to ${slope.toFixed(0)}° (keep under ~40° — wider or lower holes flatten it).`);
-    add(span > 16 ? 'bad' : span > 11 ? 'warn' : 'ok', `Holes ≈ ${holeW.toFixed(1)} mm wide × ${hMin === hMax ? hMax.toFixed(1) : hMin.toFixed(1) + '–' + hMax.toFixed(1)} mm tall. Strands bridge ${span.toFixed(1)} mm between contacts (keep under ~11 mm). Prints at ≤ 22 mm/s with full fan.`);
+    add(span > 8 ? 'bad' : span > 6 ? 'warn' : 'ok', `Holes ≈ ${holeW.toFixed(1)} mm wide × ${hMin === hMax ? hMax.toFixed(1) : hMin.toFixed(1) + '–' + hMax.toFixed(1)} mm tall. Strands hang ${span.toFixed(1)} mm between contacts. Longer than ~6 mm they sag, the next lap misses them and floats off — make the holes narrower, or use In / out bulges, which bridge level.`);
+    { const NS = NET_SPEED(pr.nozzle); add('ok', `Each lap presses ${Math.round(ZW_PRESS * 100)}% of a layer down into the strand below at every contact, with 12% extra plastic, at ${NS.touch} mm/s. Strands in air print at ${NS.air} mm/s, holes grow by at most a quarter layer per lap, Z axis never above ${PRINTERS[pr.printer].zSpeed} mm/s.`); }
     add(hMin / 4 < lh ? 'warn' : 'ok', hMin / 4 < lh ? `Smallest holes (${hMin.toFixed(1)} mm) are under ~4 layers tall — they will barely open.` : `Each contact point is one bead on one bead — strong enough for a shade, but handle gently.`);
   }
   if (P.mesh.on && !isZW(P)) {
@@ -1145,24 +1418,42 @@ function checks(k) {
     let rM = 0; for (let j = 0; j <= 20; j++) rM = Math.max(rM, sampleProf(P.prof, j / 20) * MM);
     const span = TAU * rM / N / 2;
     add(ratio < 1.2 || ratio > 4 ? 'warn' : 'ok', `Mesh bulges ${M.amp.toFixed(1)} mm = ${ratio.toFixed(1)}× the line — about 1.3–4× opens clean gaps with a ${pr.nozzle} mm nozzle.`);
-    add(span > 14 ? 'bad' : span > 9 ? 'warn' : 'ok', `Each bulge bridges ~${span.toFixed(1)} mm of air (keep under ~9 mm; more openings around shortens it). Bulges print at ≤30 mm/s with full fan.`);
+    add(span > 14 ? 'bad' : span > 9 ? 'warn' : 'ok', `Each bulge bridges ~${span.toFixed(1)} mm of air (keep under ~9 mm; more openings around shortens it). Every stretch over air prints at 15 mm/s with the fan high, held at both ends like a normal bridge. Where the next lap lands back on that strand it presses ${Math.round(MESH_PRESS * 100)}% of a layer down into it, slowly and with 10% extra plastic, so the joint fuses even if the strand sagged.`);
   }
   if (P.mod.src === 'attract' && !P.mod.attrs.length) add('warn', 'Attractor source chosen but no points placed yet — tap the surface with the Attractor tool.');
-  if (k === 'shade') { const rTop = sampleProf(P.prof, 1) * MM - w; add('ok', `Top opening is about Ø${(rTop * 2).toFixed(0)} mm inside — check your lamp socket fits.`); }
-  if (k === 'base') add('ok', 'Base prints closed at the bottom — drill a cable hole or add a slot afterwards.');
+  { // what it stands on while printing
+    const fl = partFlip(k), foot = sampleProf(P.prof, fl ? 1 : 0) * 2 * MM * minF(P), b = brimMM(k), open = k === 'shade';
+    const lvl = open && !b && foot < H * .5 ? 'warn' : 'ok';
+    add(lvl, `Prints ${k === 'base' ? 'top plate down' : k === 'shade' ? (fl ? 'top end down' : 'bottom end down') : 'standing on its bottom'}${open ? ' on a single-line ring' : ''} Ø${foot.toFixed(0)} mm, ${H.toFixed(0)} mm tall` + (b ? `, with a ${b} mm brim to hold it down (peel it off after).` : lvl === 'warn' ? ' — add a brim, or it can be knocked loose as it grows.' : '.'));
+  }
+  if (state.mode === 'vessel' && state.planter.on) { const g = saucerGap(); add(g < 1 ? 'bad' : 'ok', g < 1 ? `The pot does not fit inside its saucer (${g.toFixed(1)} mm). Use “Match saucer to pot”.` : `The pot stands in its saucer with ${g.toFixed(0)} mm to spare all round.`); }
+  if (k === 'vessel' && state.planter.hole > 0) add(pr.bottom < 1 ? 'warn' : 'ok', pr.bottom < 1 ? 'Drainage hole needs at least one solid bottom layer.' : `Drainage hole Ø${state.planter.hole} mm is left open in the bottom (G-code). In an STL, drill it afterwards.`);
+  if (sectOn(P)) add('ok', `Cross-section is not round: the line keeps its ${w} mm width and simply follows the outline. Sizes are measured across the widest points.`);
+  if (k === 'base') add('ok', `Base prints upside down: its solid top plate (with a Ø${PLATE_HOLE} mm hole for an M10 nipple) goes on the bed. The bottom stays open for the cord.`);
   return out;
 }
 const texName = t => ({ smooth:'Smooth', woven:'Woven', ribs:'Ribs', rings:'Coil', diamond:'Lattice', wave:'Wave', knurl:'Knurl' })[t] || t;
-function makePrintable(k) { easeSlope(state[k], 45 + (state.print.nozzle - .4) * 15); }
-function textureStep(k) { // biggest layer-to-layer jump caused by the textures alone (mm)
+function makePrintable(k) { easeSlope(state[k], 40); fitTexture(k); }
+// Biggest sideways step (mm) between one printed layer and the next, from everything that moves the wall:
+// outline, cross-section, petals and texture. Under about half a line width every layer still rests on the one below.
+function layerStep(k) {
   const pr = state.print, P = state[k], m = getMask(k), lh = pr.layerH, H = P.h * MM;
-  const tex = (th, v) => disp(P, th, v, m) * rimFade(v);
-  let step = 0; const layers = Math.floor(H / lh), stride = Math.max(1, Math.floor(layers / 160));
-  for (let L = 2; L < layers - 1; L += stride) {
+  let step = 0, at = 0; const layers = Math.floor(H / lh), stride = Math.max(1, Math.floor(layers / 200));
+  for (let L = 1; L < layers - 1; L += stride) {
     const va = (L * lh) / H, vb = ((L + 1) * lh) / H;
-    for (let i = 0; i < 180; i++) { const th = i / 180 * TAU; const d = Math.abs(tex(th, vb) - tex(th, va)) * MM; if (d > step) step = d; }
+    for (let i = 0; i < 180; i++) { const th = i / 180 * TAU; const d = Math.abs(surfR(P, th, vb, m) - surfR(P, th, va, m)) * MM; if (d > step) { step = d; at = vb; } }
   }
-  return step;
+  return { mm:step, v:at };
+}
+const textureStep = k => layerStep(k).mm;
+// Non-planar layers: how far the wall already printed rises above the nozzle tip within the print head's footprint (mm)
+function headRise(k) {
+  const pr = state.print, P = state[k], lh = pr.layerH, H = P.h * MM; let worst = 0;
+  for (let j = 2; j <= 40; j++) { const v = j / 40, r = Math.max(5, sampleProf(P.prof, v) * MM);
+    for (let i = 0; i < 48; i++) { const th = i / 48 * TAU, a = warpMM(P, k, th, v);
+      for (let q = 1; q <= 96; q++) { const dth = q / 96 * TAU; if (2 * r * Math.sin(dth / 2) > 35) continue;   // only what lies under the head
+        const rise = warpMM(P, k, th - dth, Math.max(0, v - dth / TAU * lh / H)) - a - lh * dth / TAU; if (rise > worst) worst = rise; } } }
+  return worst;
 }
 // Coarsen patterns that are too fine for the chosen nozzle (repeat ≥ 3 line widths, bands ≥ 2.4 layers, depth that still bonds).
 function adaptToNozzle(k) {
@@ -1175,15 +1466,19 @@ function adaptToNozzle(k) {
   const a0 = P.amp + P.b.amp; fitTexture(k); if (P.amp + P.b.amp !== a0) changed = true;
   return changed;
 }
+// Scale the texture down just enough that outline + texture together stay under ~45% of a line per layer.
 function fitTexture(k) {
-  const P = state[k], target = lineW(state.print.nozzle) * .4;
-  for (let it = 0; it < 4; it++) { const s = textureStep(k); if (s <= target) break; const f = Math.max(.1, target / s * .97); P.amp = +(P.amp * f).toFixed(4); P.b.amp = +(P.b.amp * f).toFixed(4); }
+  const P = state[k], target = lineW(state.print.nozzle) * .45, a0 = P.amp, b0 = P.b.amp;
+  if (!a0 && !b0) return; if (textureStep(k) <= target) return;
+  let lo = 0, hi = 1; const set = f => { P.amp = +(a0 * f).toFixed(4); P.b.amp = +(b0 * f).toFixed(4); };
+  for (let it = 0; it < 7; it++) { const mid = (lo + hi) / 2; set(mid); if (textureStep(k) <= target) lo = mid; else hi = mid; }
+  set(Math.max(lo, .15));
 }
 
 /* ═════════════════════ G-code ═════════════════════ */
 function gcode(k) {
   const pr = state.print, printer = PRINTERS[pr.printer], fil = FILAMENTS[pr.filament];
-  const tp = toolpath(k), st = pathStats(tp);
+  const tp = toolpath(k), st = pathStats(tp), airy = state[k].mesh.on, fan = airy ? Math.max(fil.fan, 80) : fil.fan;
   const cx = printer.bed[0] / 2, cy = printer.bed[1] / 2;
   const nozT = fil.nozzle + (pr.nozzle >= .8 ? 10 : pr.nozzle >= .6 ? 5 : 0);
   let fp = [Infinity, Infinity, -Infinity, -Infinity];
@@ -1191,12 +1486,12 @@ function gcode(k) {
   const fx0 = (cx + fp[0] - 5).toFixed(1), fy0 = (cy + fp[1] - 5).toFixed(1), fw = (fp[2] - fp[0] + 10).toFixed(1), fh = (fp[3] - fp[1] + 10).toFixed(1);
   const totalMin = Math.round(st.sec / 60);
   const o = [];
-  o.push(`; HEADER_BLOCK_START`, `; generated by Spiral (spiral vase, single continuous line)`, `; printer_model = Bambu Lab ${printer.name}`, `; nozzle_diameter = ${pr.nozzle}`, `; filament_type = ${fil.name}`,
-    `; layer_height = ${pr.layerH}`, `; line_width = ${tp.w}`, `; total layer number: ${tp.revs + Math.max(tp.bottom, 1)}`, `; estimated printing time = ${totalMin} min`, `; filament used [g] = ${st.grams.toFixed(1)}`, `; HEADER_BLOCK_END`, ``);
+  o.push(`; HEADER_BLOCK_START`, `; generated by Monoline (monoline.si) (spiral vase, single continuous line)`, `; printer_model = Bambu Lab ${printer.name}`, `; nozzle_diameter = ${pr.nozzle}`, `; filament_type = ${fil.name}`,
+    `; layer_height = ${pr.layerH}`, `; line_width = ${tp.w}`, `; speed planned per move: slower on overhangs, strands in air and steep Z moves (Z ≤ ${tp.zLim} mm/s)`, `; brim loops = ${tp.brim}, part ${tp.flip ? 'flipped' : 'upright'} on the bed`, `; total layer number: ${tp.revs + Math.max(tp.bottom, 1)}`, `; estimated printing time = ${totalMin} min`, `; filament used [g] = ${st.grams.toFixed(1)}`, `; HEADER_BLOCK_END`, ``);
   if (pr.customStart.trim()) {
     o.push('; ===== custom start G-code =====', pr.customStart.replaceAll('[bed_temperature_initial_layer_single]', fil.bed).replaceAll('[nozzle_temperature_initial_layer]', nozT), '; ===== end custom start =====');
   } else {
-    o.push(`; ===== start =====`, `M73 P0 R${totalMin}`, `G90`, `M83`, `M220 S100`, `M221 S100`, `M204 S5000`,
+    o.push(`; ===== start =====`, `M73 P0 R${totalMin}`, `G90`, `M83`, `M220 S100`, `M221 S100`, `M204 S${airy ? 1500 : 4000} ; gentle acceleration: a single tall wall sways`,
       `M106 P1 S0`, `M140 S${fil.bed}`, `M104 S140 ; warm nozzle without oozing`, `G28 ; home`, `M190 S${fil.bed}`, `M109 S140`);
     if (pr.abl) o.push(`G29.2 S1 ; enable bed-mesh compensation`, `G29 A X${fx0} Y${fy0} I${fw} J${fh} ; probe the footprint only`, `M400`);
     else o.push(`G29.2 S1 ; use stored bed mesh`);
@@ -1214,7 +1509,7 @@ function gcode(k) {
     if (newLayer) {
       layer++;
       o.push(`; LAYER ${layer}`, `M73 L${layer}`, `M73 P${Math.min(99, Math.round(elapsed * 1.12 / st.sec * 100))} R${Math.max(0, Math.round((st.sec - elapsed * 1.12) / 60))}`);
-      if (layer === 2 && !fanOn) { o.push(`M106 P1 S${Math.round(fil.fan * 2.55)}`); fanOn = true; }
+      if (layer === 2 && !fanOn) { o.push(`M106 P1 S${Math.round(fan * 2.55)}`); fanOn = true; }
       if (i >= revStart && layer === Math.max(tp.bottom, 1) + 1) o.push('; spiral vase: Z rises continuously from here, no seams');
     }
     if (tp.K[i]) {
@@ -1240,7 +1535,7 @@ function hardware() {
   const lay = state.lamp.layout, F = FITTINGS[state.lamp.fitting], B = BULBS[state.lamp.bulb], u = 1 / MM;
   if (lay === 'dome') { const y = state.base.h - F.h * u; return { sock:{ r:F.d / 2 * u, h:F.h * u, y }, bulb:null, light:{ y:y, r:0 }, F, B }; }
   if (lay === 'bell') {
-    const top = state.base.h + .006, sy = top - F.h * .7 * u;
+    const sy = state.base.h;   // socket stands on the base's top plate, fixed with an M10 nipple
     const y0 = sy + F.h * u - 4 * u;
     return { sock:{ r:F.d / 2 * u, h:F.h * u, y:sy }, bulb:{ ...B, y0, dir:1, h:B.h * u, d:B.d * u, neck:F.neck * u }, light:{ y:y0 + (B.h - B.d / 2) * u, r:0 }, F, B };
   }
@@ -1252,22 +1547,32 @@ function bulbR(b, z) { const R = b.d / 2, cz = Math.max(0, b.h - R), rn = Math.m
 // inner radius of the shade wall at a world height (mm), worst case around the circumference
 function shadeInnerAt(y) {
   const P = state.shade, v = (y - partY0('shade')) / P.h; if (v < 0 || v > 1) return null;
-  return (sampleProf(P.prof, v) * (1 - P.lobeAmt) - Math.max(P.amp, P.b.amp)) * MM - lineW(state.print.nozzle);
+  let f = Infinity; for (let i = 0; i < 48; i++) f = Math.min(f, lobeF(P, i / 48 * TAU, v));
+  return (sampleProf(P.prof, v) * f - Math.max(P.amp, P.b.amp)) * MM - lineW(state.print.nozzle);
 }
 function partMass(k) { // grams and centre-of-mass height (mm, world), from the single-wall spiral + solid bottom
   const P = state[k], fil = FILAMENTS[state.print.filament], w = lineW(state.print.nozzle), y0 = partY0(k) * MM, H = P.h * MM;
   let m = 0, my = 0; const n = 60;
   for (let j = 0; j < n; j++) { const v = (j + .5) / n, r = sampleProf(P.prof, v) * MM, dm = TAU * r * (H / n) * w * fil.rho * 1e-3; m += dm; my += dm * (y0 + v * H); }
-  if (k !== 'shade') { const r0 = sampleProf(P.prof, 0) * MM, dm = Math.PI * r0 * r0 * Math.max(1, state.print.bottom) * state.print.layerH * fil.rho * 1e-3; m += dm; my += dm * y0; }
+  if (k !== 'shade') { const r0 = sampleProf(P.prof, 0) * MM, dm = Math.PI * r0 * r0 * Math.max(1, state.print.bottom) * state.print.layerH * fil.rho * 1e-3; m += dm; my += dm * (k === 'base' ? y0 + H : y0); }
   return { m, y:my / m };
 }
 function lampChecks() {
   const out = [], add = (lvl, msg) => out.push({ lvl, msg }); const H = hardware(); if (!H) return out;
   const L = state.lamp, lay = L.layout, fil = FILAMENTS[state.print.filament], u = MM;
+  { // attachment: the shade opening must fit under the socket's shade ring; the base plate must carry the socket
+    const w = lineW(state.print.nozzle), v0 = lay === 'bell' ? 0 : 1, din = (sampleProf(state.shade.prof, v0) * u - w) * 2;
+    const okFit = din >= H.F.d + .5 && din <= H.F.flange - 5;
+    add(okFit ? 'ok' : 'bad', okFit ? `Attaches: the shade's ${lay === 'bell' ? 'bottom' : 'top'} opening (Ø${din.toFixed(0)} mm) slips over the ${H.F.name} thread and is clamped by its shade ring.`
+      : `Can't attach: the shade's ${lay === 'bell' ? 'bottom' : 'top'} opening is Ø${din.toFixed(0)} mm, but the ${H.F.name} shade ring needs Ø${H.F.hole} mm. Use “Fit shade opening”.`);
+    if (state.lamp.own) add('ok', lay === 'bell' ? `Shade only: it fits a lamp you already own, as long as its ${H.F.name} has an outer thread and a shade ring.` : `Shade only: it fits any pendant cord set whose ${H.F.name} has an outer thread and a shade ring.`);
+    else if (lay === 'bell') { const dt = sampleProf(state.base.prof, 1) * u * 2; add(dt < 30 ? 'bad' : 'ok', dt < 30 ? `Base top is only Ø${dt.toFixed(0)} mm — too small for the socket and its nut (needs ≥ 30 mm).` : `Socket mounts on the base's top plate (Ø${dt.toFixed(0)} mm) with an M10 nipple and nut.`); }
+  }
   // clearance between bulb (or LED module) and the inner shade wall
   let minC = Infinity, at = 0, sticksOut = false;
   if (H.bulb) {
-    for (let i = 0; i <= 50; i++) { const z = i / 50 * H.bulb.h, y = H.bulb.y0 + H.bulb.dir * z, rb = bulbR(H.bulb, z) * u, ri = shadeInnerAt(y);
+    for (let i = 11; i <= 50; i++) { const z = i / 50 * H.bulb.h,   // from just above the metal cap (it sits inside the socket) to the tip
+      y = H.bulb.y0 + H.bulb.dir * z, rb = bulbR(H.bulb, z) * u, ri = shadeInnerAt(y);
       if (ri == null) { if (rb > 1) sticksOut = true; continue; } const c = ri - rb; if (c < minC) { minC = c; at = y; } }
   } else { const y = H.sock.y + H.sock.h * .5, ri = shadeInnerAt(y); if (ri != null) { minC = ri - H.F.d / 2; at = y; } }
   if (sticksOut) add('bad', lay === 'pendant' ? 'The bulb hangs out below the shade — make the shade longer or pick a shorter bulb.' : 'The bulb pokes out of the top of the shade — make the shade taller or pick a smaller bulb.');
@@ -1280,10 +1585,10 @@ function lampChecks() {
   if (lay === 'bell') { const rt = sampleProf(P.prof, 1) * u, yt = y0 + P.h * u, a = Math.atan2(yt - ly, rt) * 180 / Math.PI; add(a < 15 ? 'warn' : 'ok', `Glare: the bulb is visible only when looking down into the top opening from more than ${a.toFixed(0)}° above horizontal.`); }
   else { const rr = sampleProf(P.prof, 0) * u, a = Math.atan2(ly - y0, rr) * 180 / Math.PI; add(a < 15 ? 'warn' : 'ok', `Glare cut-off ${a.toFixed(0)}°: the light source is hidden unless you look up into the shade from more than ${a.toFixed(0)}° below horizontal.`); }
   // stability (table lamps)
-  if (lay !== 'pendant') {
+  if (lay !== 'pendant' && !state.lamp.own) {
     const ms = parts().map(partMass); let M = 0, MY = 0; for (const p of ms) { M += p.m; MY += p.m * p.y; }
     const hwM = H.F.mass + (H.B.mass || 0), hwY = (H.bulb ? H.bulb.y0 + H.bulb.h / 2 : H.sock.y) * u; M += hwM; MY += hwM * hwY;
-    const hcm = MY / M, Rf = sampleProf(state.base.prof, 0) * (1 - state.base.lobeAmt) * u, tip = Math.atan2(Rf, hcm) * 180 / Math.PI;
+    const hcm = MY / M, Rf = sampleProf(state.base.prof, 0) * minF(state.base) * u, tip = Math.atan2(Rf, hcm) * 180 / Math.PI;
     const need = Math.max(0, M * (hcm * Math.tan(18 * Math.PI / 180) / Rf - 1));
     add(tip < 12 ? 'bad' : tip < 18 ? 'warn' : 'ok', `Weighs ≈ ${M.toFixed(0)} g, centre of mass at ${hcm.toFixed(0)} mm; tips over at ${tip.toFixed(0)}°.` + (need > 5 ? ` Add ≈ ${Math.ceil(need / 10) * 10} g of ballast in the base (steel washers, sand bag) for ≥ 18°.` : ''));
   }
@@ -1291,12 +1596,8 @@ function lampChecks() {
   return out;
 }
 function fitToFitting() {
-  const L = state.lamp, F = FITTINGS[L.fitting]; if (L.layout === 'dome' || !F.hole) return false;
-  const P = state.shade, target = (F.hole / 2 + lineW(state.print.nozzle) / 2) / MM, v0 = L.layout === 'bell' ? 0 : 1;
-  const delta = target - sampleProf(P.prof, v0);
-  for (let i = 0; i < N; i++) { const d = (i / (N - 1) - v0) / .16; P.prof[i] = +(Math.max(.02, P.prof[i] + delta * Math.exp(-d * d * 2))).toFixed(4); }
-  P.prof[v0 ? N - 1 : 0] = +target.toFixed(4);
-  return true;
+  const L = state.lamp; if (!LAYOUTS[L.layout]) return false;
+  fitProf(state.shade, L.layout, L.fitting, lineW(state.print.nozzle)); return true;
 }
 
 /* ───── technical drawing (SVG, A4 landscape, mm) ───── */
@@ -1327,7 +1628,7 @@ function drawingSVG() {
     // left half: section through the single wall (one line = ${w} mm)
     const wall = outR.map((r, j) => `${f(X(-r))},${f(Y(ys[j]))}`).join(' ') + ' ' + outR.map((r, j) => `${f(X(-(r - w)))},${f(Y(ys[j]))}`).reverse().join(' ');
     o.push(`<polygon points="${wall}" fill="${ink}" stroke="${ink}" stroke-width="${Math.max(.25, w * SC)}" stroke-linejoin="round"/>`);
-    if (k !== 'shade') { const r0 = outR[0], tb = Math.max(1, pr.bottom) * pr.layerH; o.push(`<rect x="${f(X(-r0))}" y="${f(Y(y0 + tb))}" width="${f(r0 * SC)}" height="${f(Math.max(.3, tb * SC))}" fill="${ink}"/>`); }
+    if (k !== 'shade') { const top = k === 'base', r0 = top ? outR[n] : outR[0], tb = Math.max(1, pr.bottom) * pr.layerH, yy = top ? y0 + H : y0 + tb; o.push(`<rect x="${f(X(-r0))}" y="${f(Y(yy))}" width="${f(r0 * SC)}" height="${f(Math.max(.3, tb * SC))}" fill="${ink}"/>`); if (top) T(X(-r0) - 3, Y(yy) - 1.5, `top plate, hole Ø${PLATE_HOLE}`, 'end', 2.2, mute); }
     // right half: elevation with texture envelope and every 5 mm of the spiral
     const env = outR.map((r, j) => r * (1 + P.lobeAmt) + Math.max(P.amp, P.b.amp) * u + (P.mesh?.on ? P.mesh.amp : 0));
     o.push(`<polyline points="${env.map((r, j) => `${f(X(r))},${f(Y(ys[j]))}`).join(' ')}" fill="none" stroke="${ink}" stroke-width=".3"/>`);
@@ -1372,19 +1673,26 @@ function drawingSVG() {
   const tbx = 199, tby = 168, st = estimateAll();
   o.push(`<rect x="${tbx}" y="${tby}" width="86" height="30" fill="none" stroke="${ink}" stroke-width=".3"/>`);
   Lh(tbx, tby + 11, tbx + 86, tby + 11, .2); Lh(tbx + 43, tby + 11, tbx + 43, tby + 30, .2); Lh(tbx, tby + 20.5, tbx + 86, tby + 20.5, .2);
-  o.push(`<text x="${tbx + 3}" y="${tby + 8.2}" font-size="7" font-family="Instrument Serif, Times New Roman, serif" font-style="italic" fill="${ink}">Spiral</text>`);
+  o.push(`<text x="${tbx + 3}" y="${tby + 8.2}" font-size="7" font-family="Instrument Serif, Times New Roman, serif" font-style="italic" fill="${ink}">Monoline</text>`);
   T(tbx + 83, tby + 5, (lamp ? (LAMP_PRESETS[state.preset]?.name || 'Lamp') : (VESSEL_PRESETS[state.vpreset]?.name || 'Vessel')).toUpperCase(), 'end', 2.4);
   T(tbx + 83, tby + 9, `SCALE 1:${(1 / SC).toFixed(SC === 1 / 1.5 || SC === 1 / 3 ? 1 : 0).replace('.0', '')} · ${new Date().toISOString().slice(0, 10)}`, 'end', 2.1, mute);
   T(tbx + 3, tby + 15, PRINTERS[pr.printer].name.toUpperCase(), 'start', 2.1); T(tbx + 3, tby + 18.5, `NOZZLE ${pr.nozzle} · ${FILAMENTS[pr.filament].name.toUpperCase()}`, 'start', 2.1, mute);
   T(tbx + 46, tby + 15, `≈ ${st.g} G PLASTIC · ${st.h}`, 'start', 2.1); T(tbx + 46, tby + 18.5, lamp ? `${FITTINGS[state.lamp.fitting].name.toUpperCase()}` : 'VESSEL', 'start', 2.1, mute);
-  T(tbx + 3, tby + 25.5, 'DAVIDFICKO.COM/SPIRAL', 'start', 2.1, mute); T(tbx + 46, tby + 25.5, lamp ? LAYOUTS[state.lamp.layout].toUpperCase() : '', 'start', 1.9, mute);
+  T(tbx + 3, tby + 25.5, 'MONOLINE.SI', 'start', 2.1, mute); T(tbx + 46, tby + 25.5, lamp ? LAYOUTS[state.lamp.layout].toUpperCase() : '', 'start', 1.9, mute);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="297mm" height="210mm" viewBox="0 0 297 210" font-family="IBM Plex Mono, ui-monospace, monospace" letter-spacing=".04"><defs><pattern id="hatch" width="1.2" height="1.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="1.2" stroke="${ink}" stroke-width=".18"/></pattern></defs><rect width="297" height="210" fill="#fff"/>${o.join('')}</svg>`;
 }
+// Time and plastic for one part, without building the full toolpath. A net uses far fewer laps and much less plastic.
+function estimatePart(k) {
+  const pr = state.print, w = lineW(pr.nozzle), fil = FILAMENTS[pr.filament], P = state[k], H = P.h * MM, layers = Math.floor(H / pr.layerH);
+  let per = 0; for (let j = 0; j < 20; j++) per += TAU * sampleProf(P.prof, (j + .5) / 20) * MM; per /= 20;
+  const zw = isZW(P), laps = zw ? Math.max(1, zwTable(P, 0, pr.layerH, H).T) : layers;
+  const sp = zw ? NET_SPEED(pr.nozzle).air * 1.35 : P.mesh.on ? Math.min(pr.speed, 22) : Math.min(pr.speed, fil.flow / (w * pr.layerH), per / 6) * .9;
+  const g = partMass(k).m * (zw ? Math.min(1, laps * pr.layerH * 1.35 / H) : 1);
+  return { sec:laps * per / sp * 1.12 + 240, g, laps };
+}
 function estimateAll() {
-  const pr = state.print, w = lineW(pr.nozzle), fil = FILAMENTS[pr.filament]; let g = 0, sec = 0;
-  for (const k of parts()) { const pm = partMass(k); g += pm.m; const H = state[k].h * MM, layers = Math.floor(H / pr.layerH); let per = 0; for (let j = 0; j < 20; j++) per += TAU * sampleProf(state[k].prof, (j + .5) / 20) * MM; per /= 20;
-    sec += layers * per / Math.min(pr.speed, fil.flow / (w * pr.layerH)) + 240; }
-  const m = Math.round(sec * 1.12 / 60);
+  let g = 0, sec = 0; for (const k of parts()) { const e = estimatePart(k); g += e.g; sec += e.sec; }
+  const m = Math.round(sec / 60);
   return { g:Math.round(g), h:m >= 60 ? `${Math.floor(m / 60)} H ${m % 60} MIN` : m + ' MIN' };
 }
 
@@ -1409,7 +1717,7 @@ const VIEW_NAMES = { path:'Path · the nozzle line on the design', printed:'Bead
 let drawT;
 function renderDrawing() { $('#drawing').innerHTML = drawingSVG(); }
 function scheduleDrawing() { clearTimeout(drawT); drawT = setTimeout(renderDrawing, 120); }
-function setView(v) { state.view = v; document.body.classList.toggle('drawing', v === 'drawing'); busy(() => { rebuild(); applyLook(); renderPanel(); if (v === 'drawing') renderDrawing(); toast(VIEW_NAMES[v]); }); }
+function setView(v) { simExit(); state.view = v; document.body.classList.toggle('drawing', v === 'drawing'); busy(() => { rebuild(); applyLook(); renderPanel(); if (v === 'drawing') renderDrawing(); toast(VIEW_NAMES[v]); }); }
 document.querySelectorAll('#viewSeg button').forEach(b => b.onclick = () => setView(b.dataset.view));
 const toastEl = $('#toast'); let toastT;
 function toast(m) { toastEl.textContent = m; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('show'), 2200); }
@@ -1428,16 +1736,303 @@ function setTool(t) {
   U.uMaskShow.value = isPaint() ? 1 : 0; showBrush(null);
   $('#hint').textContent = ui.tool === 'attract' ? 'Tap the surface to add an attractor · tap one again to remove it' : isPaint() ? 'Paint where pattern B should appear · it blends smoothly into A' : 'Drag on the surface to sculpt · drag empty space to orbit';
 }
-document.querySelectorAll('#tools [data-tool]').forEach(b => b.onclick = () => { setTool(b.dataset.tool); if (ui.tool === 'attract' && state[ui.surf]?.mod.src !== 'attract') { pushUndo(); const P = state[state.mode === 'vessel' ? 'vessel' : ui.surf]; P.mod.src = 'attract'; rebuild(); } if ((isPaint() || ui.tool === 'attract') && ui.tab !== 'surface') { ui.tab = 'surface'; renderTabs(); renderPanel(); } });
-function loadState(s) { state = upgrade(s); for (const k in maskCache) delete maskCache[k]; for (const k in imgCache) delete imgCache[k]; if (state.mode === 'vessel') ui.surf = 'vessel'; else if (ui.surf === 'vessel') ui.surf = 'shade'; }
+document.querySelectorAll('#tools [data-tool]').forEach(b => b.onclick = () => { setTool(b.dataset.tool); if (ui.tool === 'attract' && state[ui.surf]?.mod.src !== 'attract') { pushUndo(); const P = state[parts().includes(ui.surf) ? ui.surf : parts()[0]]; P.mod.src = 'attract'; rebuild(); } if ((isPaint() || ui.tool === 'attract') && ui.tab !== 'surface') { ui.tab = 'surface'; renderTabs(); renderPanel(); } });
+// ── thumbnails: a small line drawing of a piece, made from its outline ──
+function saucerFor(V) { let rf = 0; for (let z = 0; z <= 18; z += 2) rf = Math.max(rf, sampleProf(V.prof, Math.min(1, z / (V.h * MM))) * MM); return { h:.16, prof:prof(v => (rf + 4 + 9 * v) / MM), color:V.color, mesh:{} }; }
+function thumbSVG(p, lamp) {
+  const items = [], u = MM, extra = []; let top = 0, rMax = 0;
+  if (lamp) {
+    const L = { ...LAMP0(), ...p.lamp }, F = FITTINGS[L.fitting], pend = L.layout === 'pendant', shadeOnly = pend || L.own, hb = pend ? 0 : p.base.h * u;
+    if (!shadeOnly) items.push({ P:p.base, y:0 });
+    items.push({ P:p.shade, y:pend ? 0 : hb + F.h - 18 });
+    if (pend) extra.push(['cord', p.shade.h * u, p.shade.h * u + 45]); else if (L.own) extra.push(['stand', hb + F.h - 18]);
+  } else { if (p.planter?.on) items.push({ P:saucerFor(p.vessel), y:0 }); items.push({ P:p.vessel, y:p.planter?.on ? 1 : 0 }); }
+  for (const it of items) { top = Math.max(top, it.y + it.P.h * u); rMax = Math.max(rMax, Math.max(...it.P.prof) * u); }
+  for (const e of extra) if (e[0] === 'cord') top = Math.max(top, e[2]); else rMax = Math.max(rMax, 60);
+  const sc = Math.min(84 / top, 84 / (rMax * 2)), X = r => 50 + r * sc, Y = y => 92 - y * sc, f = n => n.toFixed(1), o = [];
+  for (const e of extra) {
+    if (e[0] === 'cord') o.push(`<path d="M50 ${f(Y(e[1]))}V${f(Y(e[2]))}" stroke="#121211" stroke-width="1"/>`);
+    else o.push(`<path d="M${f(X(-60))} 92H${f(X(60))}M50 92V${f(Y(e[1]))}" stroke="#86827a" stroke-width="1.2" fill="none"/>`);
+  }
+  for (const { P, y } of items) {
+    const n = 36, H = P.h * u, L = [], R = [];
+    for (let j = 0; j <= n; j++) { const r = sampleProf(P.prof, j / n) * u, yy = f(Y(y + j / n * H)); L.push(`${f(X(-r))} ${yy}`); R.push(`${f(X(r))} ${yy}`); }
+    o.push(`<path d="M${L.join('L')}L${R.reverse().join('L')}Z" fill="${P.color}" fill-opacity=".5" stroke="#121211" stroke-width="1" stroke-linejoin="round"/>`);
+    const lines = Math.max(2, Math.round(H * sc / 4.2)); let d = '';
+    for (let i = 1; i < lines; i++) { const v = i / lines, r = sampleProf(P.prof, v) * u; d += `M${f(X(-r))} ${f(Y(y + v * H))}H${f(X(r))}`; }
+    o.push(`<path d="${d}" stroke="#121211" stroke-width=".55" opacity=".42" fill="none"${P.mesh?.on ? ' stroke-dasharray="2.4 2"' : ''}/>`);
+  }
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${o.join('')}</svg>`;
+}
+const thumbEl = (p, lamp) => el('span', { className:'th', innerHTML:thumbSVG(p, lamp) });
+// ── start from a preset ──
+let origin = null;
+function markOrigin() { flushMasks(); origin = JSON.stringify(state); try { localStorage.setItem('monoline.origin', origin); } catch (e) {} }
+function applyPreset(mode, k) {
+  pushUndo(); const lamp = mode === 'lamp', p = (lamp ? LAMP_PRESETS : VESSEL_PRESETS)[k]; state.mode = mode; state.print.spd = {}; SIM.sel = null;
+  if (lamp) { state.preset = k; state.lamp = { ...state.lamp, own:false, ...p.lamp }; state.shade = clone(p.shade); state.base = clone(p.base); delete maskCache.shade; delete maskCache.base; fitToFitting(); }
+  else { state.vpreset = k; state.vessel = clone(p.vessel); state.planter = { ...PLANTER0(), ...(p.planter || {}) }; state.saucer = SAUCER0(p.vessel.color); delete maskCache.vessel; delete maskCache.saucer; if (state.planter.on) fitSaucer(); }
+  ui.surf = parts()[0]; if (!TABS_FOR().includes(ui.tab)) ui.tab = 'shape';
+  parts().forEach(kk => { if (state[kk].tr.on) applyTransition(kk); adaptToNozzle(kk); });
+  markOrigin(); rebuild(); applyLook(); frameCamera(); renderAll();
+}
+// ── start screen ──
+const CATS = [['all', 'All'], ['table', 'Table lamps'], ['pendant', 'Pendant shades'], ['shade', 'Shades for your lamp'], ['vase', 'Vases'], ['bowl', 'Bowls'], ['planter', 'Planters']];
+const catOf = (p, lamp) => lamp ? (p.lamp.layout === 'pendant' ? 'pendant' : p.lamp.own ? 'shade' : 'table') : p.cat || 'vase';
+const startEl = $('#start');
+function renderStart() {
+  const cats = $('#startCats'), bodyS = $('#startBody'); cats.innerHTML = ''; bodyS.innerHTML = '';
+  for (const [k, n] of CATS) { const b = el('button', { textContent:n }); b.classList.toggle('on', ui.cat === k); b.onclick = () => { ui.cat = k; renderStart(); }; cats.append(b); }
+  const all = [...Object.entries(LAMP_PRESETS).map(([k, p]) => ({ k, p, lamp:true })), ...Object.entries(VESSEL_PRESETS).map(([k, p]) => ({ k, p, lamp:false }))].filter(x => ui.cat === 'all' || catOf(x.p, x.lamp) === ui.cat);
+  if (ui.cat === 'all') {
+    const t = el('button', { className:'tile imp' }, [el('span', { className:'th', innerHTML:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg>' }), el('span', { className:'tx' }, [el('span', { textContent:'Your own model' }), el('small', { textContent:'Import an STL · it becomes one continuous line' })])]);
+    t.onclick = () => $('#stlIn').click();
+    bodyS.append(el('h4', { textContent:'Your own' }), el('div', { className:'tiles' }, [t]));
+  }
+  for (const [title, list] of [['Ready to print', all.filter(x => x.p.studio)], ['Simple forms to make your own', all.filter(x => !x.p.studio)]]) {
+    if (!list.length) continue;
+    const g = el('div', { className:'tiles' });
+    for (const { k, p, lamp } of list) {
+      const t = el('button', { className:'tile' }, [thumbEl(p, lamp), el('span', { className:'tx' }, [el('span', { textContent:p.name }), el('small', { textContent:p.note })])]);
+      t.onclick = () => { applyPreset(lamp ? 'lamp' : 'vessel', k); showStart(false); ui.started = true; try { if (!localStorage.getItem('monoline.help')) showHelp(true); } catch (e) {} };
+      g.append(t);
+    }
+    bodyS.append(el('h4', { textContent:title }), g);
+  }
+  $('#startClose').style.display = ui.started ? '' : 'none';
+}
+function showStart(v) { startEl.classList.toggle('show', v); if (v) { renderStart(); startEl.scrollTop = 0; } }
+$('#newBtn').onclick = () => showStart(true);
+document.querySelector('header h1').onclick = () => showStart(true);
+$('#startClose').onclick = () => showStart(false);
+$('#startOpen').onclick = () => $('#fileIn').click();
+$('#startStl').onclick = () => $('#stlIn').click();
+$('#startHelp').onclick = () => showHelp(true);
+// ── reset: back to how this piece started (the preset, opened file or shared link) ──
+$('#resetBtn').onclick = () => {
+  if (!origin) return; pushUndo(); const pr = state.print, view = state.view;
+  loadState(JSON.parse(origin)); state.print = { ...pr, part:state.print.part }; state.view = view;
+  if (state.mode === 'lamp') fitToFitting();
+  parts().forEach(k => { if (state[k].tr.on && !state[k].mask) applyTransition(k); adaptToNozzle(k); });
+  rebuild(); applyLook(); frameCamera(); renderAll(); toast('Reset · Undo brings your changes back');
+};
+// ── share link: the whole design travels inside the link, nothing is uploaded ──
+const b64u = u8 => { let t = ''; for (let i = 0; i < u8.length; i += 8192) t += String.fromCharCode.apply(null, u8.subarray(i, i + 8192)); return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+const pipe = async (u8, T) => new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(T)).arrayBuffer());
+function shareState() {
+  flushMasks(); const o = clone(state), keep = parts();
+  for (const k of PARTS) { if (!keep.includes(k)) { delete o[k]; continue; } if (o[k].tr.on && o[k].mask === encodeMask(transitionMask(k))) o[k].mask = ''; }   // a plain transition is rebuilt from its settings
+  o.print = { ...o.print, customStart:'' }; delete o.light; return o;
+}
+const onSite = () => /^https?:$/.test(location.protocol) && /(^|\.)monoline\.si$|^localhost$|^127\./.test(location.hostname);
+async function shareLink() {
+  const raw = new TextEncoder().encode(JSON.stringify(shareState())); let tag = 'j', data = raw;
+  try { if (typeof CompressionStream !== 'undefined') { data = await pipe(raw, new CompressionStream('deflate-raw')); tag = 'z'; } } catch (e) { data = raw; tag = 'j'; }
+  return (onSite() ? location.origin + location.pathname : 'https://monoline.si/') + '#d=' + tag + b64u(data);
+}
+async function readShared(hash) {
+  const m = /^#d=([zj])(.+)$/.exec(hash || ''); if (!m) return null;
+  let u8 = unb64u(m[2]); if (m[1] === 'z') u8 = await pipe(u8, new DecompressionStream('deflate-raw'));
+  const d = JSON.parse(new TextDecoder().decode(u8)); if (!d.shade?.prof && !d.vessel?.prof) throw 0; return d;
+}
+async function openShared() {
+  if (!/^#d=/.test(location.hash)) return;
+  try { const d = await readShared(location.hash); pushUndo(); loadState(d); for (const k of parts()) if (state[k].tr.on && !state[k].mask) applyTransition(k);
+    ui.started = true; showStart(false); markOrigin(); rebuild(); applyLook(); frameCamera(); renderAll(); toast('Shared design opened'); }
+  catch (e) { toast('That link is not a Monoline design'); }
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+}
+addEventListener('hashchange', openShared);
+const shareEl = $('#share');
+$('#shareBtn').onclick = () => busy(async () => {
+  const url = await shareLink(); $('#shareUrl').value = url;
+  $('#shareNote').textContent = `Anyone who opens this link gets this exact design in Monoline, ready to change or print. Nothing is uploaded: the design is inside the link (${url.length > 4000 ? 'a long one, ' + Math.round(url.length / 1000) + ' k characters, because it carries hand-painted patterns' : url.length + ' characters'}).` + (onSite() ? '' : ' The link opens on monoline.si.');
+  $('#shareSys').style.display = navigator.share ? '' : 'none'; shareEl.classList.add('show');
+});
+$('#shareClose').onclick = () => shareEl.classList.remove('show');
+shareEl.addEventListener('click', e => { if (e.target === shareEl) shareEl.classList.remove('show'); });
+$('#shareCopy').onclick = async () => { const i = $('#shareUrl'); try { await navigator.clipboard.writeText(i.value); toast('Link copied'); } catch (e) { i.focus(); i.select(); try { document.execCommand('copy'); toast('Link copied'); } catch (e2) { toast('Select the link and copy it'); } } };
+$('#shareSys').onclick = async () => { try { await navigator.share({ title:'Monoline design', url:$('#shareUrl').value }); } catch (e) {} };
+/* ── print playback: the real toolpath as beads, layer by layer ── */
+const SIM = { data:null, key:'', on:false, playing:false, time:0, sel:null, mesh:null, T:null };
+const simMat = new THREE.MeshStandardMaterial({ roughness:.75, side:THREE.DoubleSide });
+const SU = { uCur:{ value:-1 }, uMode:{ value:0 }, uHi:{ value:new THREE.Color(0xff5a1f) }, uSlow:{ value:new THREE.Color(0x2f4fb5) }, uFast:{ value:new THREE.Color(0xe9e4d8) } };
+simMat.onBeforeCompile = sh => {
+  Object.assign(sh.uniforms, SU);
+  sh.vertexShader = 'attribute float aL; attribute float aS; varying float vL; varying float vS;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vL = aL; vS = aS;');
+  sh.fragmentShader = 'uniform float uCur; uniform float uMode; uniform vec3 uHi; uniform vec3 uSlow; uniform vec3 uFast; varying float vL; varying float vS;\n' + sh.fragmentShader.replace('#include <color_fragment>',
+    '#include <color_fragment>\n diffuseColor.rgb = mix(diffuseColor.rgb, mix(uSlow, uFast, clamp(vS, 0., 1.)), uMode);\n diffuseColor.rgb = mix(diffuseColor.rgb, uHi, 1. - step(.5, abs(vL - uCur)));');
+};
+const nozzle = new THREE.Group(); { const c = new THREE.Mesh(new THREE.ConeGeometry(.011, .03, 20), new THREE.MeshStandardMaterial({ color:0x121211, roughness:.5 })); c.rotation.x = Math.PI; c.position.y = .015; nozzle.add(c); const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, .03, 0), new THREE.Vector3(0, .22, 0)]), new THREE.LineBasicMaterial({ color:0x121211 })); nozzle.add(l); }
+nozzle.visible = false; scene.add(nozzle);
+const simKey = () => printPart() + '|' + JSON.stringify(state.print) + '|' + undoStack.length + '|' + editStamp;
+let editStamp = 0, simT;
+function simDirty() { editStamp++; SIM.data = null; drawBars(); clearTimeout(simT); simT = setTimeout(simCompute, 900); }
+function simCompute(force = false) {
+  clearTimeout(simT);
+  if (!force && (interacting() || state.view === 'drawing' || document.hidden)) { simT = setTimeout(simCompute, 600); return; }
+  const key = simKey(); if (SIM.data && SIM.key === key) return SIM.data;
+  const k = printPart(), tp = toolpath(k), n = tp.X.length, t = new Float64Array(n);
+  let nL = 0; for (let i = 0; i < n; i++) nL = Math.max(nL, tp.LAY[i] + 1);
+  const L0 = new Int32Array(nL).fill(-1), L1 = new Int32Array(nL), lt = new Float64Array(nL), ll = new Float64Array(nL), zs = new Float64Array(nL), zc = new Float64Array(nL);
+  for (let i = 0; i < n; i++) {
+    const d = i ? Math.hypot(tp.X[i] - tp.X[i - 1], tp.Y[i] - tp.Y[i - 1], tp.Z[i] - tp.Z[i - 1]) : 0, dt = d / (tp.K[i] ? 200 : tp.F[i]);
+    t[i] = (i ? t[i - 1] : 0) + dt; const L = tp.LAY[i]; if (L0[L] < 0) L0[L] = i; L1[L] = i; lt[L] += dt; if (!tp.K[i]) ll[L] += d; zs[L] += tp.Z[i]; zc[L]++;
+  }
+  const sp = Float32Array.from(lt, (x, L) => x ? ll[L] / x : 0), zm = Float32Array.from(zs, (x, L) => x / Math.max(1, zc[L]));
+  const own = Uint8Array.from(zm, z => spdAt(k, z) ? 1 : 0);
+  SIM.data = { k, tp, n, t, total:t[n - 1] + 240, nL, L0, L1, sp, zm, own, maxF:Math.max(...sp, 10) };
+  SIM.key = key; SIM.time = SIM.on ? Math.min(SIM.time, t[n - 1]) : t[n - 1]; SIM.mesh = null;
+  if (SIM.sel && SIM.sel[1] >= nL) SIM.sel = null;
+  drawBars(); dockInfo(); if (SIM.on) simShow();
+  return SIM.data;
+}
+function simGeometry(D) {   // a bead along the toolpath: four sides (out, top, in, bottom), decimated to keep phones smooth
+  const { tp, n } = D, budget = innerWidth <= 760 ? 90000 : 260000, step = Math.max(1, Math.ceil(n / budget)), keep = [];
+  for (let i = 0; i < n; i++) if (i % step === 0 || tp.K[i] || (i + 1 < n && tp.K[i + 1]) || tp.LAY[i] !== tp.LAY[Math.max(0, i - 1)] || i === n - 1) keep.push(i);
+  const m = keep.length, pos = new Float32Array(m * 12), nor = new Float32Array(m * 12), aL = new Float32Array(m * 4), aS = new Float32Array(m * 4), segStart = new Int32Array(m);
+  const up = 1, w = tp.w / 2 / MM, h = tp.lh / 2 / MM;
+  const P = i => [tp.X[i] / MM, tp.Z[i] / MM, -tp.Y[i] / MM];   // on the bed, as the printer builds it (a flipped part shows upside down)
+  for (let q = 0; q < m; q++) {
+    const i = keep[q], a = P(keep[Math.max(0, q - 1)]), b = P(keep[Math.min(m - 1, q + 1)]), p = P(i);
+    let nx = b[2] - a[2], nz = -(b[0] - a[0]); const l = Math.hypot(nx, nz) || 1; nx /= l; nz /= l; if (nx * p[0] + nz * p[2] < 0) { nx = -nx; nz = -nz; }
+    const v = [[p[0] + nx * w, p[1], p[2] + nz * w, nx, 0, nz], [p[0] - nx * w * .2, p[1] + up * h, p[2] - nz * w * .2, nx * .3, up, nz * .3], [p[0] - nx * w, p[1], p[2] - nz * w, -nx, 0, -nz], [p[0] - nx * w * .2, p[1] - up * h, p[2] - nz * w * .2, nx * .3, -up, nz * .3]];
+    for (let c = 0; c < 4; c++) { pos.set(v[c].slice(0, 3), (q * 4 + c) * 3); nor.set(v[c].slice(3), (q * 4 + c) * 3); aL[q * 4 + c] = tp.LAY[i]; aS[q * 4 + c] = tp.F[i] / D.maxF; }
+  }
+  const idx = []; for (let q = 0; q + 1 < m; q++) { segStart[q] = idx.length; if (tp.K[keep[q + 1]]) continue; const A = q * 4, B = A + 4; for (let c = 0; c < 4; c++) { const c1 = (c + 1) % 4; idx.push(A + c, B + c, A + c1, A + c1, B + c, B + c1); } }
+  segStart[m - 1] = idx.length;
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  g.setAttribute('aL', new THREE.BufferAttribute(aL, 1)); g.setAttribute('aS', new THREE.BufferAttribute(aS, 1)); g.setIndex(idx.length > 65535 ? new THREE.Uint32BufferAttribute(idx, 1) : new THREE.Uint16BufferAttribute(idx, 1));
+  return { g, keep, segStart, P };
+}
+function simShow() {
+  const D = SIM.data || simCompute(true); if (!D) return;
+  if (!SIM.mesh) { if (SIM.obj) { scene.remove(SIM.obj); SIM.obj.geometry.dispose(); } SIM.mesh = simGeometry(D); SIM.obj = new THREE.Mesh(SIM.mesh.g, simMat); scene.add(SIM.obj); }
+  simMat.color.set(state[D.k].color); SU.uMode.value = +$('#dkCol').value;
+  for (const m of Object.values(meshes)) m.visible = false; collarMesh.visible = false; hwGroup.visible = false; attrGroup.visible = false;
+  for (const k in pathObjs) pathObjs[k].visible = false;
+  if (!SIM.on) { const cy = D.tp.H / 2 / MM, dy = cy - controls.target.y; controls.target.y = cy; camera.position.y += dy; controls.update(); }   // look at the part on the bed
+  SIM.obj.visible = true; nozzle.visible = true; SIM.on = true; document.body.classList.add('sim'); simAt(SIM.time);
+}
+function simExit() {
+  if (!SIM.on) return; SIM.on = false; SIM.playing = false; document.body.classList.remove('sim');
+  if (SIM.obj) SIM.obj.visible = false; nozzle.visible = false; hwGroup.visible = true; attrGroup.visible = true;
+  for (const k in pathObjs) pathObjs[k].visible = true;
+  const lamp = state.mode === 'lamp';
+  meshes.shade.visible = collarMesh.visible = lamp; meshes.base.visible = lamp && parts().includes('base'); meshes.vessel.visible = !lamp; meshes.saucer.visible = !lamp && state.planter.on;
+  for (const k of parts()) if (state.view === 'path' && isZW(state[k])) meshes[k].visible = false;
+  dockPlayBtn(); frameCamera(); requestRender();
+}
+function simAt(time) {   // put the nozzle where it is at this moment and draw everything printed before it
+  const D = SIM.data; if (!D) return; SIM.time = Math.max(0, Math.min(D.t[D.n - 1], time));
+  let lo = 0, hi = D.n - 1; while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (D.t[mid] <= SIM.time) lo = mid; else hi = mid - 1; }
+  const i = lo, M = SIM.mesh;
+  if (M && SIM.on) {
+    let a = 0, b = M.keep.length - 1; while (a < b) { const mid = (a + b + 1) >> 1; if (M.keep[mid] <= i) a = mid; else b = mid - 1; }
+    M.g.setDrawRange(0, M.segStart[a]); const p = M.P(i); nozzle.position.set(p[0], p[1] + D.tp.lh / 2 / MM, p[2]);
+    SU.uCur.value = D.tp.LAY[i];
+  }
+  const L = D.tp.LAY[i], tp = D.tp, f = tp.K[i] ? 0 : tp.F[i];
+  $('#hud').innerHTML = `<b>${f.toFixed(1)}</b> mm/s · layer ${L + 1}/${D.nL}<span class="wide"> · line ${tp.w} mm · flow ${(f * tp.w * tp.lh).toFixed(1)} mm³/s · ${(tp.Z[i]).toFixed(1)} mm up</span> · ${hms(SIM.time + 240)} / ${hms(D.total)}`;
+  $('#dkScrub').value = Math.round(SIM.time / D.t[D.n - 1] * 1000); SIM.cur = L; drawBars(); requestRender();
+}
+const hms = s => { s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}` : `${m}:${String(x).padStart(2, '0')}`; };
+function simPlay(start) {
+  const D = SIM.data || busyCompute(); if (!D) return;
+  if (SIM.playing && !start) { SIM.playing = false; dockPlayBtn(); return; }
+  if (!SIM.on) { if (SIM.time >= D.t[D.n - 1] - .5) SIM.time = 0; simShow(); }
+  else if (SIM.time >= D.t[D.n - 1] - .5) SIM.time = 0;
+  SIM.playing = true; dockPlayBtn(); let last = performance.now();
+  const tick = now => { if (!SIM.playing || !SIM.on) return; const dt = Math.min(.1, (now - last) / 1000); last = now; simAt(SIM.time + dt * +$('#dkMul').value);
+    if (SIM.time >= D.t[D.n - 1]) { SIM.playing = false; dockPlayBtn(); return; } requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}
+function busyCompute() { $('#busy').classList.add('show'); try { return simCompute(true); } finally { $('#busy').classList.remove('show'); } }
+function dockPlayBtn() { $('#dkPlay').textContent = SIM.playing ? '❚❚ Pause' : '▶ Play'; $('#dkExit').style.display = SIM.on ? '' : 'none'; }
+function dockInfo() {
+  const D = SIM.data, sel = SIM.sel, dock = $('#dock'); dock.classList.toggle('sel', !!sel);
+  $('#dkInfo').innerHTML = D ? `Speed per layer · <b>${PART_NAMES(D.k)}</b> · ${D.nL} layers` : 'Speed per layer · planning…';
+  $('#dkTime').innerHTML = D ? `Print <b>${hms(D.total)}</b>` : '';
+  if (sel && D) { let t = 0, l = 0; for (let L = sel[0]; L <= sel[1]; L++) { const x = D.sp[L] ? 1 : 0; t += x; l += D.sp[L]; }
+    $('#dkSelTxt').innerHTML = `Layer${sel[0] === sel[1] ? '' : 's'} <b>${sel[0] + 1}${sel[0] === sel[1] ? '' : '–' + (sel[1] + 1)}</b> · now <b>${(l / Math.max(1, t)).toFixed(0)}</b> mm/s →`; }
+}
+function drawBars() {
+  const c = $('#dkBars'), dpr = Math.min(2, devicePixelRatio || 1), W = c.clientWidth, H = c.clientHeight; if (!W) return;
+  if (c.width !== W * dpr || c.height !== H * dpr) { c.width = W * dpr; c.height = H * dpr; }
+  const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  const D = SIM.data;
+  if (!D) { g.fillStyle = '#86827a'; g.font = '10px "IBM Plex Mono", monospace'; g.fillText('PLANNING THE TOOLPATH…', 2, H / 2 + 3); return; }
+  const bw = W / D.nL, top = Math.max(D.maxF, state.print.speed) * 1.05;
+  for (let L = 0; L < D.nL; L++) {
+    const x = L * bw, h = Math.max(1.5, D.sp[L] / top * (H - 2)), sel = SIM.sel && L >= SIM.sel[0] && L <= SIM.sel[1];
+    g.fillStyle = sel ? '#3d6bff' : D.own[L] ? '#121211' : '#cbc3b4'; g.fillRect(x, H - h, Math.max(1, bw - (bw > 3 ? 1 : 0)), h);
+  }
+  if (SIM.on && SIM.cur != null) { g.fillStyle = '#ff5a1f'; g.fillRect(SIM.cur * bw - .5, 0, Math.max(2, bw), H); }
+}
+{ // tap or drag across the bars to pick layers
+  const c = $('#dkBars'); let a = null;
+  const at = e => { const D = SIM.data; if (!D) return null; const r = c.getBoundingClientRect(); return Math.max(0, Math.min(D.nL - 1, Math.floor((e.clientX - r.left) / r.width * D.nL))); };
+  c.addEventListener('pointerdown', e => { if (!SIM.data && !busyCompute()) return; a = at(e); c.setPointerCapture(e.pointerId); SIM.sel = [a, a]; dockInfo(); drawBars(); });
+  c.addEventListener('pointermove', e => { if (a == null) return; const b = at(e); SIM.sel = [Math.min(a, b), Math.max(a, b)]; dockInfo(); drawBars(); });
+  c.addEventListener('pointerup', () => { if (a == null) return; a = null; const D = SIM.data; SIM.playing = false; SIM.time = D.t[D.L1[SIM.sel[1]]]; simShow(); dockPlayBtn(); dockInfo(); const s = $('#dkSpd'); s.value = ''; s.placeholder = Math.round(D.sp[SIM.sel[1]]) || 'mm/s'; if (innerWidth > 760) s.focus(); });
+}
+function setLayerSpeed(v) {   // store as heights above the bed, so it survives small changes to the design
+  const D = SIM.data, sel = SIM.sel; if (!D || !sel) return;
+  const lh = state.print.layerH, a = +(D.zm[sel[0]] - lh / 2).toFixed(3), b = +(D.zm[sel[1]] + lh / 2).toFixed(3), k = D.k;
+  pushUndo(); const spd = state.print.spd = { ...(state.print.spd || {}) }, out = [];
+  for (const [x, y, s2] of spd[k] || []) { if (y <= a || x >= b) out.push([x, y, s2]); else { if (x < a) out.push([x, a, s2]); if (y > b) out.push([b, y, s2]); } }
+  if (v) out.push([a, b, v]); out.sort((p, q) => p[0] - q[0]); spd[k] = out; if (!out.length) delete spd[k];
+  editStamp++; persist(); scheduleStatus(); const on = SIM.on, keep = SIM.sel; busyCompute(); SIM.sel = keep; if (on) simShow(); dockInfo(); if (ui.tab === 'print') renderPanel();
+  toast(v ? `Layers ${sel[0] + 1}–${sel[1] + 1} print at ${v} mm/s` : 'Back to the planned speeds');
+}
+$('#dkSet').onclick = () => { const v = Math.round(+$('#dkSpd').value); if (!(v >= 4 && v <= 300)) { toast('Type a speed between 4 and 300 mm/s'); return; } setLayerSpeed(v); };
+$('#dkSpd').addEventListener('keydown', e => { if (e.key === 'Enter') $('#dkSet').onclick(); });
+$('#dkAuto').onclick = () => setLayerSpeed(0);
+$('#dkClear').onclick = () => { SIM.sel = null; dockInfo(); drawBars(); };
+$('#dkPlay').onclick = () => simPlay(false);
+$('#dkExit').onclick = () => simExit();
+$('#dkCol').onchange = () => { SU.uMode.value = +$('#dkCol').value; requestRender(); };
+$('#dkScrub').oninput = () => { const D = SIM.data || busyCompute(); if (!D) return; SIM.playing = false; if (!SIM.on) simShow(); simAt($('#dkScrub').value / 1000 * D.t[D.n - 1]); dockPlayBtn(); };
+addEventListener('resize', () => drawBars());
+/* ── import an STL ── */
+function parseSTL(buf) {
+  const dv = new DataView(buf), n = buf.byteLength >= 84 ? dv.getUint32(80, true) : -1;
+  if (n > 0 && 84 + n * 50 === buf.byteLength) { const T = new Float32Array(n * 9); for (let i = 0; i < n; i++) for (let q = 0; q < 9; q++) T[i * 9 + q] = dv.getFloat32(84 + i * 50 + 12 + q * 4, true); return T; }
+  const txt = new TextDecoder().decode(buf), out = [], re = /vertex\s+(\S+)\s+(\S+)\s+(\S+)/g; let m;
+  while ((m = re.exec(txt))) out.push(+m[1], +m[2], +m[3]);
+  if (out.length < 9 || out.some(x => !isFinite(x))) throw new Error('not stl'); return new Float32Array(out.length - out.length % 9).map((_, i) => out[i]);
+}
+function flipField(P) {
+  const Fd = P.field, a = fieldArr(Fd), nt = Fd.nt, nv = Fd.nv, u = new Uint16Array(nt * nv);
+  for (let j = 0; j < nv; j++) for (let b = 0; b < nt; b++) u[j * nt + b] = Math.round(a[(nv - 1 - j) * nt + b] * 16384);
+  const by = new Uint8Array(u.buffer); let t = ''; for (let i = 0; i < by.length; i += 8192) t += String.fromCharCode.apply(null, by.subarray(i, i + 8192));
+  P.field = { ...Fd, d:btoa(t) }; P.prof = P.prof.slice().reverse();
+}
+async function importSTL(file) {
+  await busy(async () => {
+    try {
+      let T = parseSTL(await file.arrayBuffer()); let R = stlToField(T);
+      const pr = PRINTERS[state.print.printer], [sx, sy, sz] = R.size, fit = Math.min(1, Math.min(...pr.bed) * .92 / Math.max(sx, sy), pr.maxZ * .95 / sz);
+      let note = '';
+      if (fit < 1) { T = T.map(x => x * fit); R = stlToField(T); note = ` · scaled to ${Math.round(fit * 100)}% to fit the ${pr.name}`; }
+      pushUndo(); state.mode = 'vessel'; state.vpreset = 'import'; state.planter = PLANTER0(); state.print.spd = {}; SIM.sel = null;
+      const V = part(R.h, R.prof, PLAIN(), PLAIN(), '#d9d2c5'); V.field = { ...R.field, name:file.name.replace(/\.stl$/i, '') };
+      state.vessel = V; state.saucer = SAUCER0(V.color); delete maskCache.vessel; delete maskCache.saucer;
+      ui.surf = 'vessel'; ui.tab = 'shape'; ui.started = true; showStart(false);
+      markOrigin(); rebuild(); applyLook(); frameCamera(); renderAll();
+      const D = R.size.map(x => Math.round(x * Math.min(1, fit)));
+      toast(`${D[0]} × ${D[1]} × ${D[2]} mm imported${note}`);
+    } catch (e) { toast('Could not read that STL'); }
+  });
+}
+$('#stlIn').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) importSTL(f); };
+addEventListener('dragover', e => { e.preventDefault(); });
+addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (!f) return; if (/\.stl$/i.test(f.name)) importSTL(f); else if (/\.json$/i.test(f.name)) { const dt = new DataTransfer(); dt.items.add(f); $('#fileIn').files = dt.files; $('#fileIn').onchange({ target:$('#fileIn') }); } });
+function normalizeLamp() { const L = state.lamp; if (LAYOUTS[L.layout]) return; L.layout = 'pendant'; L.fitting = 'e27'; L.bulb = 'a60'; fitProf(state.shade, 'pendant', 'e27', lineW(state.print.nozzle)); easeSlope(state.shade); if (state.print.part === 'base') state.print.part = 'shade'; }
+function loadState(s) { state = upgrade(s); normalizeLamp(); for (const k in maskCache) delete maskCache[k]; for (const k in imgCache) delete imgCache[k]; if (!parts().includes(ui.surf)) ui.surf = parts()[0]; if (!TABS_FOR().includes(ui.tab)) ui.tab = 'shape'; if (typeof SIM !== 'undefined') SIM.sel = null; }
 undoBtn.onclick = () => { if (!undoStack.length) return; flushMasks(); redoStack.push(JSON.stringify(state)); loadState(JSON.parse(undoStack.pop())); syncUndo(); rebuild(); applyLook(); renderAll(); };
 redoBtn.onclick = () => { if (!redoStack.length) return; flushMasks(); undoStack.push(JSON.stringify(state)); loadState(JSON.parse(redoStack.pop())); syncUndo(); rebuild(); applyLook(); renderAll(); };
-document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
-function setMode(m) {
-  if (state.mode === m) return; pushUndo(); state.mode = m; ui.surf = m === 'vessel' ? 'vessel' : 'shade';
-  if (!TABS_FOR().includes(ui.tab)) ui.tab = 'shape';
-  rebuild(); applyLook(); frameCamera(); renderAll();
-}
 addEventListener('keydown', e => {
   if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'range') return;
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); (e.shiftKey ? redoBtn : undoBtn).onclick(); return; }
@@ -1456,7 +2051,6 @@ const tabsEl = $('#tabs'), body = $('#body');
 function renderTabs() {
   tabsEl.innerHTML = '';
   for (const k of TABS_FOR()) { const b = document.createElement('button'); b.textContent = TAB_NAMES[k]; b.classList.toggle('on', ui.tab === k); b.onclick = () => { ui.tab = k; renderTabs(); renderPanel(); }; tabsEl.appendChild(b); }
-  document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.mode === state.mode));
 }
 function renderAll() { renderTabs(); renderPanel(); updateBadge(); }
 const el = (tag, attrs = {}, kids = []) => { const e = document.createElement(tag); Object.assign(e, attrs); kids.forEach(k => e.append(k)); return e; };
@@ -1512,20 +2106,21 @@ function renderPanel() {
   body.innerHTML = ''; onCommit = null;
   const lamp = state.mode === 'lamp';
   if (ui.tab === 'shape') {
-    const sA = section('Ready to print', 'Finished pieces — pick one, choose your printer and nozzle, export.');
-    const s = section('Start from', lamp ? 'Simple forms to sculpt into your own.' : 'Simple forms for vases and bowls.');
-    const gA = el('div', { className:'presets' }), g = el('div', { className:'presets' }), P = lamp ? LAMP_PRESETS : VESSEL_PRESETS;
-    for (const [k, p] of Object.entries(P)) {
-      const b = el('button', {}, [el('span', { textContent:p.name }), el('small', { textContent:p.note })]);
+    const curCat = lamp ? catOf({ lamp:state.lamp }, true) : (VESSEL_PRESETS[state.vpreset]?.cat || 'vase'), P = lamp ? LAMP_PRESETS : VESSEL_PRESETS;
+    const sA = section(CATS.find(c => c[0] === curCat)[1], 'Pick a piece to start from. Reset (round arrow, top right) brings it back as it was.');
+    const g = el('div', { className:'presets' });
+    for (const [k, p] of Object.entries(P).filter(([, p]) => catOf(p, lamp) === curCat).sort((a, b) => !!b[1].studio - !!a[1].studio)) {
+      const b = el('button', {}, [thumbEl(p, lamp), el('span', { textContent:p.name }), el('small', { textContent:p.studio ? 'Ready to print' : p.note })]);
       b.classList.toggle('on', (lamp ? state.preset : state.vpreset) === k);
-      b.onclick = () => { pushUndo(); if (lamp) { state.preset = k; if (p.lamp) state.lamp = { ...state.lamp, ...p.lamp }; state.shade = clone(p.shade); state.base = clone(p.base); delete maskCache.shade; delete maskCache.base; } else { state.vpreset = k; state.vessel = clone(p.vessel); delete maskCache.vessel; } parts().forEach(kk => { if (state[kk].tr.on) applyTransition(kk); adaptToNozzle(kk); }); rebuild(); applyLook(); frameCamera(); renderPanel(); };
-      (p.studio ? gA : g).append(b);
+      b.onclick = () => applyPreset(state.mode, k);
+      g.append(b);
     }
-    sA.append(gA); s.append(g);
+    sA.append(g);
+    const more = el('button', { textContent:'All pieces — lamps, shades, vases, planters…', style:'margin-top:8px' }); more.onclick = () => showStart(true); sA.append(more);
     const s2 = section('Proportions');
     if (lamp) {
-      slider(s2, 'Shade height', () => state.shade.h, v => state.shade.h = v, .2, 1.4, .01, cmF, () => rebuild());
-      slider(s2, 'Base height', () => state.base.h, v => state.base.h = v, .3, 1.8, .01, cmF, () => rebuild());
+      slider(s2, 'Shade height', () => state.shade.h, v => state.shade.h = v, .2, 2.4, .01, cmF, () => rebuild());
+      if (parts().includes('base')) slider(s2, 'Base height', () => state.base.h, v => state.base.h = v, .3, 1.8, .01, cmF, () => rebuild());
     } else slider(s2, 'Height', () => state.vessel.h, v => state.vessel.h = v, .2, 2.4, .01, cmF, () => rebuild());
     const wi = slider(s2, 'Overall width', () => 1, () => {}, .5, 1.5, .01, pct);
     wi.oninput = function () {
@@ -1535,8 +2130,8 @@ function renderPanel() {
     };
     wi.onchange = function () { sliderDirty = false; this.value = 1; this.previousElementSibling.querySelector('b').textContent = '100%'; };
     const sd = section('Dimensions', 'Type exact diameters (mm) at heights along the part.', '', { open:false });
-    const dk = lamp ? (parts().includes(ui.surf) ? ui.surf : 'shade') : 'vessel';
-    if (lamp && parts().length > 1) chips(sd, [['shade', 'Shade'], ['base', 'Base']], dk, k => { ui.surf = k; renderPanel(); });
+    const dk = parts().includes(ui.surf) ? ui.surf : parts()[0];
+    if (parts().length > 1) chips(sd, parts().map(k => [k, PART_NAMES(k)]), dk, k => { ui.surf = k; renderPanel(); });
     const DP = state[dk], grid = el('div', { className:'dims', style:'margin-top:8px' });
     const hIn = el('input', { type:'number', min:20, max:400, step:1, value:Math.round(DP.h * MM) });
     hIn.onchange = () => { pushUndo(); DP.h = Math.min(4, Math.max(.2, +hIn.value / MM)); rebuild(); frameCamera(); renderPanel(); };
@@ -1549,15 +2144,51 @@ function renderPanel() {
       grid.append(el('span', { textContent:`Ø AT ${Math.round(v * DP.h * MM)}` }), inp, el('span', { textContent:'mm' }));
     }
     sd.append(grid);
+    if (state[dk].field) { // imported model
+      const Fd = state[dk].field, si = section('Imported model', Fd.name || 'Your STL', '', { open:true });
+      slider(si, 'Detail', () => Fd.s ?? 1, v => Fd.s = v, 0, 1, .01, v => v >= .995 ? 'as modelled' : Math.round(v * 100) + '%', () => rebuild(dk));
+      const row = el('div', { className:'chips' });
+      const bf = el('button', { textContent:'Flip upside down' }); bf.onclick = () => { pushUndo(); flipField(state[dk]); rebuild(); frameCamera(); renderPanel(); };
+      const br = el('button', { textContent:'Replace…' }); br.onclick = () => $('#stlIn').click();
+      const bx = el('button', { textContent:'Make it round' }); bx.onclick = () => { pushUndo(); delete state[dk].field; rebuild(); renderPanel(); toast('Kept the outline, dropped the imported detail'); };
+      row.append(bf, br, bx); si.append(row);
+      si.append(el('div', { className:'note', textContent:'Monoline prints the outer surface as one continuous line. Details inside, and parts that fold back in under themselves, are not printed. Sculpt, textures and holes all work on top.' }));
+    }
+    // cross-section
+    const SP = state[dk], S = SP.sect, son = sectOn(SP), rs = () => rebuild(dk);
+    const SHAPES = [[0, 'Round'], [2, 'Oval'], [3, 'Triangle'], [4, 'Square'], [5, 'Pentagon'], [6, 'Hexagon'], [8, 'Octagon']];
+    const sx = section('Cross-section', 'Round, oval or many-sided. The line keeps its width and follows the outline.', parts().length > 1 ? PART_NAMES(dk) : '', { open:son, status:son ? SHAPES.find(x => x[0] === S.n)[1] + (S.n2 >= 0 && S.n2 !== S.n ? ' → ' + SHAPES.find(x => x[0] === S.n2)[1] : '') : 'round', on:son });
+    chips(sx, SHAPES, S.n, n => { pushUndo(); S.n = n; rs(); frameCamera(); renderPanel(); });
+    sx.append(el('div', { className:'sub', textContent:'Changes into, at the top', style:'margin:10px 0 2px' }));
+    chips(sx, [[-1, 'Same'], ...SHAPES], S.n2 === S.n ? -1 : S.n2, n => { pushUndo(); S.n2 = n; rs(); renderPanel(); });
+    if (son) {
+      slider(sx, S.n === 2 && (S.n2 < 0 || S.n2 === 2) ? 'How oval' : 'Corners', () => S.k, v => S.k = v, .15, .95, .01, v => S.n === 2 && (S.n2 < 0 || S.n2 === 2) ? `${Math.round((1 - Math.cos(v * Math.PI / 2)) * 100)}% narrower` : v < .45 ? 'very soft' : v < .7 ? 'soft' : v < .88 ? 'rounded' : 'crisp', rs);
+      const nn = Math.max(2, S.n || S.n2);
+      slider(sx, 'Twist up the height', () => S.twist, v => S.twist = v, -2, 2, .05, v => v ? Math.round(v * 360 / nn) + '°' : 'none', rs);
+      if (dk === 'shade') sx.append(el('div', { className:'note', textContent:'A lamp shade stays round where it meets the socket, so the shade ring can clamp it.' }));
+      sx.append(el('div', { className:'note', textContent:'Diameters are measured across the widest points (corner to corner).' }));
+    }
+    if (!lamp) { // planter
+      const pl = state.planter, plOn = pl.on || pl.hole > 0;
+      const sp = section('Planter', 'A matching saucer and a drainage hole turn a vessel into a plant pot.', '', { open:plOn, status:plOn ? 'on' : 'off', on:plOn });
+      toggle(sp, 'Saucer', pl.on, v => { pl.on = v; pl.auto = true; if (v) { state.saucer.color = state.vessel.color; fitSaucer(); } if (!parts().includes(ui.surf)) ui.surf = 'vessel'; rebuild(); frameCamera(); });
+      toggle(sp, 'Drainage hole', pl.hole > 0, v => { pl.hole = v ? 10 : 0; rebuild(); });
+      if (pl.hole > 0) slider(sp, 'Hole size', () => pl.hole, v => pl.hole = v, 5, 25, 1, v => 'Ø' + v + ' mm', () => rebuild());
+      if (pl.on) {
+        slider(sp, 'Saucer rim height', () => pl.rim, v => { pl.rim = v; pl.auto = true; }, 8, 35, 1, v => v + ' mm', () => rebuild());
+        if (!pl.auto) { const b = el('button', { textContent:'Match saucer to pot', style:'margin-top:6px' }); b.onclick = () => { pushUndo(); pl.auto = true; rebuild(); renderPanel(); toast('Saucer matched to the pot'); }; sp.append(b); }
+        sp.append(el('div', { className:'note', textContent:pl.auto ? 'The saucer follows the pot: same outline, a few millimetres wider. Sculpt it yourself and it stops following.' : 'You shaped the saucer by hand, so it no longer follows the pot.' }));
+      }
+    }
     const s3 = section('Sculpt brush', 'Grab pulls the outline · Inflate / Pinch push while held · Smooth evens it out.', '', { open:false });
     slider(s3, 'Size', () => ui.brush, v => ui.brush = v, .04, .5, .01, pct);
     slider(s3, 'Strength', () => ui.strength, v => ui.strength = v, .1, 1, .01, pct);
     if (lamp) { const s4 = section('Collar'); swatches(s4, ['#b8b5ae', '#d4b07a', '#2b2b2b', '#8c6b52'], state.collar, c => { state.collar = c; applyLook(); }); }
   }
   else if (ui.tab === 'surface') {
-    if (lamp && !parts().includes(ui.surf)) ui.surf = 'shade';
-    if (lamp && parts().length > 1) { const s0 = section('Part'); chips(s0, [['shade', 'Shade'], ['base', 'Base']], ui.surf, k => { ui.surf = k; renderPanel(); }); }
-    const k = lamp ? ui.surf : 'vessel', P = state[k];
+    if (!parts().includes(ui.surf)) ui.surf = parts()[0];
+    if (parts().length > 1) { const s0 = section('Part'); chips(s0, parts().map(k => [k, PART_NAMES(k)]), ui.surf, k => { ui.surf = k; renderPanel(); }); }
+    const k = ui.surf, P = state[k];
     patternControls(section('Pattern A', 'The base texture everywhere.', 'everywhere'), k, P);
     patternControls(section('Pattern B', 'Shows wherever you paint.', 'painted'), k, P.b);
     const st2 = section('Transition', 'Fade from pattern A into pattern B — up the height, or as a panel around the form. The blend is gradual, so the line stays continuous.', '', { open:P.tr.on, status:P.tr.on ? 'on' : 'off', on:P.tr.on });
@@ -1625,7 +2256,7 @@ function renderPanel() {
       const wl = lineW(state.print.nozzle);
       if (MS.mode === 'zwave') {
         const rM = Math.max(...P.prof) * MM;
-        slider(mz, 'Hole width', () => MS.holeW, v => MS.holeW = v, 2, 25, .1, v => `${v.toFixed(1)} mm · ${Math.round(Math.min(120, Math.max(6, Math.PI * rM / v)))} around`, rbz);
+        slider(mz, 'Hole width', () => MS.holeW, v => MS.holeW = v, 1.5, 8, .1, v => `${v.toFixed(1)} mm · ${Math.round(Math.min(120, Math.max(6, Math.PI * rM / v)))} around`, rbz);
         mz.append(el('div', { className:'sub', textContent:'Hole height up the shade', style:'margin:10px 0 2px' }));
         chips(mz, [['even', 'Even'], ['linear', 'Grow / shrink'], ['swell', 'Swell in middle']], MS.grad, v => { pushUndo(); MS.grad = v; rbz(); renderPanel(); });
         slider(mz, MS.grad === 'even' ? 'Hole height' : MS.grad === 'linear' ? 'Hole height · bottom' : 'Hole height · ends', () => MS.holeH, v => MS.holeH = v, 1, 20, .1, v => v.toFixed(1) + ' mm', rbz);
@@ -1641,7 +2272,7 @@ function renderPanel() {
       }
       slider(mz, 'Solid rims', () => MS.rim, v => MS.rim = v, 0, 20, .5, v => v + ' mm', rbz);
       mz.append(el('div', { className:'note', textContent:MS.mode === 'zwave'
-        ? 'Each lap waves up and down and sits on the crests of the lap below, shifted half a wave — the gaps between are real holes. See it in Path or Beads view.'
+        ? 'Experimental. Each lap waves up and down and lands on the crests of the lap below. Those crests are strands in mid-air, so keep holes small (about 3 mm wide); for bigger openings use In / out bulges, which print far more reliably.'
         : 'Bulging layers bridge over air and sag a little, opening the gaps (like Studio Wooj’s mesh). See it in Path or Beads view.' }));
     }
     const sn = section('Non-planar layers', 'Isocurve printing: layers bend up and down instead of staying flat. Layer height varies, so extrusion is scaled to keep the wall even.', '', { open:!!(P.np.mid || P.np.rim), status:(P.np.mid || P.np.rim) ? 'on' : 'off', on:!!(P.np.mid || P.np.rim) });
@@ -1656,40 +2287,60 @@ function renderPanel() {
     slider(s2, 'Petals', () => P.lobes, v => P.lobes = v, 0, 12, 1, v => v || 'off', () => rebuild(k));
     slider(s2, 'Petal depth', () => P.lobeAmt, v => P.lobeAmt = v, 0, .25, .005, pct, () => rebuild(k));
     const s3 = section('Colour');
-    swatches(s3, k === 'base' ? ['#3b2622', '#2f2420', '#5a3b2c', '#ddd3c4', '#6b6258', '#8a5a3b'] : ['#ece3d6', '#f0d9b5', '#e8c8a8', '#d9d2c5', '#b88a6a', '#7f8f7a'], P.color, c => { P.color = c; applyLook(); });
+    swatches(s3, k === 'base' ? ['#3b2622', '#2f2420', '#5a3b2c', '#ddd3c4', '#6b6258', '#8a5a3b'] : ['#ece3d6', '#f0d9b5', '#e8c8a8', '#d9d2c5', '#b88a6a', '#7f8f7a', '#c96a3b', '#8fb8e8'], P.color, c => { P.color = c; applyLook(); });
   }
   else if (ui.tab === 'lamp') renderLamp();
   else if (ui.tab === 'print') renderPrint();
   else if (ui.tab === 'file') {
     const s = section('Design file');
     const st = el('div', { className:'stack' });
-    const b2 = el('button', { textContent:'Save design (.json)' }); b2.onclick = () => { flushMasks(); saveFile('spiral-design.json', new Blob([JSON.stringify(state)], { type:'application/json' })); };
+    const b2 = el('button', { textContent:'Save design (.json)' }); b2.onclick = () => { flushMasks(); saveFile('monoline-design.json', new Blob([JSON.stringify(state)], { type:'application/json' })); };
     const b3 = el('button', { textContent:'Load design…' }); b3.onclick = () => $('#fileIn').click();
-    const b4 = el('button', { textContent:'Start over' }); b4.onclick = () => { pushUndo(); const pr = state.print; loadState(defaultState()); state.print = pr; rebuild(); applyLook(); frameCamera(); renderAll(); toast('Reset'); };
-    st.append(b2, b3, b4); s.append(st);
+    const b5 = el('button', { textContent:'Share a link to this design…' }); b5.onclick = () => $('#shareBtn').onclick();
+    const b6 = el('button', { textContent:'Reset to how this piece started' }); b6.onclick = () => $('#resetBtn').onclick();
+    const b4 = el('button', { textContent:'New piece…' }); b4.onclick = () => showStart(true);
+    const b7 = el('button', { textContent:'Import an STL…' }); b7.onclick = () => $('#stlIn').click(); st.append(b7);
+    st.append(b2, b3, b5, b6, b4); s.append(st);
   }
 }
 let lastChecks = null;
 function renderLamp() {
   const L = state.lamp, re = () => { rebuild(); frameCamera(); renderPanel(); };
   const s1 = section('Layout', 'How the shade, socket and bulb fit together.');
-  chips(s1, Object.entries(LAYOUTS).map(([k, n]) => [k, n]), L.layout, k => { pushUndo(); L.layout = k;
-    if (k === 'dome') { L.fitting = 'led'; L.bulb = 'led'; } else if (L.fitting === 'led') { L.fitting = 'e27'; L.bulb = 'a60'; }
-    if (!parts().includes(ui.surf)) ui.surf = 'shade'; if (k === 'pendant') state.print.part = 'shade'; re(); });
+  chips(s1, [['bell', 'Table lamp · shade and base'], ['own', 'Shade only · for a lamp you own'], ['pendant', 'Pendant · shade for a cord set']], L.layout === 'pendant' ? 'pendant' : L.own ? 'own' : 'bell', k => { pushUndo(); L.layout = k === 'pendant' ? 'pendant' : 'bell'; L.own = k === 'own';
+    makePrintable('shade'); fitToFitting();
+    if (!parts().includes(ui.surf)) ui.surf = 'shade'; re(); });
   const s2 = section('Fitting & bulb', 'Real sizes. The shade opening can be fitted to the socket’s shade ring.');
-  const fits = L.layout === 'dome' ? ['led'] : ['e27', 'e14'];
-  chips(s2, fits.map(k => [k, FITTINGS[k].name]), L.fitting, k => { pushUndo(); L.fitting = k; L.bulb = Object.keys(BULBS).find(b => BULBS[b].fit === k); re(); });
+  const fits = ['e27', 'e14'];
+  chips(s2, fits.map(k => [k, FITTINGS[k].name]), L.fitting, k => { pushUndo(); L.fitting = k; L.bulb = Object.keys(BULBS).find(b => BULBS[b].fit === k); makePrintable('shade'); fitToFitting(); re(); });
   s2.append(el('div', { className:'sub', textContent:FITTINGS[L.fitting].note, style:'margin:4px 0 8px' }));
   if (L.layout !== 'dome') chips(s2, Object.entries(BULBS).filter(([, b]) => b.fit === L.fitting).map(([k, b]) => [k, `${b.name} · Ø${b.d}×${b.h}`]), L.bulb, k => { pushUndo(); L.bulb = k; re(); });
   slider(s2, 'LED power', () => L.watts, v => L.watts = v, 2, 15, 1, v => v + ' W', () => renderChecksOnly());
   toggle(s2, 'Show socket & bulb', L.hw, v => { L.hw = v; drawHardware(); requestRender(); });
-  if (L.layout !== 'dome') { const b = el('button', { textContent:`Fit shade opening to ${FITTINGS[L.fitting].name} (Ø${FITTINGS[L.fitting].hole})`, style:'margin-top:6px' }); b.onclick = () => { pushUndo(); fitToFitting(); makePrintable('shade'); rebuild(); renderPanel(); toast('Opening fitted to the shade ring'); }; s2.append(b); }
+  if (L.layout !== 'dome') { const b = el('button', { textContent:`Fit shade opening to ${FITTINGS[L.fitting].name} (Ø${FITTINGS[L.fitting].hole})`, style:'margin-top:6px' }); b.onclick = () => { pushUndo(); makePrintable('shade'); fitToFitting(); rebuild(); renderPanel(); toast('Opening fitted to the shade ring'); }; s2.append(b); }
+  const sa = section('Assembly', 'How the printed parts and the hardware go together.');
+  const steps = L.layout === 'bell' && L.own
+    ? [`You need: your lamp. Its ${FITTINGS[L.fitting].name.replace(' socket', '')} socket must have an outer thread and a shade ring (most table and floor lamps with a shade do).`,
+       'Unplug the lamp. Take out the bulb, unscrew the shade ring and lift off the old shade.',
+       'Slip the new shade’s bottom opening over the socket and screw the shade ring back on.',
+       'Screw in an LED bulb.']
+    : L.layout === 'bell'
+    ? [`You need: an ${FITTINGS[L.fitting].name.replace(' socket', '')} lamp socket with an outer thread and shade ring, an M10×1 hollow threaded nipple (15–20 mm) with a nut, and a cord with plug and switch.`,
+       `Print the base upside down (the G-code does this). Its top plate has a Ø${PLATE_HOLE} mm hole.`,
+       'Push the nipple through the hole, tighten the nut from inside the base, and screw the socket onto the nipple with the cord running through it.',
+       'Slip the shade’s bottom opening over the socket and clamp it with the shade ring.',
+       'Lead the cord out under the base; file a small notch in the rim so the lamp stands flat.']
+    : [`You need: a pendant cord set with an ${FITTINGS[L.fitting].name.replace(' socket', '')} socket that has an outer thread and shade ring, and a ceiling rose.`,
+       'Pass the socket up through the shade’s top opening from inside.',
+       'Clamp the shade with the shade ring, screw in the bulb and hang it.'];
+  const ol = el('div', { className:'card' }); steps.forEach((t, i) => ol.append(el('div', { className:'chk' }, [el('span', { textContent:i ? String(i) + '.' : '•', style:'font:400 10.5px var(--mono);color:var(--muted);width:14px;flex:none;padding-top:2px' }), el('span', { textContent:t })]))); sa.append(ol);
+  sa.append(el('div', { className:'note', textContent:'Mains wiring should be done or checked by a qualified person.' }));
   const s3 = section('Engineering checks', 'Clearance, heat, glare and stability — updated live.');
   const card = el('div', { className:'card', id:'lampChecks' }); s3.append(card); fillChecks(card);
   const s4 = section('Drawing', 'Half section with dimensions and a title block.');
   const st = el('div', { className:'stack' });
   const bv = el('button', { textContent:state.view === 'drawing' ? 'Back to 3D' : 'Show drawing' }); bv.onclick = () => setView(state.view === 'drawing' ? 'path' : 'drawing');
-  const bd = el('button', { textContent:'Download drawing (SVG)' }); bd.onclick = () => saveFile('spiral-drawing.svg', new Blob([drawingSVG()], { type:'image/svg+xml' }));
+  const bd = el('button', { textContent:'Download drawing (SVG)' }); bd.onclick = () => saveFile('monoline-drawing.svg', new Blob([drawingSVG()], { type:'image/svg+xml' }));
   st.append(bv, bd); s4.append(st);
 }
 function fillChecks(card) { card.innerHTML = ''; lampChecks().forEach(c => card.append(el('div', { className:'chk' }, [el('span', { className:'dot ' + c.lvl }), el('span', { textContent:c.msg })]))); }
@@ -1700,9 +2351,10 @@ function renderPrint() {
   const s1 = section('Printer', 'Bambu Lab. G-code is made for the printer you choose here.');
   chips(s1, Object.entries(PRINTERS).map(([k, p]) => [k, p.name]), pr.printer, k => { pushUndo(); pr.printer = k; rr(); });
   const s2 = section('Nozzle', 'Bigger nozzle → thicker, faster, bolder layers. Match the nozzle that’s installed.');
-  chips(s2, NOZZLES.map(n => [n, n + ' mm']), pr.nozzle, n => { pushUndo(); pr.nozzle = n; pr.layerH = +(n * .5).toFixed(2); pr.speed = n === .4 ? 90 : n === .6 ? 70 : 50; pr.bottom = Math.max(2, Math.ceil(.9 / pr.layerH)); busy(() => { const ch = parts().map(adaptToNozzle).some(Boolean); rebuild(); rr(); if (ch) toast(`Patterns coarsened to suit the ${n} mm nozzle`); }); });
+  chips(s2, NOZZLES.map(n => [n, n + ' mm']), pr.nozzle, n => { pushUndo(); pr.nozzle = n; pr.layerH = +(n * .5).toFixed(2); pr.speed = n === .4 ? 60 : n === .6 ? 50 : 40; pr.bottom = Math.max(2, Math.ceil(.9 / pr.layerH)); busy(() => { if (state.mode === 'lamp') fitToFitting(); const ch = parts().map(adaptToNozzle).some(Boolean); rebuild(); rr(); if (ch) toast(`Patterns coarsened to suit the ${n} mm nozzle`); }); });
   slider(s2, 'Layer height', () => pr.layerH, v => pr.layerH = v, +(pr.nozzle * .25).toFixed(2), +(pr.nozzle * .75).toFixed(2), .01, v => v.toFixed(2) + ' mm', () => { updateBadge(); applyLook(); if (state.view === 'printed') parts().forEach(schedulePrinted); if (state.view === 'path') rebuildPaths(); });
   onCommit = () => renderPanel();
+  s2.append(el('div', { className:'note', textContent:'Set the speed of single layers with the bars along the bottom: tap or drag across them, type mm/s, Set.' }));
   slider(s2, 'Wall speed', () => pr.speed, v => pr.speed = v, 15, 200, 1, v => { const cap = FILAMENTS[pr.filament].flow / (lineW(pr.nozzle) * pr.layerH); return v > cap ? `${v} → ${Math.round(cap)} mm/s (flow limit)` : v + ' mm/s'; });
   const sv = section('View', 'Path draws the nozzle line on your design. Beads builds the printed layers at this height and width.');
   chips(sv, [['path', 'Path'], ['printed', 'Beads'], ['surface', 'Surface']], state.view, v => setView(v));
@@ -1711,11 +2363,13 @@ function renderPrint() {
   const s3 = section('Filament');
   chips(s3, Object.entries(FILAMENTS).map(([k, f]) => [k, f.name]), pr.filament, k => { pushUndo(); pr.filament = k; rr(); });
   const s4 = section('What to print');
+  if (parts().length > 1) chips(s4, parts().map(k => [k, PART_NAMES(k)]), printPart(), k => { pr.part = k; clearPath(); renderPanel(); });
   if (lamp) {
-    if (parts().length > 1) chips(s4, [['shade', 'Shade'], ['base', 'Base']], pr.part, k => { pr.part = k; clearPath(); renderPanel(); });
-    if (pr.part === 'shade') { s4.append(el('div', { className:'sub', textContent:'Shade orientation on the bed' })); chips(s4, [['rim', 'Rim down'], ['top', 'Top down']], pr.orient, k => { pushUndo(); pr.orient = k; clearPath(); renderPanel(); }); }
+    if (printPart() === 'shade') { s4.append(el('div', { className:'sub', textContent:'Shade orientation on the bed' })); chips(s4, [['auto', 'Auto · wider end down'], ['rim', 'Bottom down'], ['top', 'Top down']], pr.orient, k => { pushUndo(); pr.orient = k; clearPath(); renderPanel(); }); }
   }
   if (printPart() !== 'shade') slider(s4, 'Solid bottom layers', () => pr.bottom, v => pr.bottom = v, 0, 10, 1, v => `${v} · ${(v * pr.layerH).toFixed(1)} mm`);
+  s4.append(el('div', { className:'sub', textContent:'Brim · extra loops around the foot that hold a tall thin wall down', style:'margin:8px 0 2px' }));
+  chips(s4, [['auto', `Auto${pr.brim === 'auto' ? ' · ' + brimMM(printPart()) + ' mm' : ''}`], [0, 'Off'], [3, '3 mm'], [6, '6 mm'], [10, '10 mm']], pr.brim, v => { pushUndo(); pr.brim = v; clearPath(); renderPanel(); });
   toggle(s4, 'Auto bed leveling (footprint)', pr.abl, v => pr.abl = v);
 
   const k = printPart();
@@ -1723,43 +2377,40 @@ function renderPrint() {
   const card = el('div', { className:'card' });
   (lastChecks = checks(k)).forEach(c => card.append(el('div', { className:'chk' }, [el('span', { className:'dot ' + c.lvl }), el('span', { textContent:c.msg })])));
   sc.append(card);
-  if (lastChecks.some(c => c.lvl !== 'ok' && /overhang/i.test(c.msg))) {
-    const fix = el('button', { textContent:'Ease overhangs automatically', style:'margin-top:8px' });
-    fix.onclick = () => { pushUndo(); makePrintable(k); rebuild(k); renderPanel(); toast('Silhouette eased'); };
+  if (lastChecks.some(c => c.lvl !== 'ok' && /overhang|rests on the one below/i.test(c.msg))) {
+    const fix = el('button', { textContent:'Make it printable · ease the outline, soften the texture', style:'margin-top:8px' });
+    fix.onclick = () => busy(() => { pushUndo(); makePrintable(k); rebuild(k); renderPanel(); toast('Outline eased and texture fitted'); });
     sc.append(fix);
   }
-  if (lastChecks.some(c => c.lvl !== 'ok' && /Texture moves/.test(c.msg))) {
-    const fx = el('button', { textContent:'Fit texture depth to this nozzle', style:'margin-top:8px;margin-left:6px' });
-    fx.onclick = () => busy(() => { pushUndo(); fitTexture(k); rebuild(k); renderPanel(); toast('Texture depth fitted'); });
-    sc.append(fx);
+  if (lastChecks.some(c => c.lvl === 'bad' && /saucer/.test(c.msg))) {
+    const fs = el('button', { textContent:'Match saucer to pot', style:'margin-top:8px' });
+    fs.onclick = () => { pushUndo(); state.planter.auto = true; rebuild(); renderPanel(); toast('Saucer matched to the pot'); };
+    sc.append(fs);
   }
+
   // quick estimate without building the full path
-  const H = state[k].h * MM, w = lineW(pr.nozzle);
-  let per = 0; for (let j = 0; j < 30; j++) per += TAU * sampleProf(state[k].prof, (j + .5) / 30) * MM; per /= 30;
-  const layers = Math.floor(H / pr.layerH), speed = Math.min(pr.speed, FILAMENTS[pr.filament].flow / (w * pr.layerH));
-  const mins = Math.round((layers * per / speed + 240) / 60 * 1.12);
-  const grams = layers * per * w * pr.layerH * 1.24e-3;
+  const est = estimatePart(k), mins = Math.round(est.sec / 60), grams = est.g, layers = est.laps, w = lineW(pr.nozzle);
   const stats = el('div', { className:'stats card' });
-  [['Layers', layers], ['Line width', w + ' mm'], ['Est. time', mins >= 60 ? `${Math.floor(mins / 60)} h ${mins % 60} min` : mins + ' min'], ['Filament', `≈ ${Math.round(grams)} g`]]
+  [[isZW(state[k]) ? 'Laps' : 'Layers', layers], ['Line width', w + ' mm'], ['Est. time', mins >= 60 ? `${Math.floor(mins / 60)} h ${mins % 60} min` : mins + ' min'], ['Filament', `≈ ${Math.round(grams)} g`]]
     .forEach(([a, b]) => stats.append(el('div', {}, [a, el('b', { textContent:b })])));
   sc.append(stats);
 
   const se = section('Export');
   const st = el('div', { className:'stack' });
-  const bp = el('button', { textContent:pathLine ? 'Hide toolpath' : 'Preview toolpath (the one line)' });
-  bp.onclick = () => busy(() => { if (pathLine) { clearPath(); requestRender(); } else { const tp = showPath(); toast(`${tp.revs} spiral laps, ${tp.X.filter((_, i) => tp.K[i]).length} travel moves`); } renderPanel(); });
-  const pn = { shade:'shade', base:'base', vessel:'vessel' };
+  const bp = el('button', { textContent:'▶ Play the print · watch the one line being laid' });
+  bp.onclick = () => { simPlay(true); openPanel(false); };
+  const pn = { shade:'shade', base:'base', vessel:state.planter.on ? 'pot' : 'vessel', saucer:'saucer' };
   st.append(bp);
   for (const kk of parts()) {
     const bg = el('button', { className:kk === k ? 'primary' : '', textContent:`G-code · ${pn[kk]} (${PRINTERS[pr.printer].name}, ${pr.nozzle} mm)` });
     bg.onclick = () => busy(async () => {
       if (checks(kk).some(c => c.lvl === 'bad')) toast('Heads up: ' + pn[kk] + ' has red printability issues');
-      await saveFile(`${kk}-${pr.printer}-${pr.nozzle}mm.gcode`, new Blob([gcode(kk).text], { type:'text/plain' }), true);
+      await saveFile(`${pn[kk]}-${pr.printer}-${pr.nozzle}mm.gcode`, new Blob([gcode(kk).text], { type:'text/plain' }), true);
     });
     const bs = el('button', { textContent:`STL · ${pn[kk]}` }); bs.onclick = () => busy(() => exportSTL(kk));
     st.append(bg, bs);
   }
-  if (lamp) { const ba = el('button', { textContent:'Everything · shade + base G-code & STL (.zip)' }); ba.onclick = () => busy(exportAll); st.append(ba); }
+  if (parts().length > 1) { const ba = el('button', { textContent:`Everything · ${parts().map(k => pn[k]).join(' + ')} G-code & STL (.zip)` }); ba.onclick = () => busy(exportAll); st.append(ba); }
   se.append(st);
   se.append(el('div', { className:'note', innerHTML:
     `<b>Printing the G-code:</b> copy the file to the printer's microSD card (or send it over LAN/FTP), load ${FILAMENTS[pr.filament].name} and check a <b>${pr.nozzle} mm</b> nozzle is fitted, then start it from the printer screen. It uses a simplified start sequence, so open it in a G-code viewer first.<br><br>` +
@@ -1787,8 +2438,8 @@ $('#imgIn').onchange = async e => {
 };
 $('#fileIn').onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
-  try { const d = JSON.parse(await f.text()); if (!d.shade?.prof && !d.vessel?.prof) throw 0; pushUndo(); loadState(d); rebuild(); applyLook(); frameCamera(); renderAll(); toast('Design loaded'); }
-  catch (err) { toast('That file isn’t a Spiral design'); }
+  try { const d = JSON.parse(await f.text()); if (!d.shade?.prof && !d.vessel?.prof) throw 0; pushUndo(); loadState(d); for (const k of parts()) if (state[k].tr.on && !state[k].mask) applyTransition(k); ui.started = true; showStart(false); markOrigin(); rebuild(); applyLook(); frameCamera(); renderAll(); toast('Design loaded'); }
+  catch (err) { toast('That file isn’t a Monoline design'); }
   e.target.value = '';
 };
 
@@ -1796,7 +2447,7 @@ $('#fileIn').onchange = async e => {
 function stlFromGeometry(geom, scale = MM) {
   const pos = geom.attributes.position.array, idx = geom.index.array, tris = idx.length / 3;
   const buf = new ArrayBuffer(84 + tris * 50), dv = new DataView(buf);
-  new Uint8Array(buf).set(new TextEncoder().encode('Spiral export'), 0); dv.setUint32(80, tris, true);
+  new Uint8Array(buf).set(new TextEncoder().encode('Monoline export'), 0); dv.setUint32(80, tris, true);
   const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), n = new THREE.Vector3(), t = new THREE.Vector3();
   let o = 84;
   for (let i = 0; i < tris; i++) {
@@ -1825,7 +2476,7 @@ function zip(files) {
   return new Blob([...out, ...central, new Uint8Array(e.buffer)], { type:'application/zip' });
 }
 function stlOf(k) { const g = buildPart(k, null, true); const d = stlFromGeometry(g); g.dispose(); return d; }
-const readme = () => new TextEncoder().encode(`Spiral export\n\nUnits: millimetres. Each STL is a closed solid.\nBambu Studio: import, enable "Spiral vase" (Others > Special mode), choose the ${state.print.nozzle} mm nozzle, slice, print.\nShade: set bottom shell layers to 0 (it is open at both ends).\nG-code files are made for ${PRINTERS[state.print.printer].name}, ${state.print.nozzle} mm nozzle, ${FILAMENTS[state.print.filament].name}. Copy to the printer's microSD card and start from the printer screen.\n`);
+const readme = () => new TextEncoder().encode(`Monoline export\n\nUnits: millimetres. Each STL is a closed solid.\nBambu Studio: import, enable "Spiral vase" (Others > Special mode), choose the ${state.print.nozzle} mm nozzle, slice, print.\nShade: set bottom shell layers to 0 (it is open at both ends).\nBase: print it upside down so the solid plate is at the top of the lamp, and drill a 10.5 mm hole in its centre for the socket's M10 nipple (the G-code already leaves this hole).\nPlanter: the G-code leaves the drainage hole open; in an STL print, drill it afterwards.\nG-code files are made for ${PRINTERS[state.print.printer].name}, ${state.print.nozzle} mm nozzle, ${FILAMENTS[state.print.filament].name}. Copy to the printer's microSD card and start from the printer screen.\n`);
 async function exportSTL(k) {
   flushMasks();
   await saveFile(`${k}.stl`, new Blob([stlOf(k)], { type:'model/stl' }), true);
@@ -1837,7 +2488,7 @@ async function exportAll() {
     files.push({ name:`${k}.stl`, data:stlOf(k) });
   }
   files.push({ name:'design.json', data:enc.encode(JSON.stringify(state)) }, { name:'README.txt', data:readme() });
-  await saveFile('spiral-export.zip', zip(files));
+  await saveFile('monoline-export.zip', zip(files));
 }
 // Inside Claude the page can only offer certain file types, so G-code is wrapped in a .zip there.
 async function saveFile(name, blob, wrapIfNeeded = false) {
@@ -1857,16 +2508,20 @@ async function saveFile(name, blob, wrapIfNeeded = false) {
 }
 
 /* ═════════════════════ go ═════════════════════ */
-for (const k of ['shade', 'base', 'vessel']) if (state[k].tr.on && !state[k].mask) applyTransition(k);   // presets carry their transition as settings
+normalizeLamp();
+for (const k of PARTS) if (state[k].tr.on && !state[k].mask) applyTransition(k);   // presets carry their transition as settings
+ui.cat = 'all'; ui.started = hadSaved;
+try { origin = localStorage.getItem('monoline.origin'); } catch (e) {}
+if (!origin) { flushMasks(); origin = JSON.stringify(state); }
 $('#status').onclick = () => { ui.tab = TABS_FOR().includes(statusTab) ? statusTab : 'print'; ui.fold = { ...ui.fold }; renderTabs(); renderPanel(); openPanel(true); const c = [...document.querySelectorAll('#body .sec h3')].find(h => /Printability|Engineering/.test(h.textContent)); c?.scrollIntoView({ block:'start' }); };
 $('#fitBtn').onclick = () => frameCamera();
 const help = $('#help'), showHelp = v => help.classList.toggle('show', v);
 $('#helpBtn').onclick = () => showHelp(true);
-$('#helpClose').onclick = () => { showHelp(false); try { localStorage.setItem('spiral.help', '1'); } catch (e) {} };
+$('#helpClose').onclick = () => { showHelp(false); try { localStorage.setItem('monoline.help', '1'); } catch (e) {} };
 help.addEventListener('click', e => { if (e.target === help) $('#helpClose').onclick(); });
-try { if (!localStorage.getItem('spiral.help')) showHelp(true); } catch (e) {}
 renderAll(); setTool('grab'); syncUndo(); document.body.classList.toggle('drawing', state.view === 'drawing'); if (state.view === 'drawing') setTimeout(renderDrawing, 50);
-rebuild(); applyLook(); resize(); frameCamera();
+rebuild(); applyLook(); resize(); frameCamera(); dockPlayBtn(); dockInfo(); drawBars();
+if (/^#d=/.test(location.hash)) openShared(); else if (!hadSaved) showStart(true);
 </script>
 </body>
 </html>
