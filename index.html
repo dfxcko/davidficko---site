@@ -285,13 +285,13 @@ footer{display:flex;justify-content:space-between;padding-top:80px}
           <a class="open" id="popen" href="#"><span data-t="open">Open project</span> →</a>
         </div>
       </div>
-      <aside class="sp-pop" id="spPop" aria-label="Spiral">
-        <a class="cover" href="/spiral/" aria-label="Open Spiral"></a>
+      <aside class="sp-pop" id="spPop" aria-label="Monoline">
+        <a class="cover" href="/monoline/" aria-label="Open Monoline"></a>
         <canvas id="spPopCanvas"></canvas>
         <div>
           <div class="k mono"><span class="muted"><span class="dot"></span><span data-t="popNew">New tool</span></span><button class="x" id="spPopX" aria-label="Close">×</button></div>
-          <b>Spiral</b>
-          <p data-t="popLine">Design a lamp and print it as one continuous line.</p>
+          <b>Monoline</b>
+          <p data-t="popLine">Design lamps, vases and planters that print as one continuous line.</p>
           <span class="go mono"><span data-t="popOpen">Try it</span> →</span>
         </div>
       </aside>
@@ -361,8 +361,8 @@ const N = PROJECTS.length;
 
 /* ---------- language ---------- */
 const T={
-  en:{cookies:'Cookies',hint:'Scroll or drag',swipe:'Swipe',sending:'Sending…',failed:'Could not send. Please write to hello@davidficko.com',work:'Work',contact:'Contact',all:'All',name:'Name',email:'Email',message:'Message',send:'Send',thanks:'Thank you.',open:'Open project',index:'Index',popNew:'New tool',popLine:'Design a lamp and print it as one continuous line.',popOpen:'Try it',title:'David Ficko — Architecture'},
-  sl:{cookies:'Piškotki',hint:'Drsaj ali povleci',swipe:'Povleci',sending:'Pošiljam…',failed:'Pošiljanje ni uspelo. Piši na hello@davidficko.com',work:'Dela',contact:'Kontakt',all:'Vse',name:'Ime',email:'E-pošta',message:'Sporočilo',send:'Pošlji',thanks:'Hvala.',open:'Odpri projekt',index:'Kazalo',popNew:'Novo orodje',popLine:'Oblikuj svetilko in jo natisni iz ene same linije.',popOpen:'Preizkusi',title:'David Ficko — Arhitektura'}
+  en:{cookies:'Cookies',hint:'Scroll or drag',swipe:'Swipe',sending:'Sending…',failed:'Could not send. Please write to hello@davidficko.com',work:'Work',contact:'Contact',all:'All',name:'Name',email:'Email',message:'Message',send:'Send',thanks:'Thank you.',open:'Open project',index:'Index',popNew:'New tool',popLine:'Design lamps, vases and planters that print as one continuous line.',popOpen:'Try it',title:'David Ficko — Architecture'},
+  sl:{cookies:'Piškotki',hint:'Drsaj ali povleci',swipe:'Povleci',sending:'Pošiljam…',failed:'Pošiljanje ni uspelo. Piši na hello@davidficko.com',work:'Dela',contact:'Kontakt',all:'Vse',name:'Ime',email:'E-pošta',message:'Sporočilo',send:'Pošlji',thanks:'Hvala.',open:'Odpri projekt',index:'Kazalo',popNew:'Novo orodje',popLine:'Oblikuj svetilke, vaze in lončke, natisnjene iz ene same linije.',popOpen:'Preizkusi',title:'David Ficko — Arhitektura'}
 };
 let LANG=(()=>{ if(location.hash==='#sl') return 'sl'; if(location.hash==='#en') return 'en';
   try{ const s=localStorage.getItem('df-lang'); if(s==='sl'||s==='en') return s; }catch(e){}
@@ -756,12 +756,12 @@ else { const t0=performance.now(), D=1500; (function c(t){ const p=clamp((t-t0)/
   // pop-up on the ring: slides in after the intro, closable for this visit
   const pop = document.getElementById('spPop');
   if (pop) {
-    let closed = false; try { closed = sessionStorage.getItem('df-spiral-pop') === '0'; } catch (e) {}
+    let closed = false; try { closed = sessionStorage.getItem('df-monoline-pop') === '0'; } catch (e) {}
     if (!closed) {
       const anim = spiral(document.getElementById('spPopCanvas'), { seg:72, stride:6, lw:.55, dot:1.8, start:0 });
       // appears once you scroll the wheel and the name moves away; tucks away again if you go back to the intro
       document.addEventListener('df:intro', e => { if (pop.dataset.x) return; const show = !e.detail; pop.classList.toggle('in', show); if (show) { anim.refresh(); anim.start(); } else anim.stop(); });
-      document.getElementById('spPopX').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); pop.classList.remove('in'); pop.dataset.x = '1'; anim.stop(); try { sessionStorage.setItem('df-spiral-pop', '0'); } catch (err) {} });
+      document.getElementById('spPopX').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); pop.classList.remove('in'); pop.dataset.x = '1'; anim.stop(); try { sessionStorage.setItem('df-monoline-pop', '0'); } catch (err) {} });
       ['pointerdown', 'touchstart', 'mousedown', 'wheel'].forEach(ev => pop.addEventListener(ev, e => e.stopPropagation(), { passive:true }));  // don't drag the ring when using the card
     } else pop.remove();
   }

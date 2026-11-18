@@ -1,3 +1,6 @@
-/shade /spiral/ 301
-/shade/ /spiral/ 301
-/shade/* /spiral/ 301
+/spiral /monoline/ 301
+/spiral/ /monoline/ 301
+/spiral/* /monoline/ 301
+/shade /monoline/ 301
+/shade/ /monoline/ 301
+/shade/* /monoline/ 301
